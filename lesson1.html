@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 1 / Lesson 1 - Intro to Motor Learning & Performance
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 · Lesson 1 — Introduction to Motor Learning &amp; Performance</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 1 &nbsp;&rsaquo;&nbsp; <b>Lesson 1: Intro to Motor Learning &amp; Performance</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">12</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background-image:url(images/climbing-hero.jpg)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 1 &middot; Lesson 1</div>
+        <h1>Introduction to Motor Learning and Performance</h1>
+        <p>The human capacity to control and learn motor skills &mdash; and how you&rsquo;ll use it in the clinic, the gym, and everyday life.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~25 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 1</span>
+          <span><span class="dot"></span> Prepares Lesson 2</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 STATEMENT -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="statement">
+        <div class="eyebrow">What this course is about</div>
+        <p>This course is about the human capacity to control and learn motor skills &mdash; and how you can help other people learn them.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this module, you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define <strong>motor skills, actions, movements,</strong> and <strong>neuromotor processes</strong> &mdash; and explain how they differ.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Distinguish <strong>motor learning, motor control,</strong> and <strong>motor development</strong>, with examples from rehab, sport, and daily living.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Identify the characteristics of a skillful performer: <strong>consistency, adaptability, efficiency.</strong></span></li>
+          <li><span class="obj-num">4</span><span class="txt">Recognize the <strong>problem-solving</strong> nature of skill learning (Bernstein&rsquo;s perspective).</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 SKILLS vs MOVEMENTS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Foundational terms</div>
+        <h2>Skills, movements, and the machinery underneath</h2>
+        <p class="lead">Three words that get used interchangeably in ordinary speech &mdash; and shouldn&rsquo;t be here.</p>
+        <h3>Skills / actions</h3>
+        <p>Have a <strong>goal</strong>. Performed <strong>voluntarily</strong>. Require control of joints and body segments to meet that goal. And crucially &mdash; they must be <strong>learned, or relearned</strong>.</p>
+        <h3>Movements</h3>
+        <p>The specific patterns of motion among joints and body segments. The <em>how</em>, not the <em>why</em>.</p>
+        <h3>Neuromotor processes</h3>
+        <p>The mechanisms in the nervous and muscular systems that underlie the control of movements and actions.</p>
+        <div class="callout why">
+          <span class="clabel">Why the distinction earns its keep</span>
+          <p>A patient can produce the <em>movements</em> and still fail the <em>skill</em> &mdash; the goal isn&rsquo;t met. Naming which level has broken down is the difference between treating a symptom and treating the problem.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 THREE LENSES (tabs) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Core distinction</div>
+        <h2>Learning, control, development</h2>
+        <p>Three lenses on movement, pointing at different questions. Select each to see what it studies.</p>
+        <div class="tabs">
+          <div class="tab-heads" role="tablist" aria-label="Three lenses">
+            <button class="tab-head" role="tab" aria-selected="true" aria-controls="t1" id="tb1" onclick="tab(this,'t1')">Motor Learning</button>
+            <button class="tab-head" role="tab" aria-selected="false" aria-controls="t2" id="tb2" onclick="tab(this,'t2')">Motor Control</button>
+            <button class="tab-head" role="tab" aria-selected="false" aria-controls="t3" id="tb3" onclick="tab(this,'t3')">Motor Development</button>
+          </div>
+          <div class="tab-panel" id="t1" role="tabpanel" aria-labelledby="tb1">
+            <h3>Acquiring and reacquiring skill</h3>
+            <p>Studies the <strong>acquisition</strong> of new skills, the <strong>enhancement</strong> of well-practiced ones, and the <strong>reacquisition</strong> of skills after injury or disease. Its concern is the relatively permanent change practice produces.</p>
+            <div class="callout"><span class="clabel">Example</span><p>A stroke survivor relearning to walk. You don&rsquo;t just care about today&rsquo;s performance &mdash; you care whether the gains survive to next week.</p></div>
+          </div>
+          <div class="tab-panel" id="t2" role="tabpanel" aria-labelledby="tb2" hidden>
+            <h3>Coordinating the system in the moment</h3>
+            <p>Asks how the <strong>neuromuscular system activates and coordinates</strong> muscles and joints to produce a skill &mdash; while learning something new <em>and</em> while performing something mastered.</p>
+            <div class="callout"><span class="clabel">Example</span><p>How the knee&rsquo;s proprioceptors feed the nervous system to keep a person upright &mdash; and what changes after a total knee replacement.</p></div>
+          </div>
+          <div class="tab-panel" id="t3" role="tabpanel" aria-labelledby="tb3" hidden>
+            <h3>Change across the lifespan</h3>
+            <p>Studies motor behavior and its underlying processes <strong>from infancy through old age</strong> &mdash; how capabilities emerge, mature, and decline over years.</p>
+            <div class="callout"><span class="clabel">Example</span><p>Why a toddler&rsquo;s first steps look nothing like an adult&rsquo;s gait, and how balance strategies shift again in later life.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 KC (gated) -->
+  <section class="screen" data-screen data-gate="kc1">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q">A coach films a sprinter every week for a season to see whether her starting technique has permanently improved. Which lens is this?</p>
+        <div id="kc1opts">
+          <button class="kc-opt" data-c="1">Motor learning<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Motor control<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Motor development<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kc1fb" role="status" hidden></div>
+        <p class="gate-note" id="kc1note">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 WHY HEALTH SCIENCE (accordion) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why this matters in health science</div>
+        <h2>Questions this course will let you answer</h2>
+        <p>Each is a real problem you may face as a clinician, coach, or trainer. Expand any that interest you &mdash; optional, but they preview where we&rsquo;re headed.</p>
+        <div class="accordion">
+          <div class="acc-item">
+            <button class="acc-head" aria-expanded="false" aria-controls="a1" onclick="acc(this,'a1')"><span class="acc-icon">+</span> The stroke patient relearning to walk <span class="acc-tag">Optional</span></button>
+            <div class="acc-body" id="a1" hidden><p>What challenges does a patient face reacquiring a skill the nervous system once performed automatically &mdash; and how should you structure rehab so the relearning transfers to their home and street?</p></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-head" aria-expanded="false" aria-controls="a2" onclick="acc(this,'a2')"><span class="acc-icon">+</span> Learning a dental procedure with a mirror <span class="acc-tag">Optional</span></button>
+            <div class="acc-body" id="a2" hidden><p>Working through a mirror reverses your visual feedback. How would you organize practice so a novice builds accurate control instead of grooving in errors?</p></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-head" aria-expanded="false" aria-controls="a3" onclick="acc(this,'a3')"><span class="acc-icon">+</span> How much feedback does a learner need? <span class="acc-tag">Optional</span></button>
+            <div class="acc-body" id="a3" hidden><p>What kind and amount of feedback helps someone learn &mdash; and does the answer change for a novice versus an expert? We return to this at augmented feedback.</p></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-head" aria-expanded="false" aria-controls="a4" onclick="acc(this,'a4')"><span class="acc-icon">+</span> Proprioception after a knee replacement <span class="acc-tag">Optional</span></button>
+            <div class="acc-body" id="a4" hidden><p>How would you expect a total knee replacement to affect the joint&rsquo;s position sense &mdash; and what does that mean for the patient&rsquo;s movement and balance?</p></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-head" aria-expanded="false" aria-controls="a5" onclick="acc(this,'a5')"><span class="acc-icon">+</span> Is coordination born or made? <span class="acc-tag">Optional</span></button>
+            <div class="acc-body" id="a5" hidden><p>Can anyone learn any skill, or are some people simply more &ldquo;coordinated&rdquo;? Hold onto your intuition &mdash; the course will complicate it.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 DRUMMING -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card flush">
+        <div class="split">
+          <div class="txt-side">
+            <div class="eyebrow">Worked example</div>
+            <h2>Learning to drum</h2>
+            <p>Say you decide to learn drumming. Where do you even start? You familiarize yourself with the kit. You learn to hold the sticks. Then &mdash; practice, practice, practice.</p>
+            <p>That obvious-sounding sequence hides every question this course studies: what to attend to, how to structure practice, and how feedback shapes what sticks.</p>
+          </div>
+          <div class="img-side" style="background-image:url(images/drum-kit.jpg)" role="img" aria-label="A drum kit photographed from above"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 SKILLFUL PERFORMER -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="statement gold">
+        <div class="eyebrow">A skillful performer is&hellip;</div>
+        <p>consistent under pressure &middot; adaptable to changing conditions &middot; efficient with effort and attention</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 SCENARIO: CHALLENGE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="sc-stage">Challenge</div>
+        <h2>A patient wants to garden again</h2>
+        <p class="lead">You&rsquo;re a physical therapist. A patient recovering from a stroke wants to return to <strong>gardening</strong> &mdash; walking a watering can across an <strong>uneven path</strong> and pouring while moving.</p>
+        <p>Before you design a single practice session, you have to read the demands of the task. On the next screen you&rsquo;ll make the first call.</p>
+        <div class="callout">
+          <span class="clabel">Keep in mind</span>
+          <p>You don&rsquo;t have the vocabulary yet to do this formally &mdash; that&rsquo;s Lesson 2. Right now, reason from what you&rsquo;d notice as a clinician.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 SCENARIO: CHOICE + CONSEQUENCE (gated) -->
+  <section class="screen" data-screen data-gate="sc1">
+    <div class="inner">
+      <div class="card">
+        <div class="sc-stage">Choice</div>
+        <h2>How would you read the garden path?</h2>
+        <p>Is the surface your patient must cross <em>stable and predictable</em>, or <em>changing and unpredictable</em>? Your answer will drive the practice plan.</p>
+        <div id="sc1opts">
+          <button class="choice-btn" data-v="closed">It&rsquo;s essentially stable &mdash; a predictable surface</button>
+          <button class="choice-btn" data-v="open">It varies underfoot &mdash; an unpredictable surface</button>
+        </div>
+        <div class="conseq" id="sc1fb" role="status" hidden></div>
+        <p class="gate-note" id="sc1note">Make a choice to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SCENARIO: PAYOFF -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="sc-stage">Consequence</div>
+        <h2>The classification wrote the rehab plan</h2>
+        <p>Notice what just happened. You never used a technical term &mdash; but the moment you judged the <strong>environment</strong>, you constrained everything downstream: whether practice repeats one fixed pattern or deliberately varies; whether the patient rehearses on smooth clinic floor or textured ground; whether success in the clinic will survive contact with a real garden.</p>
+        <div class="callout why">
+          <span class="clabel">This is the whole course in miniature</span>
+          <p>Reading a task&rsquo;s demands isn&rsquo;t an academic exercise that precedes the real work &mdash; it <em>is</em> the real work. Lesson 2 gives you the formal tools to do it precisely, and the taxonomy that names what you just intuited.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 BERNSTEIN -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="portrait-row">
+          <img src="images/bernstein.jpg" alt="Portrait of Nikolai Bernstein" style="border-radius:8px">
+          <div>
+            <div class="eyebrow">A guiding idea</div>
+            <h2>Learning as problem-solving</h2>
+            <p>Nikolai Bernstein (1896&ndash;1966) argued that learners should treat skill acquisition as <strong>problem-solving</strong>. The motor system is <em>redundant</em> &mdash; many ways to reach the same goal, a &ldquo;many-to-one&rdquo; mapping &mdash; so learning means actively <em>searching</em> for a solution, not copying one.</p>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:22px">
+          <span class="clabel">Reflect before you continue</span>
+          <p>Think of a skill you know where there&rsquo;s clearly <strong>more than one way</strong> to succeed. What has to be discovered by the learner that a coach cannot simply hand over? This is why the course is built around active practice rather than passive watching.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Separate <strong>skills</strong> (goal-directed, learned) from <strong>movements</strong> (patterns of motion) and the <strong>neuromotor processes</strong> beneath both.</span></li>
+          <li><span class="n">2</span><span class="t">Tell <strong>learning, control,</strong> and <strong>development</strong> apart by the question each one asks.</span></li>
+          <li><span class="n">3</span><span class="t">Name what makes a performer skillful: consistency, adaptability, efficiency.</span></li>
+          <li><span class="n">4</span><span class="t">Explain why skill learning is <strong>problem-solving</strong>, not imitation.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next: Lesson 2</span>
+          <p>You&rsquo;ll get the formal tools for what you intuited in the garden scenario &mdash; four classification systems, ending in Gentile&rsquo;s taxonomy.</p>
+        </div>
+        <p style="margin-top:20px;font-size:15px;color:var(--muted)">When you&rsquo;re done here, return to Canvas and complete the <strong>Lesson 1 quiz</strong> to mark this module item complete.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent= last ? "Finish" : "Next \u2192";
+    nx.disabled= !last && locked(cur);
+    document.getElementById("lockmsg").hidden = !(!last && locked(cur));
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  }
+  document.getElementById("btnNext").onclick=function(){ go(1); };
+  document.getElementById("btnBack").onclick=function(){ go(-1); };
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  window.tab=function(btn,id){
+    var wrap=btn.closest(".tabs");
+    wrap.querySelectorAll(".tab-head").forEach(function(b){b.setAttribute("aria-selected","false")});
+    wrap.querySelectorAll(".tab-panel").forEach(function(p){p.hidden=true});
+    btn.setAttribute("aria-selected","true");
+    document.getElementById(id).hidden=false;
+  };
+  window.acc=function(btn,id){
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded",open?"false":"true");
+    document.getElementById(id).hidden=open;
+  };
+
+  // knowledge check
+  var KFB={ok:"<strong>Correct.</strong> A <em>relatively permanent</em> change tracked across a season is learning \u2014 not the moment-to-moment control of a single start.",
+           no:"<strong>Not quite.</strong> Tracking a <em>permanent</em> change across a season is the signature of <strong>motor learning</strong>. Control would be how she coordinates one start; development would be change across the lifespan."};
+  var w=document.getElementById("kc1opts");
+  w.querySelectorAll(".kc-opt").forEach(function(opt){
+    opt.onclick=function(){
+      w.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+      var ok=opt.dataset.c==="1";
+      if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+      else{
+        opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+        w.querySelectorAll(".kc-opt").forEach(function(o){
+          if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+      }
+      var fb=document.getElementById("kc1fb");
+      fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=KFB[ok?"ok":"no"]; fb.hidden=false;
+      answered.kc1=true;
+      document.getElementById("kc1note").textContent="You can continue.";
+      document.getElementById("btnNext").disabled=false;
+      document.getElementById("lockmsg").hidden=true;
+    };
+  });
+
+  // scenario choice
+  var SFB={
+    open:{cls:"conseq good",html:"<h4>Good read.</h4>An uneven, changing path is unpredictable. That already tells you practice must include <strong>variability</strong> \u2014 not the same three steps every time. In Lesson 2 you'll learn the term for this: an <em>open</em> skill."},
+    closed:{cls:"conseq mixed",html:"<h4>Worth reconsidering.</h4>If you treat a shifting garden path as stable and drill one fixed pattern, your patient may succeed in the clinic and then stumble on real ground. Notice how the judgment is already steering the plan \u2014 before you've named anything."}
+  };
+  var sw=document.getElementById("sc1opts");
+  sw.querySelectorAll(".choice-btn").forEach(function(btn){
+    btn.onclick=function(){
+      sw.querySelectorAll(".choice-btn").forEach(function(b){b.disabled=true});
+      btn.classList.add("chosen");
+      var v=SFB[btn.dataset.v];
+      var fb=document.getElementById("sc1fb");
+      fb.className=v.cls; fb.innerHTML=v.html; fb.hidden=false;
+      answered.sc1=true;
+      document.getElementById("sc1note").textContent="You can continue.";
+      document.getElementById("btnNext").disabled=false;
+      document.getElementById("lockmsg").hidden=true;
+    };
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>

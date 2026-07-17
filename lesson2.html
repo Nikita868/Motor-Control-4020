@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 1 / Lesson 2 - Classifying Motor Skills
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 · Lesson 2 — Classifying Motor Skills</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  /* ---------- top bar ---------- */
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  /* ---------- stage ---------- */
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:0 auto;width:100%;padding:38px 30px 30px}
+  .inner.wide{max-width:940px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:20px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* ---------- title screen ---------- */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 35%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.55),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:640px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* ---------- continuum ---------- */
+  .cont-bar{position:relative;height:10px;border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),#9ec9cf 50%,var(--gold));margin:40px 6px 10px}
+  .cont-bar .end{position:absolute;top:-30px;font-size:13.5px;font-weight:800;color:var(--ink)}
+  .cont-bar .end.l{left:0}.cont-bar .end.r{right:0}
+  .cont-bar .tick{position:absolute;top:-6px;width:13px;height:22px;border-radius:4px;background:#fff;border:2px solid var(--accent-dark);transform:translateX(-50%)}
+  .cont-labels{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:0 6px}
+  .cont-mid{text-align:center;font-size:12.5px;color:var(--muted);margin-top:5px;font-style:italic}
+
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+  @media(max-width:640px){.cards3{grid-template-columns:1fr}}
+  .mini{border:1px solid var(--line);border-radius:8px;padding:18px;background:#fafbfc}
+  .mini .tag{font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .mini h4{font-size:15.5px;margin-bottom:6px}
+  .mini p{font-size:13.5px;margin:0;color:#556}
+  .mini .ex{font-size:12.5px;color:var(--muted);margin-top:8px;font-style:italic}
+
+  /* ---------- reveal buttons (accessible) ---------- */
+  .reveal-row{display:grid;gap:12px;margin-top:18px}
+  .reveal-row.c2{grid-template-columns:1fr 1fr}
+  .reveal-row.c3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:640px){.reveal-row.c2,.reveal-row.c3{grid-template-columns:1fr}}
+  .reveal{border:2px solid var(--line);border-radius:8px;padding:20px;cursor:pointer;background:#fff;
+    transition:.18s;text-align:left;font-family:inherit;width:100%;display:block}
+  .reveal:hover{border-color:var(--accent);background:#fafdfe}
+  .reveal h4{font-size:16.5px;color:var(--accent-dark);margin-bottom:5px}
+  .reveal .hint{font-size:13px;color:var(--muted)}
+  .reveal .ans{font-size:14.5px;color:#3d4d5c;margin-top:4px}
+  .reveal[aria-expanded="false"] .ans{display:none}
+  .reveal[aria-expanded="true"] .hint{display:none}
+  .reveal[aria-expanded="true"]{border-color:var(--accent);background:var(--accent-soft)}
+
+  /* ---------- knowledge check ---------- */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px;display:none}
+  .kc-fb.show{display:block}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* ---------- dimension blocks ---------- */
+  .dim{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:16px}
+  .dim-head{background:var(--accent);color:#fff;padding:13px 18px;font-weight:750;font-size:15.5px;display:flex;gap:10px;align-items:center}
+  .dim-head .n{background:rgba(255,255,255,.22);width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;flex:none}
+  .dim-body{padding:20px}
+  .dim-body p:last-child{margin-bottom:0}
+  .split2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  @media(max-width:560px){.split2{grid-template-columns:1fr}}
+  .opt-box{border:1px solid var(--line);border-radius:7px;padding:13px 15px;background:#fafbfc}
+  .opt-box b{display:block;color:var(--accent-dark);margin-bottom:4px;font-size:14px}
+  .opt-box span{font-size:13.5px;color:#667}
+
+  /* ---------- taxonomy ---------- */
+  .taxwrap{margin-top:18px;overflow-x:auto}
+  table.tax{border-collapse:collapse;width:100%;min-width:580px;font-size:13px}
+  table.tax th,table.tax td{border:1px solid #d5dde2;text-align:center;vertical-align:middle}
+  table.tax thead th{background:var(--accent-dark);color:#fff;padding:9px 7px;font-size:12px;line-height:1.3}
+  table.tax .rowhdr{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;padding:9px 7px;font-size:11.5px;line-height:1.3;width:145px;text-align:left}
+  table.tax td.cellwrap{padding:0}
+  .cellbtn{width:100%;height:54px;border:none;background:transparent;cursor:pointer;font-family:inherit;
+    font-weight:800;font-size:13px;color:var(--muted);transition:.15s}
+  .cellbtn:hover{filter:brightness(.94)}
+  .cellbtn[aria-pressed="true"]{background:var(--accent)!important;color:#fff}
+  .tax-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--muted)}
+  .tax-legend span{display:flex;align-items:center;gap:6px}
+  .swatch{width:13px;height:13px;border-radius:3px;display:inline-block}
+  .tax-detail{margin-top:16px;padding:18px 20px;border-radius:8px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:92px}
+  .tax-detail .cid{font-size:11.5px;font-weight:800;letter-spacing:1px;color:var(--accent-dark);text-transform:uppercase}
+  .tax-detail h4{font-size:16.5px;margin:5px 0 6px}
+  .tax-detail p{font-size:14.5px;margin:0;color:#3d4d5c}
+  .tax-detail .diff{margin-top:7px;font-size:12.5px;color:#b5822f;font-weight:700}
+
+  /* ---------- summary / end ---------- */
+  .sum-list{list-style:none;margin-top:8px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  /* ---------- nav bar ---------- */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);
+    padding:12px 22px;display:flex;align-items:center;gap:12px;z-index:60;flex:none;
+    box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;
+    box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+
+  .lockmsg{font-size:13px;color:var(--gold);font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 1 &nbsp;&rsaquo;&nbsp; <b>Lesson 2: Classifying Motor Skills</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">11</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage" id="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background-image:url(images/climbing-hero.jpg)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 1 &middot; Lesson 2</div>
+        <h1>Classifying Motor Skills</h1>
+        <p>Four ways to read the demands of a task &mdash; building up to Gentile&rsquo;s taxonomy, the tool you&rsquo;ll use in Lab 1.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~30 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 1</span>
+          <span><span class="dot"></span> Prepares Lab 1</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 WHY CLASSIFY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Start here</div>
+        <h2>Why classify a skill at all?</h2>
+        <p class="lead">Before you can teach or rehabilitate a movement, you need to know what it <em>demands</em> of the learner.</p>
+        <p>Classification tells you the cognitive load (attention, memory, decision-making) and the physical control a task requires &mdash; systematically, rather than by gut feel.</p>
+        <div class="callout why">
+          <span class="clabel">Why it matters clinically</span>
+          <p>The same classification that describes a skill also tells you how to <strong>progress practice</strong> and how to <strong>chart a patient&rsquo;s recovery</strong>. Classification isn&rsquo;t labeling for its own sake &mdash; it&rsquo;s the first step of program design.</p>
+        </div>
+        <p>You&rsquo;ll meet four systems. The first three are single sliders. The fourth &mdash; Gentile&rsquo;s taxonomy &mdash; combines them into a full map.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 GROSS vs FINE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">System 1 &middot; Musculature</div>
+        <h2>Gross vs. fine motor skills</h2>
+        <p>The simplest axis: <strong>how large are the muscles</strong> doing the work?</p>
+        <div class="cont-bar" role="img" aria-label="Continuum from gross skills using large musculature to fine skills using small musculature">
+          <span class="end l">GROSS</span><span class="end r">FINE</span>
+          <span class="tick" style="left:18%"></span><span class="tick" style="left:82%"></span>
+        </div>
+        <div class="cont-labels"><span>Large musculature</span><span>Small musculature</span></div>
+        <div class="cont-mid">Many real skills sit in the middle &mdash; pitching or rock climbing need both</div>
+        <div class="cards3">
+          <div class="mini"><div class="tag">Gross</div><h4>Large muscles</h4><p>Big musculature drives the goal.</p><div class="ex">Walking, jumping, squatting, swimming</div></div>
+          <div class="mini"><div class="tag">Fine</div><h4>Small muscles</h4><p>Precise control of small muscles.</p><div class="ex">Handwriting, buttoning a shirt, using scissors</div></div>
+          <div class="mini"><div class="tag">Both</div><h4>Combined</h4><p>Fine control supported by large muscle groups.</p><div class="ex">Pitching, archery, rock climbing</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 DISCRETE / SERIAL / CONTINUOUS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">System 2 &middot; Structure in time</div>
+        <h2>Discrete, serial, and continuous</h2>
+        <p>This axis is about <strong>where the action begins and ends</strong>. Select each to reveal how it&rsquo;s defined.</p>
+        <div class="reveal-row c3">
+          <button class="reveal" aria-expanded="false" onclick="tog(this)">
+            <h4>Discrete</h4><span class="hint">Select to reveal &rarr;</span>
+            <span class="ans">Clearly specified beginning and end; usually one simple movement.<br><em>Flipping a switch, kicking a ball, throwing a frisbee.</em></span>
+          </button>
+          <button class="reveal" aria-expanded="false" onclick="tog(this)">
+            <h4>Serial</h4><span class="hint">Select to reveal &rarr;</span>
+            <span class="ans">A connected <em>series of discrete</em> movements strung together.<br><em>Shifting gears, a sequence of piano keys.</em></span>
+          </button>
+          <button class="reveal" aria-expanded="false" onclick="tog(this)">
+            <h4>Continuous</h4><span class="hint">Select to reveal &rarr;</span>
+            <span class="ans">Arbitrary start and end; repetitive, runs until you stop.<br><em>Steering, cycling, walking, rowing.</em></span>
+          </button>
+        </div>
+        <div class="callout">
+          <span class="clabel">Watch the boundary</span>
+          <p>Serial skills are the tricky middle case &mdash; discrete movements <em>chained</em>, so they&rsquo;re often mislabeled continuous. The test: can you point to distinct sub-actions with their own endpoints? If yes, it&rsquo;s serial.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 KC 1 (gated) -->
+  <section class="screen" data-screen data-gate="kc1">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q">Shifting gears in a manual car &mdash; clutch in, move the stick, clutch out &mdash; is best classified as:</p>
+        <div id="kc1opts">
+          <button class="kc-opt" data-c="1">Serial<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Continuous<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Discrete<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kc1fb" role="status"></div>
+        <p class="gate-note" id="kc1note">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 OPEN vs CLOSED -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">System 3 &middot; The environment</div>
+        <h2>Open vs. closed skills</h2>
+        <p>This one carries the most weight for practice design. The question is about the <strong>environmental context</strong> &mdash; what Gentile calls the <em>regulatory conditions</em>: the supporting surface, the objects involved, and other people or animals.</p>
+        <div class="cont-bar" role="img" aria-label="Continuum from closed skills in a stationary environment to open skills in an environment in motion">
+          <span class="end l">CLOSED</span><span class="end r">OPEN</span>
+          <span class="tick" style="left:15%"></span><span class="tick" style="left:85%"></span>
+        </div>
+        <div class="cont-labels"><span>Stationary environment</span><span>Environment in motion</span></div>
+        <div class="cont-mid">The performer starts the action &nbsp;|&nbsp; the environment dictates timing</div>
+        <div class="reveal-row c2">
+          <button class="reveal" aria-expanded="false" onclick="tog(this)">
+            <h4>Closed skill</h4><span class="hint">Select to reveal &rarr;</span>
+            <span class="ans">Surface, objects, and people are <strong>stationary</strong>. The <em>performer</em> chooses when to begin.<br><br><em>Picking up a cup &middot; typing &middot; a golf shot &middot; walking an empty hallway.</em></span>
+          </button>
+          <button class="reveal" aria-expanded="false" onclick="tog(this)">
+            <h4>Open skill</h4><span class="hint">Select to reveal &rarr;</span>
+            <span class="ans">Something in the environment is <strong>in motion</strong>, so the <em>environment</em> dictates timing.<br><br><em>Catching a ball &middot; returning a serve &middot; driving &middot; a jump shot in traffic.</em></span>
+          </button>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Why this one matters most</span>
+          <p>Open skills are typically <strong>harder</strong>: tracking moving objects costs attention, and timing is decided under pressure. That&rsquo;s the progression principle you&rsquo;ll use all semester &mdash; <strong>start closed, build toward open</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 KC 2 (gated) -->
+  <section class="screen" data-screen data-gate="kc2">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q">A golfer hits a shot during a round on a calm course. Open or closed?</p>
+        <div id="kc2opts">
+          <button class="kc-opt" data-c="1">Closed &mdash; the course and ball are stationary; the golfer chooses when to swing<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Open &mdash; golf happens outdoors, so the environment is unpredictable<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kc2fb" role="status"></div>
+        <p class="gate-note" id="kc2note">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 BRIDGE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:none;text-align:center;padding:56px 40px">
+        <div class="eyebrow" style="color:#bfe3e8">Now combine them</div>
+        <p style="color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0">
+          Gentile&rsquo;s taxonomy doesn&rsquo;t replace these systems &mdash; it <em>crosses two of them into a single map</em> of skill difficulty.
+        </p>
+        <p style="color:#cfe7ea;font-size:15.5px;margin:16px 0 0">We&rsquo;ll build it one dimension at a time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 DIMENSION 1 -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Gentile&rsquo;s taxonomy &middot; Dimension 1 of 2</div>
+        <h2>What is the world doing?</h2>
+        <p>Antoinette Gentile (2000) read every motor skill along <strong>two</strong> dimensions. The first extends the open/closed idea you just learned &mdash; split into two sub-questions.</p>
+        <div class="dim">
+          <div class="dim-head"><span class="n">1</span> Environmental context</div>
+          <div class="dim-body">
+            <div class="split2">
+              <div class="opt-box"><b>Regulatory conditions</b><span>Stationary or in-motion? (This <em>is</em> closed vs. open.)</span></div>
+              <div class="opt-box"><b>Inter-trial variability</b><span>Do conditions stay the same from one attempt to the next, or change each time?</span></div>
+            </div>
+            <div class="callout" style="margin:16px 0 0">
+              <span class="clabel">Inter-trial variability, concretely</span>
+              <p>Walking a room where objects sit in <em>different places each time</em> has variability &mdash; every pass needs different movements. A billiards shot always racked in the <em>same</em> spot has none. Same regulatory category, very different demand.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 DIMENSION 2 -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Gentile&rsquo;s taxonomy &middot; Dimension 2 of 2</div>
+        <h2>What is the body doing?</h2>
+        <p>The second dimension describes the performer &mdash; again as two sub-questions.</p>
+        <div class="dim">
+          <div class="dim-head"><span class="n">2</span> Function of the action</div>
+          <div class="dim-body">
+            <div class="split2">
+              <div class="opt-box"><b>Body orientation</b><span>Is the body <em>stationary</em> (static) or does it <em>change location</em> (transport) during the skill?</span></div>
+              <div class="opt-box"><b>Object manipulation</b><span>Is the performer handling an object, or none at all?</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The organizing principle</span>
+          <p>Cross the two dimensions and you get <strong>sixteen categories</strong>. Read them top-left to bottom-right: simplest (stable world, still body, no object, no variability) climbing to most complex (moving world, moving body, object to manage, variability every trial).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 GRID -->
+  <section class="screen" data-screen>
+    <div class="inner wide">
+      <div class="card">
+        <div class="eyebrow">Explore</div>
+        <h2>The full taxonomy</h2>
+        <p>Both dimensions are now in place. Columns are the <strong>function of the action</strong>; rows are the <strong>environmental context</strong>. Select any cell for a worked example.</p>
+        <div class="taxwrap">
+          <table class="tax">
+            <caption class="sr-only">Gentile&rsquo;s taxonomy: 16 skill categories crossing environmental context with function of the action</caption>
+            <thead>
+              <tr>
+                <th rowspan="2" class="rowhdr" style="background:var(--accent-dark);color:#fff">Environment &darr; / Body &rarr;</th>
+                <th colspan="2" scope="colgroup">Body stationary</th>
+                <th colspan="2" scope="colgroup">Body in motion</th>
+              </tr>
+              <tr><th scope="col">No object</th><th scope="col">Object manip.</th><th scope="col">No object</th><th scope="col">Object manip.</th></tr>
+            </thead>
+            <tbody id="taxbody"></tbody>
+          </table>
+        </div>
+        <div class="tax-legend">
+          <span><span class="swatch" style="background:#eafaf1;border:1px solid #bfe6cf"></span> Simpler (top-left)</span>
+          <span><span class="swatch" style="background:var(--accent)"></span> Selected</span>
+          <span><span class="swatch" style="background:#fff6e6;border:1px solid #f0dcb0"></span> More complex (bottom-right)</span>
+        </div>
+        <div class="tax-detail" id="taxdetail" role="status" aria-live="polite">
+          <div class="cid">Select a cell</div>
+          <h4>Sixteen categories of increasing demand</h4>
+          <p>Each cell is a distinct combination of the two dimensions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Place a skill on the <strong>gross&ndash;fine</strong> axis, including the middle cases.</span></li>
+          <li><span class="n">2</span><span class="t">Tell <strong>discrete, serial,</strong> and <strong>continuous</strong> apart using the endpoint test.</span></li>
+          <li><span class="n">3</span><span class="t">Judge <strong>open vs. closed</strong> by motion in the regulatory conditions &mdash; not by indoors/outdoors.</span></li>
+          <li><span class="n">4</span><span class="t">Locate a skill in <strong>Gentile&rsquo;s taxonomy</strong> and read its difficulty from position.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next: Lab 1</span>
+          <p>You&rsquo;ll classify a set of everyday and clinical skills, then justify a two-step practice progression for one of them. This lesson is the tool; the lab is the reps.</p>
+        </div>
+        <p style="margin-top:20px;font-size:15px;color:var(--muted)">When you&rsquo;re done here, return to Canvas and complete the <strong>Lesson 2 quiz</strong> to mark this module item complete.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack" onclick="go(-1)">&larr; Back</button>
+    <div class="dots" id="dots" role="tablist" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext" onclick="go(1)">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens = Array.prototype.slice.call(document.querySelectorAll("[data-screen]"));
+  var cur = 0;
+  var answered = {};           // gate state
+  var furthest = 0;
+  var TOT = screens.length;
+  document.getElementById("scTot").textContent = TOT;
+
+  var dotsWrap = document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+
+  function gateOf(i){ return screens[i].dataset.gate || null; }
+  function locked(i){ var g=gateOf(i); return g && !answered[g]; }
+
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i;
+    screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=((cur)/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled = (cur===0);
+    var last = (cur===TOT-1);
+    var nx=document.getElementById("btnNext");
+    nx.textContent = last ? "Finish" : "Next \u2192";
+    nx.disabled = locked(cur) || last && false;
+    if(last){ nx.disabled=false; nx.onclick=function(){ window.scrollTo(0,0); }; }
+    else { nx.onclick=function(){ go(1); }; }
+    document.getElementById("lockmsg").hidden = !locked(cur);
+    Array.prototype.forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled = j>furthest;
+    });
+    window.scrollTo({top:0,behavior:"instant"});
+    var h=screens[cur].querySelector("h1,h2"); if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  window.go=function(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  };
+  window.tog=function(btn){
+    var open = btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded", open?"false":"true");
+  };
+
+  // knowledge checks
+  var FB={
+    kc1:{ok:"<strong>Correct.</strong> Distinct sub-actions, each with its own endpoint, chained together \u2014 that's the signature of a <strong>serial</strong> skill.",
+         no:"<strong>Not quite.</strong> It's <strong>serial</strong>: several <em>discrete</em> movements (clutch, shift, release) linked in sequence. Continuous skills have no clear internal endpoints."},
+    kc2:{ok:"<strong>Correct.</strong> Outdoors doesn't make a skill open \u2014 motion in the regulatory conditions does. Still ball, calm course, golfer self-initiates: <strong>closed</strong>.",
+         no:"<strong>Reconsider.</strong> \u201COutdoors\u201D isn't the test \u2014 <em>motion in the regulatory conditions</em> is. A stationary ball on a calm course, golfer choosing when to swing, is <strong>closed</strong>."}
+  };
+  ["kc1","kc2"].forEach(function(key){
+    var wrap=document.getElementById(key+"opts");
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+        var ok = opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{
+          opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){
+            if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+        }
+        var fb=document.getElementById(key+"fb");
+        fb.className="kc-fb show "+(ok?"ok":"no");
+        fb.innerHTML=FB[key][ok?"ok":"no"];
+        answered[key]=true;
+        document.getElementById(key+"note").textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  });
+
+  // taxonomy grid
+  var rows=[
+    {h:"Closed &middot; no variability",diff:1,cells:[
+      {id:"1A",ex:"Sitting balanced in a chair",note:"Stable world, still body, no object \u2014 the simplest possible skill."},
+      {id:"1B",ex:"Holding a full cup while seated",note:"Still body, but now an object to keep steady."},
+      {id:"1C",ex:"Walking across an empty, level room",note:"Body transports through a stable, unchanging space."},
+      {id:"1D",ex:"Carrying a tray across an empty room",note:"Transport plus an object \u2014 demand rising, world still stable."}]},
+    {h:"Closed &middot; variability present",diff:2,cells:[
+      {id:"2A",ex:"Sit-to-stand from chairs of differing heights",note:"Still world each trial, but the target changes attempt to attempt."},
+      {id:"2B",ex:"Drinking from cups filled to different levels",note:"Object handling with trial-to-trial change."},
+      {id:"2C",ex:"Walking to different marked spots on a still floor",note:"Transport with a shifting goal each pass."},
+      {id:"2D",ex:"Stocking a shelf with varied items",note:"Transport + object + variation, environment still stationary."}]},
+    {h:"Open &middot; no variability",diff:3,cells:[
+      {id:"3A",ex:"Standing steady on a slow moving walkway",note:"The world is in motion, though the demand repeats identically."},
+      {id:"3B",ex:"Holding a rail on a moving escalator",note:"Moving environment plus an object to hold."},
+      {id:"3C",ex:"Stepping onto a moving walkway",note:"Body transports into a world that's itself moving."},
+      {id:"3D",ex:"Carrying a bag onto an escalator",note:"Moving world, transport, and an object at once."}]},
+    {h:"Open &middot; variability present",diff:4,cells:[
+      {id:"4A",ex:"Keeping balance in a crowd that shifts each time",note:"Moving world that differs every trial \u2014 heavy attentional load."},
+      {id:"4B",ex:"Holding a drink in a jostling crowd",note:"Object control amid changing, moving surroundings."},
+      {id:"4C",ex:"Crossing a busy street with changing traffic",note:"Transport through a moving, unpredictable world."},
+      {id:"4D",ex:"Pouring while walking uneven ground (our gardener!)",note:"The most complex cell \u2014 moving world, moving body, object, variability. Callback to Lesson 1's scenario."}]}
+  ];
+  var tb=document.getElementById("taxbody");
+  rows.forEach(function(r,ri){
+    var tr=document.createElement("tr");
+    var th=document.createElement("th");
+    th.className="rowhdr"; th.scope="row"; th.innerHTML=r.h; tr.appendChild(th);
+    r.cells.forEach(function(c,ci){
+      var td=document.createElement("td"); td.className="cellwrap";
+      var b=document.createElement("button");
+      b.className="cellbtn"; b.type="button"; b.textContent=c.id;
+      b.setAttribute("aria-pressed","false");
+      b.setAttribute("aria-label","Cell "+c.id+", "+r.h.replace("&middot;","")+", example: "+c.ex);
+      var t=(ri+ci)/6;
+      b.style.background = t<0.5
+        ? "rgba(46,158,107,"+(0.14*(1-t*2)).toFixed(3)+")"
+        : "rgba(224,164,88,"+(0.16*((t-0.5)*2)).toFixed(3)+")";
+      b.onclick=function(){
+        document.querySelectorAll(".cellbtn").forEach(function(x){x.setAttribute("aria-pressed","false")});
+        b.setAttribute("aria-pressed","true");
+        document.getElementById("taxdetail").innerHTML=
+          "<div class='cid'>Cell "+c.id+" &middot; "+r.h+"</div><h4>"+c.ex+"</h4><p>"+c.note+
+          "</p><div class='diff'>Difficulty tier "+r.diff+" of 4</div>";
+      };
+      td.appendChild(b); tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+
+  // keyboard arrows
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
