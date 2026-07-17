@@ -297,7 +297,49 @@
     </div>
   </section>
 
-  <!-- 5 THREE LENSES (tabs) -->
+  <!-- 5 KC: WHICH LEVEL? (gated - all three must be answered) -->
+  <section class="screen" data-screen data-gate="lvl">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2 style="font-size:23px;margin-bottom:6px">What level is this?</h2>
+        <p style="font-size:15.5px;margin-bottom:22px">Each description below sits at one of the three levels you just met. Answer all three to continue.</p>
+
+        <div class="lvl-q" data-q="q1">
+          <p class="kc-q">1. A patient works on <strong>buttoning her shirt</strong> so she can dress herself independently in the morning.</p>
+          <button class="kc-opt" data-c="1">Skill / action<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Movement<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Neuromotor process<span class="mark"></span></button>
+          <div class="kc-fb" id="q1fb" role="status" hidden></div>
+        </div>
+
+        <div class="lvl-q" data-q="q2" style="margin-top:26px">
+          <p class="kc-q">2. During that same task, her <strong>elbow flexes to about 90&deg; while her wrist holds neutral</strong> and her fingers pinch.</p>
+          <button class="kc-opt" data-c="0">Skill / action<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Movement<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Neuromotor process<span class="mark"></span></button>
+          <div class="kc-fb" id="q2fb" role="status" hidden></div>
+        </div>
+
+        <div class="lvl-q" data-q="q3" style="margin-top:26px">
+          <p class="kc-q">3. As she pinches, <strong>motor units in her finger flexors are recruited from smallest to largest</strong> as more force is needed.</p>
+          <button class="kc-opt" data-c="0">Skill / action<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Movement<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Neuromotor process<span class="mark"></span></button>
+          <div class="kc-fb" id="q3fb" role="status" hidden></div>
+        </div>
+
+        <div class="callout why" id="lvlWrap" hidden style="margin-top:24px">
+          <span class="clabel">The pattern</span>
+          <p>Same moment, three levels. The <strong>skill</strong> is the goal she&rsquo;s pursuing, the <strong>movement</strong> is the joint pattern that serves it, and the <strong>neuromotor process</strong> is the machinery producing that pattern. Ask &ldquo;is this a goal, a motion, or a mechanism?&rdquo; and the level falls out.</p>
+        </div>
+
+        <p class="gate-note" id="lvlnote">Answer all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 THREE LENSES (tabs) -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -313,7 +355,9 @@
           <div class="tab-panel" id="t1" role="tabpanel" aria-labelledby="tb1">
             <h3>Acquiring and reacquiring skill</h3>
             <p>Studies the <strong>acquisition</strong> of new skills, the <strong>enhancement</strong> of well-practiced ones, and the <strong>reacquisition</strong> of skills after injury or disease. Its concern is the relatively permanent change practice produces.</p>
-            <div class="callout"><span class="clabel">Example</span><p>A stroke survivor relearning to walk. You don&rsquo;t just care about today&rsquo;s performance &mdash; you care whether the gains survive to next week.</p></div>
+            <div class="callout"><span class="clabel">Example &middot; Acquisition</span><p>An adult taking up the <strong>guitar</strong> for the first time. Nothing is being recovered &mdash; the coordination is being built from scratch. Weeks in, can she fret a chord cleanly without looking? That persistence is what makes it learning.</p></div>
+            <div class="callout"><span class="clabel">Example &middot; Reacquisition</span><p>A <strong>stroke survivor</strong> relearning to walk. The skill was there before; the nervous system has to find its way back to it. You don&rsquo;t just care about today&rsquo;s performance &mdash; you care whether the gains survive to next week.</p></div>
+            <p style="font-size:14.5px;color:var(--muted);margin:14px 0 0"><em>Both are motor learning. The difference is whether the learner is building something new or recovering something lost &mdash; and that difference shapes how you&rsquo;d structure practice.</em></p>
           </div>
           <div class="tab-panel" id="t2" role="tabpanel" aria-labelledby="tb2" hidden>
             <h3>Coordinating the system in the moment</h3>
@@ -330,24 +374,41 @@
     </div>
   </section>
 
-  <!-- 6 KC (gated) -->
-  <section class="screen" data-screen data-gate="kc1">
+  <!-- 7 KC (gated - both must be answered) -->
+  <section class="screen" data-screen data-gate="lens">
     <div class="inner">
       <div class="kc-card">
         <div class="eyebrow">Knowledge check</div>
-        <p class="kc-q">A coach films a sprinter every week for a season to see whether her starting technique has permanently improved. Which lens is this?</p>
-        <div id="kc1opts">
+        <h2 style="font-size:23px;margin-bottom:6px">Which lens is this?</h2>
+        <p style="font-size:15.5px;margin-bottom:22px">Answer both to continue.</p>
+
+        <div class="lens-q" data-q="l1">
+          <p class="kc-q">1. Over a season, a sprinter trains with <strong>biofeedback on the forces she produces against the starting blocks</strong>. Her coach tests her months later, without the biofeedback, to see whether the improved force profile <strong>has stuck</strong>.</p>
           <button class="kc-opt" data-c="1">Motor learning<span class="mark"></span></button>
           <button class="kc-opt" data-c="0">Motor control<span class="mark"></span></button>
           <button class="kc-opt" data-c="0">Motor development<span class="mark"></span></button>
+          <div class="kc-fb" id="l1fb" role="status" hidden></div>
         </div>
-        <div class="kc-fb" id="kc1fb" role="status" hidden></div>
-        <p class="gate-note" id="kc1note">Answer to continue.</p>
+
+        <div class="lens-q" data-q="l2" style="margin-top:26px">
+          <p class="kc-q">2. In a single explosive start, a researcher records <strong>EMG from the sprinter&rsquo;s lower-limb muscles</strong> to see how the nervous system activates them and in what <strong>sequence</strong> as she drives out of the blocks.</p>
+          <button class="kc-opt" data-c="0">Motor learning<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Motor control<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Motor development<span class="mark"></span></button>
+          <div class="kc-fb" id="l2fb" role="status" hidden></div>
+        </div>
+
+        <div class="callout why" id="lensWrap" hidden style="margin-top:24px">
+          <span class="clabel">The pattern</span>
+          <p>Same athlete, same skill &mdash; different question. <strong>Learning</strong> asks whether a change <em>persists</em> after the intervention is taken away, which is why it needs a delayed retention test. <strong>Control</strong> asks how the system coordinates itself <em>right now</em>, inside a single performance. When you&rsquo;re unsure, ask: is something being tracked <em>across</em> sessions, or measured <em>within</em> one?</p>
+        </div>
+
+        <p class="gate-note" id="lensnote">Answer both to continue.</p>
       </div>
     </div>
   </section>
 
-  <!-- 7 WHY HEALTH SCIENCE (accordion) -->
+  <!-- 8 WHY HEALTH SCIENCE (accordion) -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -372,15 +433,15 @@
             <div class="acc-body" id="a4" hidden><p>How would you expect a total knee replacement to affect the joint&rsquo;s position sense &mdash; and what does that mean for the patient&rsquo;s movement and balance?</p></div>
           </div>
           <div class="acc-item">
-            <button class="acc-head" aria-expanded="false" aria-controls="a5" onclick="acc(this,'a5')"><span class="acc-icon">+</span> Is coordination born or made? <span class="acc-tag">Optional</span></button>
-            <div class="acc-body" id="a5" hidden><p>Can anyone learn any skill, or are some people simply more &ldquo;coordinated&rdquo;? Hold onto your intuition &mdash; the course will complicate it.</p></div>
+            <button class="acc-head" aria-expanded="false" aria-controls="a5" onclick="acc(this,'a5')"><span class="acc-icon">+</span> Is coordination innate or acquired? <span class="acc-tag">Optional</span></button>
+            <div class="acc-body" id="a5" hidden><p>Is coordination something people are <strong>born with</strong>, or something <strong>built through practice</strong>? Can anyone learn any skill, or are some people simply more coordinated from the start? Hold onto your intuition &mdash; the course will complicate it.</p></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 8 DRUMMING -->
+  <!-- 9 DRUMMING -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card flush">
@@ -397,7 +458,7 @@
     </div>
   </section>
 
-  <!-- 9 SKILLFUL PERFORMER -->
+  <!-- 10 SKILLFUL PERFORMER -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="statement gold">
@@ -407,7 +468,7 @@
     </div>
   </section>
 
-  <!-- 10 SCENARIO: CHALLENGE -->
+  <!-- 11 SCENARIO: CHALLENGE -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -423,7 +484,7 @@
     </div>
   </section>
 
-  <!-- 11 SCENARIO: CHOICE + CONSEQUENCE (gated) -->
+  <!-- 12 SCENARIO: CHOICE + CONSEQUENCE (gated) -->
   <section class="screen" data-screen data-gate="sc1">
     <div class="inner">
       <div class="card">
@@ -440,7 +501,7 @@
     </div>
   </section>
 
-  <!-- 12 SCENARIO: PAYOFF -->
+  <!-- 13 SCENARIO: PAYOFF -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -455,7 +516,7 @@
     </div>
   </section>
 
-  <!-- 13 BERNSTEIN -->
+  <!-- 14 BERNSTEIN -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -475,7 +536,7 @@
     </div>
   </section>
 
-  <!-- 14 SUMMARY -->
+  <!-- 15 SUMMARY -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -531,7 +592,11 @@
     var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
     nx.textContent= last ? "Finish" : "Next \u2192";
     nx.disabled= !last && locked(cur);
-    document.getElementById("lockmsg").hidden = !(!last && locked(cur));
+    var lm=document.getElementById("lockmsg");
+    lm.hidden = !(!last && locked(cur));
+    lm.textContent = (screens[cur].dataset.gate==="lvl") ? "Answer all three to continue"
+                   : (screens[cur].dataset.gate==="lens") ? "Answer both to continue"
+                   : "Answer to continue";
     [].forEach.call(dotsWrap.children,function(d,j){
       d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
       d.disabled=j>furthest;
@@ -567,28 +632,58 @@
     document.getElementById(id).hidden=open;
   };
 
-  // knowledge check
-  var KFB={ok:"<strong>Correct.</strong> A <em>relatively permanent</em> change tracked across a season is learning \u2014 not the moment-to-moment control of a single start.",
-           no:"<strong>Not quite.</strong> Tracking a <em>permanent</em> change across a season is the signature of <strong>motor learning</strong>. Control would be how she coordinates one start; development would be change across the lifespan."};
-  var w=document.getElementById("kc1opts");
-  w.querySelectorAll(".kc-opt").forEach(function(opt){
-    opt.onclick=function(){
-      w.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
-      var ok=opt.dataset.c==="1";
-      if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
-      else{
-        opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
-        w.querySelectorAll(".kc-opt").forEach(function(o){
-          if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
-      }
-      var fb=document.getElementById("kc1fb");
-      fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=KFB[ok?"ok":"no"]; fb.hidden=false;
-      answered.kc1=true;
-      document.getElementById("kc1note").textContent="You can continue.";
-      document.getElementById("btnNext").disabled=false;
-      document.getElementById("lockmsg").hidden=true;
-    };
-  });
+  // Reusable multi-question knowledge check.
+  // Gate opens only when EVERY question in the group has been answered.
+  function makeMultiCheck(sel, FB, keys, gateName, wrapId, noteId, doneMsg){
+    var done={};
+    document.querySelectorAll(sel).forEach(function(q){
+      var key=q.dataset.q;
+      q.querySelectorAll(".kc-opt").forEach(function(opt){
+        opt.onclick=function(){
+          q.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+          var ok=opt.dataset.c==="1";
+          if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+          else{
+            opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+            q.querySelectorAll(".kc-opt").forEach(function(o){
+              if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+          }
+          var fb=document.getElementById(key+"fb");
+          fb.className="kc-fb "+(ok?"ok":"no");
+          fb.innerHTML=FB[key][ok?"ok":"no"];
+          fb.hidden=false;
+          done[key]=true;
+          if(keys.every(function(k){return done[k];})){
+            answered[gateName]=true;
+            document.getElementById(wrapId).hidden=false;
+            document.getElementById(noteId).textContent=doneMsg;
+            document.getElementById("btnNext").disabled=false;
+            document.getElementById("lockmsg").hidden=true;
+          }
+        };
+      });
+    });
+  }
+
+  // three-part "what level is this?" check
+  var LVLFB={
+    q1:{ok:"<strong>Correct.</strong> It has a <em>goal</em> (getting dressed), it's voluntary, and it had to be learned \u2014 that's a <strong>skill</strong>.",
+        no:"This is a <strong>skill / action</strong>. The giveaway is the <em>goal</em>: she's not producing a motion for its own sake, she's dressing herself. Skills are goal-directed, voluntary, and learned."},
+    q2:{ok:"<strong>Correct.</strong> A description of joint angles and patterns of motion \u2014 the <em>how</em>, not the <em>why</em>. That's a <strong>movement</strong>.",
+        no:"This is a <strong>movement</strong>. Notice it describes joint angles and motion patterns with no mention of purpose. Strip away the goal and you're left with the movement."},
+    q3:{ok:"<strong>Correct.</strong> Motor unit recruitment is a mechanism in the neuromuscular system \u2014 a <strong>neuromotor process</strong>.",
+        no:"This is a <strong>neuromotor process</strong>. It describes the machinery <em>underneath</em> the movement \u2014 what the nervous and muscular systems are doing to produce it."}
+  };
+  makeMultiCheck(".lvl-q", LVLFB, ["q1","q2","q3"], "lvl", "lvlWrap", "lvlnote", "All three answered \u2014 you can continue.");
+
+  // "which lens is this?" -- both must be answered
+  var LENSFB={
+    l1:{ok:"<strong>Correct.</strong> A training intervention, then a test <em>months later without the biofeedback</em> \u2014 that's a retention test, and retention is the signature of <strong>learning</strong>. The question isn't whether she performs well today; it's whether the change persisted.",
+        no:"This is <strong>motor learning</strong>. The tell is the delayed test <em>without</em> the biofeedback: the coach is asking whether the improvement <em>persisted</em> after the intervention was removed. Control would be how she coordinates a single start; development would be change across the lifespan."},
+    l2:{ok:"<strong>Correct.</strong> Muscle activation and sequencing <em>within a single start</em> is the neuromuscular system coordinating itself in the moment \u2014 <strong>motor control</strong>.",
+        no:"This is <strong>motor control</strong>. Read the timescale: one start, measuring how the nervous system <em>activates and sequences</em> muscles right now. Nothing is being tracked over time, so no persistent change \u2014 which is what learning would require."}
+  };
+  makeMultiCheck(".lens-q", LENSFB, ["l1","l2"], "lens", "lensWrap", "lensnote", "Both answered \u2014 you can continue.");
 
   // scenario choice
   var SFB={
