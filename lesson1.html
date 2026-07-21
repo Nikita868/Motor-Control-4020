@@ -194,6 +194,22 @@
   .split .img-side{background-size:cover;background-position:center;min-height:280px}
   @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
 
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
   .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
   @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
 
@@ -355,7 +371,7 @@
           <div class="tab-panel" id="t1" role="tabpanel" aria-labelledby="tb1">
             <h3>Acquiring and reacquiring skill</h3>
             <p>Studies the <strong>acquisition</strong> of new skills, the <strong>enhancement</strong> of well-practiced ones, and the <strong>reacquisition</strong> of skills after injury or disease. Its concern is the relatively permanent change practice produces.</p>
-            <div class="callout"><span class="clabel">Example &middot; Acquisition</span><p>An adult taking up the <strong>guitar</strong> for the first time. Nothing is being recovered &mdash; the coordination is being built from scratch. Weeks in, can she fret a chord cleanly without looking? That persistence is what makes it learning.</p></div>
+            <div class="callout"><span class="clabel">Example &middot; Acquisition</span><p>An adult taking up the <strong>guitar</strong> for the first time. Nothing is being recovered &mdash; it&rsquo;s all being built from scratch: new <strong>movement patterns</strong>, new <strong>memories</strong>, new ways of <strong>directing attention</strong>, and the <strong>neural pathways</strong> that support them. The mark of learning is <strong>persistence</strong> &mdash; a <em>relatively permanent change in behavior</em>. Weeks in, can she still fret a chord cleanly without looking?</p></div>
             <div class="callout"><span class="clabel">Example &middot; Reacquisition</span><p>A <strong>stroke survivor</strong> relearning to walk. The skill was there before; the nervous system has to find its way back to it. You don&rsquo;t just care about today&rsquo;s performance &mdash; you care whether the gains survive to next week.</p></div>
             <p style="font-size:14.5px;color:var(--muted);margin:14px 0 0"><em>Both are motor learning. The difference is whether the learner is building something new or recovering something lost &mdash; and that difference shapes how you&rsquo;d structure practice.</em></p>
           </div>
@@ -461,14 +477,134 @@
   <!-- 10 SKILLFUL PERFORMER -->
   <section class="screen" data-screen>
     <div class="inner">
-      <div class="statement gold">
-        <div class="eyebrow">A skillful performer is&hellip;</div>
-        <p>consistent under pressure &middot; adaptable to changing conditions &middot; efficient with effort and attention</p>
+      <div class="card">
+        <div class="eyebrow">What skill looks like</div>
+        <h2>Three marks of a skillful performer</h2>
+        <p>When we say someone is skilled, we&rsquo;re usually pointing at one of three things &mdash; and they&rsquo;re easy to confuse. Each has a shape you can picture.</p>
+
+        <div class="trait-row">
+
+          <div class="trait">
+            <div class="trait-viz">
+              <svg viewBox="0 0 160 90" role="img" aria-label="Left: shots tightly clustered on a target. Right: shots scattered widely.">
+                <circle cx="42" cy="45" r="30" fill="none" stroke="#d7e3e8" stroke-width="1.5"/>
+                <circle cx="42" cy="45" r="19" fill="none" stroke="#d7e3e8" stroke-width="1.5"/>
+                <circle cx="42" cy="45" r="8" fill="#eef5f7"/>
+                <circle cx="40" cy="43" r="3.2" fill="#1a7f8e"/><circle cx="45" cy="46" r="3.2" fill="#1a7f8e"/>
+                <circle cx="41" cy="48" r="3.2" fill="#1a7f8e"/><circle cx="44" cy="41" r="3.2" fill="#1a7f8e"/>
+                <circle cx="118" cy="45" r="30" fill="none" stroke="#e8dcc9" stroke-width="1.5"/>
+                <circle cx="118" cy="45" r="19" fill="none" stroke="#e8dcc9" stroke-width="1.5"/>
+                <circle cx="118" cy="45" r="8" fill="#faf3e8"/>
+                <circle cx="103" cy="30" r="3.2" fill="#c99a52"/><circle cx="132" cy="52" r="3.2" fill="#c99a52"/>
+                <circle cx="112" cy="66" r="3.2" fill="#c99a52"/><circle cx="128" cy="28" r="3.2" fill="#c99a52"/>
+                <text x="42" y="86" text-anchor="middle" font-size="9" fill="#1a7f8e" font-weight="700">expert</text>
+                <text x="118" y="86" text-anchor="middle" font-size="9" fill="#b5822f" font-weight="700">novice</text>
+              </svg>
+            </div>
+            <div class="trait-body">
+              <div class="tag">Consistency</div>
+              <h4>Same result, again and again</h4>
+              <p>The outcome repeats reliably, attempt after attempt. Low variability where it counts.</p>
+              <div class="ex">Not the same as rigidity &mdash; a skilled performer is consistent in the <em>result</em>, not necessarily in the movement.</div>
+            </div>
+          </div>
+
+          <div class="trait">
+            <div class="trait-viz">
+              <svg viewBox="0 0 160 90" role="img" aria-label="Three different curving paths, each starting from a different point but all reaching the same goal flag.">
+                <path d="M12 20 C 60 18, 95 32, 132 45" fill="none" stroke="#1a7f8e" stroke-width="2.4" stroke-linecap="round"/>
+                <path d="M12 45 C 55 45, 95 45, 132 45" fill="none" stroke="#1a7f8e" stroke-width="2.4" stroke-linecap="round" opacity=".72"/>
+                <path d="M12 72 C 62 74, 96 58, 132 45" fill="none" stroke="#1a7f8e" stroke-width="2.4" stroke-linecap="round" opacity=".48"/>
+                <circle cx="12" cy="20" r="3" fill="#1a7f8e"/><circle cx="12" cy="45" r="3" fill="#1a7f8e"/><circle cx="12" cy="72" r="3" fill="#1a7f8e"/>
+                <circle cx="132" cy="45" r="9" fill="#e0a458"/>
+                <path d="M132 36 L132 24" stroke="#b5822f" stroke-width="2"/>
+                <path d="M132 24 L146 28 L132 32 Z" fill="#e0a458"/>
+                <text x="72" y="86" text-anchor="middle" font-size="9" fill="#7a8a99" font-weight="700">different routes, same goal</text>
+              </svg>
+            </div>
+            <div class="trait-body">
+              <div class="tag">Adaptability</div>
+              <h4>Still succeeds when conditions shift</h4>
+              <p>The goal is met even when the environment changes mid-performance.</p>
+              <div class="ex">This is why consistency alone isn&rsquo;t skill: a rigid performer succeeds only when nothing changes.</div>
+            </div>
+          </div>
+
+          <div class="trait">
+            <div class="trait-viz">
+              <svg viewBox="0 0 160 90" role="img" aria-label="Left: a noisy jagged effort trace. Right: a smooth low trace reaching the same height.">
+                <line x1="8" y1="72" x2="152" y2="72" stroke="#e6eaee" stroke-width="1.5"/>
+                <path d="M12 70 L18 44 L24 66 L30 36 L36 62 L42 40 L48 58 L54 34 L60 60 L66 46 L70 52"
+                      fill="none" stroke="#c99a52" stroke-width="2.2" stroke-linejoin="round"/>
+                <path d="M92 70 C 104 66, 112 58, 122 54 C 132 50, 142 52, 148 52"
+                      fill="none" stroke="#1a7f8e" stroke-width="2.6" stroke-linecap="round"/>
+                <line x1="80" y1="18" x2="80" y2="78" stroke="#e6eaee" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <text x="41" y="86" text-anchor="middle" font-size="9" fill="#b5822f" font-weight="700">novice effort</text>
+                <text x="120" y="86" text-anchor="middle" font-size="9" fill="#1a7f8e" font-weight="700">expert effort</text>
+              </svg>
+            </div>
+            <div class="trait-body">
+              <div class="tag">Efficiency</div>
+              <h4>Less cost for the same result</h4>
+              <p>Less wasted effort, less tension, less attention consumed.</p>
+              <div class="ex">Not the same as speed. Efficiency is about <em>cost</em> &mdash; physical or mental &mdash; not how fast it happens.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="callout why">
+          <span class="clabel">Watch for this</span>
+          <p>These three don&rsquo;t arrive together. A learner often becomes <em>consistent</em> long before becoming <em>adaptable</em> &mdash; which is exactly why practice in a predictable setting can produce someone who falls apart in a real one.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 11 SCENARIO: CHALLENGE -->
+  <!-- 11 APPLY: expert vs novice (gated - all three) -->
+  <section class="screen" data-screen data-gate="rider">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Apply it</div>
+        <h2 style="font-size:23px;margin-bottom:8px">Two motorcycle riders, one commute</h2>
+        <p style="font-size:15.5px;margin-bottom:8px">A <strong>motorcycle rider with ten years&rsquo; experience</strong> and a <strong>newly licensed motorcycle rider</strong> ride the same commute to work each morning. You watch both for a week.</p>
+        <p style="font-size:15.5px;margin-bottom:22px">Each observation below shows the experienced motorcycle rider demonstrating <em>one</em> of the three marks of skill. Which one? Answer all three to continue.</p>
+
+        <div class="rider-q" data-q="r1">
+          <p class="kc-q">1. On the familiar left-hander near the bridge, the experienced motorcycle rider <strong>hits the same line and exit speed every morning</strong>. The novice&rsquo;s line wanders &mdash; wide one day, tight the next.</p>
+          <button class="kc-opt" data-c="1">Consistency<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Adaptability<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Efficiency<span class="mark"></span></button>
+          <div class="kc-fb" id="r1fb" role="status" hidden></div>
+        </div>
+
+        <div class="rider-q" data-q="r2" style="margin-top:26px">
+          <p class="kc-q">2. One morning there&rsquo;s <strong>loose gravel spread across that same corner</strong>. The experienced motorcycle rider adjusts his line and throttle mid-corner and still makes it through cleanly. The novice brakes hard, stands the bike up, and runs wide.</p>
+          <button class="kc-opt" data-c="0">Consistency<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Adaptability<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Efficiency<span class="mark"></span></button>
+          <div class="kc-fb" id="r2fb" role="status" hidden></div>
+        </div>
+
+        <div class="rider-q" data-q="r3" style="margin-top:26px">
+          <p class="kc-q">3. Riding at the same pace through traffic, the experienced motorcycle rider has a <strong>loose grip and relaxed shoulders, and can hold a conversation at the lights</strong>. The novice arrives with aching forearms, having gripped the bars hard the whole way, and says he couldn&rsquo;t spare a thought for anything else.</p>
+          <button class="kc-opt" data-c="0">Consistency<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Adaptability<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Efficiency<span class="mark"></span></button>
+          <div class="kc-fb" id="r3fb" role="status" hidden></div>
+        </div>
+
+        <div class="callout why" id="riderWrap" hidden style="margin-top:24px">
+          <span class="clabel">The pattern</span>
+          <p>Notice that the novice isn&rsquo;t simply <em>worse</em> &mdash; he fails in three distinguishable ways. That&rsquo;s the practical value of these terms: &ldquo;he needs more practice&rdquo; tells you nothing, but &ldquo;he&rsquo;s becoming consistent yet isn&rsquo;t adaptable, and he&rsquo;s burning attention on bar pressure&rdquo; tells you <em>what to practice</em>. You&rsquo;ll do exactly this kind of reading with patients.</p>
+        </div>
+
+        <p class="gate-note" id="ridernote">Answer all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SCENARIO: CHALLENGE -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -484,7 +620,7 @@
     </div>
   </section>
 
-  <!-- 12 SCENARIO: CHOICE + CONSEQUENCE (gated) -->
+  <!-- 13 SCENARIO: CHOICE + CONSEQUENCE (gated) -->
   <section class="screen" data-screen data-gate="sc1">
     <div class="inner">
       <div class="card">
@@ -501,7 +637,7 @@
     </div>
   </section>
 
-  <!-- 13 SCENARIO: PAYOFF -->
+  <!-- 14 SCENARIO: PAYOFF -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -516,7 +652,7 @@
     </div>
   </section>
 
-  <!-- 14 BERNSTEIN -->
+  <!-- 15 BERNSTEIN -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -536,7 +672,7 @@
     </div>
   </section>
 
-  <!-- 15 SUMMARY -->
+  <!-- 16 SUMMARY -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -552,7 +688,7 @@
           <span class="clabel">Next: Lesson 2</span>
           <p>You&rsquo;ll get the formal tools for what you intuited in the garden scenario &mdash; four classification systems, ending in Gentile&rsquo;s taxonomy.</p>
         </div>
-        <p style="margin-top:20px;font-size:15px;color:var(--muted)">When you&rsquo;re done here, return to Canvas and complete the <strong>Lesson 1 quiz</strong> to mark this module item complete.</p>
+        <p style="margin-top:20px;font-size:15px;color:var(--muted)">Head to <strong>Lesson 2: Classifying Motor Skills</strong> next. The graded quiz covers <em>both</em> lessons &mdash; complete Lesson 2 before you attempt it.</p>
       </div>
     </div>
   </section>
@@ -594,7 +730,7 @@
     nx.disabled= !last && locked(cur);
     var lm=document.getElementById("lockmsg");
     lm.hidden = !(!last && locked(cur));
-    lm.textContent = (screens[cur].dataset.gate==="lvl") ? "Answer all three to continue"
+    lm.textContent = (screens[cur].dataset.gate==="lvl" || screens[cur].dataset.gate==="rider") ? "Answer all three to continue"
                    : (screens[cur].dataset.gate==="lens") ? "Answer both to continue"
                    : "Answer to continue";
     [].forEach.call(dotsWrap.children,function(d,j){
@@ -676,7 +812,16 @@
   };
   makeMultiCheck(".lvl-q", LVLFB, ["q1","q2","q3"], "lvl", "lvlWrap", "lvlnote", "All three answered \u2014 you can continue.");
 
-  // "which lens is this?" -- both must be answered
+  // "two riders" -- apply the three marks of skill
+  var RIDERFB={
+    r1:{ok:"<strong>Correct.</strong> Same line, same exit speed, every morning &mdash; the outcome <em>repeats</em>. That's <strong>consistency</strong>.",
+        no:"This is <strong>consistency</strong>. Nothing about the corner is changing and nothing is said about effort &mdash; the point is that his result <em>repeats reliably</em> while the novice's varies."},
+    r2:{ok:"<strong>Correct.</strong> The conditions changed and he still met the goal &mdash; that's <strong>adaptability</strong>. Note this is where consistency alone would fail him.",
+        no:"This is <strong>adaptability</strong>. The gravel <em>changed the conditions mid-corner</em>, and he adjusted and still succeeded. Consistency would mean repeating the same line &mdash; which is roughly what the novice tried to do, and why it went wrong."},
+    r3:{ok:"<strong>Correct.</strong> Same pace, far less physical and mental cost &mdash; that's <strong>efficiency</strong>. Note the spare attention: efficiency isn't only muscular.",
+        no:"This is <strong>efficiency</strong>. Both riders achieve the same pace, but one pays much less &mdash; less grip force, less tension, and crucially less <em>attention</em>, which is why he has some left over for conversation."}
+  };
+  makeMultiCheck(".rider-q", RIDERFB, ["r1","r2","r3"], "rider", "riderWrap", "ridernote", "All three answered \u2014 you can continue.");
   var LENSFB={
     l1:{ok:"<strong>Correct.</strong> A training intervention, then a test <em>months later without the biofeedback</em> \u2014 that's a retention test, and retention is the signature of <strong>learning</strong>. The question isn't whether she performs well today; it's whether the change persisted.",
         no:"This is <strong>motor learning</strong>. The tell is the delayed test <em>without</em> the biofeedback: the coach is asking whether the improvement <em>persisted</em> after the intervention was removed. Control would be how she coordinates a single start; development would be change across the lifespan."},
