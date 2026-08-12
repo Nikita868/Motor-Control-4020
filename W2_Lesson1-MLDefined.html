@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 2 / Lesson 1 - Motor Learning Defined
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 · Lesson 1 — Motor Learning Defined</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 2 &nbsp;&rsaquo;&nbsp; <b>Lesson 1: Motor Learning Defined</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">15</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 2 &middot; Lesson 1</div>
+        <h1>Motor Learning Defined</h1>
+        <p>What &ldquo;learning&rdquo; actually means &mdash; and why the performance you can see is not the same thing.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~25 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 8</span>
+          <span><span class="dot"></span> Prepares the lab</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define <strong>motor learning</strong> and distinguish it from <strong>motor performance</strong>.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Tell a temporary <strong>performance variable</strong> apart from a relatively permanent <strong>learning change</strong>.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain why learning <strong>cannot be observed directly</strong> and must be inferred.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Identify the general <strong>performance characteristics</strong> that accompany skill learning.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 OPENING REFLECTION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Before we start</div>
+        <h2>A question to hold in mind</h2>
+        <p>Think of a motor skill you might one day teach someone in your profession &mdash; a transfer, an injection, a gait pattern.</p>
+        <div class="reflect">
+          <span class="rlabel">Reflect</span>
+          <p>What would you expect the person to <strong>learn</strong> from working with you?</p>
+          <p>And how would you <strong>prove</strong> &mdash; to them, or to a supervisor &mdash; that the skill was actually learned, not just performed well once?</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">Hold your answer. By the end of this lesson you&rsquo;ll have a precise way to make that case.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 DEFINITION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="statement">
+        <div class="eyebrow">The definition</div>
+        <p>Motor learning is a <em>relatively permanent</em> change in your capability to perform a motor skill, brought about by <em>practice</em> &mdash; and it must be <em>inferred</em> from a relatively permanent improvement in performance.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 UNPACK DEFINITION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Unpacking it</div>
+        <h2>Three words doing the work</h2>
+        <p>That definition is dense. Three phrases carry all of it:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt"><strong>Relatively permanent</strong> &mdash; the change lasts. It survives time and a change of conditions. A one-off good attempt doesn&rsquo;t count.</span></li>
+          <li><span class="obj-num">2</span><span class="txt"><strong>Capability</strong> &mdash; learning changes what you&rsquo;re <em>able</em> to do, which is not the same as what you happen to do on any given try.</span></li>
+          <li><span class="obj-num">3</span><span class="txt"><strong>Inferred</strong> &mdash; you can&rsquo;t see learning directly. You watch performance and reason backward to the capability underneath.</span></li>
+        </ul>
+        <div class="callout why">
+          <span class="clabel">Why this matters clinically</span>
+          <p>Every claim you&rsquo;ll ever make that a patient &ldquo;got better&rdquo; is really a claim about capability &mdash; inferred from performance. The rest of this lesson is about making that inference well.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 PROCESSES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What&rsquo;s changing underneath</div>
+        <h2>Learning is a set of processes</h2>
+        <p>When someone learns a motor skill, changes happen at several levels at once &mdash; not just &ldquo;the movement gets better.&rdquo;</p>
+        <div class="pillars">
+          <div class="pillar">
+            <div class="ptag">Neural</div>
+            <ul><li>Neuroplasticity &mdash; the nervous system physically reorganizes.</li></ul>
+          </div>
+          <div class="pillar">
+            <div class="ptag">Perceptual</div>
+            <ul>
+              <li>Better detection of the relevant information in a situation.</li>
+              <li>Better error detection and use of movement feedback.</li>
+            </ul>
+          </div>
+          <div class="pillar">
+            <div class="ptag">Cognitive</div>
+            <ul>
+              <li>The skill demands <em>less attention</em> to perform.</li>
+              <li>Better decision-making, and better judgment of what counts as accurate.</li>
+            </ul>
+          </div>
+          <div class="pillar">
+            <div class="ptag">Neuromotor</div>
+            <ul><li>Muscles generate force more efficiently &mdash; less metabolic cost for the same output.</li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 PERFORMANCE VARIABLES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The core distinction</div>
+        <h2>Performance is not learning</h2>
+        <p>Any <em>single</em> performance may not reflect the real skill underneath. It can overshoot or fall short of your true capability, because many temporary factors push it around.</p>
+        <p>These transient influences are called <strong>performance variables</strong>:</p>
+        <div class="callout">
+          <span class="clabel">Performance variables</span>
+          <p>Caffeine &middot; sleep loss &middot; mood &middot; stress &middot; motivation &middot; extrinsic feedback. Each can lift or depress a single performance without changing what you&rsquo;ve actually learned.</p>
+        </div>
+        <p>So a great day at the clinic doesn&rsquo;t prove learning &mdash; and a bad day doesn&rsquo;t disprove it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 PARKINSON'S VIDEO (performance != learning) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">See it in the clinic</div>
+        <h2>When performance improves but nothing is learned</h2>
+        <p>People with Parkinson&rsquo;s disease can walk dramatically better when there are visual cues on the floor telling them where to step. But the moment the cues are removed, the old gait returns &mdash; there was no permanent change in the walking skill.</p>
+        <div class="videobox">
+          <div class="frame">
+            <iframe src="https://www.youtube.com/embed/aYMTOz9Rw3Y" title="Visual cueing and gait in Parkinson's disease" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <div class="video-cap">Cueing lifts performance instantly &mdash; and loses it just as fast. Improved performance, no learning.<br><span class="vlink">Video not loading? Open it here: <a href="https://youtu.be/aYMTOz9Rw3Y" target="_blank" rel="noopener">youtu.be/aYMTOz9Rw3Y</a></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 PERMANENT CHANGES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The other side</div>
+        <h2>Learning leaves a lasting change</h2>
+        <p>When someone genuinely learns, the change is <strong>relatively permanent</strong>: it survives a shift to new conditions and the passage of time. You can produce the skill even when the temporary factors line up against you &mdash;</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">&check;</span><span class="txt">while tired</span></li>
+          <li><span class="obj-num">&check;</span><span class="txt">on a real patient rather than a practice dummy</span></li>
+          <li><span class="obj-num">&check;</span><span class="txt">under stress, or in a bad mood</span></li>
+        </ul>
+        <p>That durability &mdash; performing despite the performance variables &mdash; is the fingerprint of learning.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 BJORK VIDEO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Going deeper</div>
+        <h2>The critical distinction, from a leading researcher</h2>
+        <p>Dr. Robert Bjork has spent a career on exactly this gap between what practice makes <em>look</em> easy and what it actually makes durable. His framing &mdash; that the conditions which speed up visible performance often <em>slow</em> real learning &mdash; is one we&rsquo;ll return to when we reach practice design.</p>
+        <div class="videobox">
+          <div class="frame">
+            <iframe src="https://www.youtube.com/embed/K0ZxGGN4R90" title="The Critical Distinction Between Learning and Performance — Dr. Robert Bjork" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <div class="video-cap">Dr. Robert Bjork &mdash; The Critical Distinction Between Learning and Performance.<br><span class="vlink">Video not loading? Open it here: <a href="https://www.youtube.com/watch?v=K0ZxGGN4R90" target="_blank" rel="noopener">youtube.com/watch?v=K0ZxGGN4R90</a></span></div>
+        </div>
+        <div class="callout" style="margin-top:16px">
+          <span class="clabel">Watch for</span>
+          <p>Bjork&rsquo;s idea of &ldquo;desirable difficulties&rdquo; &mdash; that making practice harder can make learning better. Hold it loosely now; it becomes central later in the course.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 BOILING ANALOGY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">An analogy</div>
+        <h2>Boiling water vs. boiling an egg</h2>
+        <p>A useful way to feel the difference between temporary and permanent change:</p>
+        <div class="analogy">
+          <div class="ana temp">
+            <div class="verdict">Temporary</div>
+            <h4>Boiling water</h4>
+            <p>Heat it and everything changes &mdash; bubbling, steam, motion. Take the heat away and it settles right back to still water. Nothing lasting happened.</p>
+          </div>
+          <div class="ana perm">
+            <div class="verdict">Permanent</div>
+            <h4>Boiling an egg</h4>
+            <p>Apply the same heat to an egg and the change doesn&rsquo;t reverse. Cool it down and it stays cooked. There is no way back.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px">Performance is boiling water. Learning is the egg.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 KC: variable or learning? (gated, all three) -->
+  <section class="screen" data-screen data-gate="pv">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2 style="font-size:23px;margin-bottom:8px">Temporary or permanent?</h2>
+        <p style="font-size:15.5px;margin-bottom:22px">For each, decide whether it&rsquo;s a temporary <strong>performance variable</strong> or evidence of a relatively permanent <strong>learning change</strong>. Answer all three to continue.</p>
+
+        <div class="pv-q" data-q="p1">
+          <p class="kc-q">1. A student nails a suturing task in lab, having had two cups of coffee and a great night&rsquo;s sleep.</p>
+          <button class="kc-opt" data-c="1">Performance variable (temporary)<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Learning change (permanent)<span class="mark"></span></button>
+          <div class="kc-fb" id="p1fb" role="status" hidden></div>
+        </div>
+
+        <div class="pv-q" data-q="p2" style="margin-top:26px">
+          <p class="kc-q">2. Six weeks after finishing practice, a patient still performs the transfer safely &mdash; at home, tired, with no therapist present.</p>
+          <button class="kc-opt" data-c="0">Performance variable (temporary)<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Learning change (permanent)<span class="mark"></span></button>
+          <div class="kc-fb" id="p2fb" role="status" hidden></div>
+        </div>
+
+        <div class="pv-q" data-q="p3" style="margin-top:26px">
+          <p class="kc-q">3. A person&rsquo;s gait looks normal only while floor cues are present, and reverts the instant they&rsquo;re removed.</p>
+          <button class="kc-opt" data-c="1">Performance variable (temporary)<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Learning change (permanent)<span class="mark"></span></button>
+          <div class="kc-fb" id="p3fb" role="status" hidden></div>
+        </div>
+
+        <div class="callout why" id="pvWrap" hidden style="margin-top:24px">
+          <span class="clabel">The tell</span>
+          <p>Notice the pattern: the temporary cases lean on a <em>support</em> (caffeine, sleep, floor cues) that, when removed, takes the performance with it. The learning case holds up precisely <em>because</em> the supports are gone. Durability across removed supports is the test.</p>
+        </div>
+        <p class="gate-note" id="pvnote">Answer all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 NOT DIRECTLY OBSERVABLE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why we infer</div>
+        <h2>Learning is never observed directly</h2>
+        <p>The real changes of learning are in the central nervous system &mdash; brain plasticity you can&rsquo;t see. What you <em>can</em> measure is performance over time, and from it you infer that learning occurred.</p>
+        <div class="callout">
+          <span class="clabel">Analogy</span>
+          <p>You see someone smile &mdash; observable behavior, like performance. From it you infer they&rsquo;re happy &mdash; an internal state, like learning. You never see the happiness itself; you reason to it from what you can see.</p>
+        </div>
+        <p>This is why the whole field leans on careful study designs: if learning can only be inferred, the inference has to be built well. That&rsquo;s the next lesson.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 COMPARISON TABLE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Side by side</div>
+        <h2>Performance vs. learning</h2>
+        <p>Everything so far, in one view:</p>
+        <table class="cmp">
+          <thead>
+            <tr><th scope="col">Performance</th><th scope="col">Learning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Observable behavior</td><td>Inferred from performance</td></tr>
+            <tr><td>Temporary</td><td>Relatively permanent</td></tr>
+            <tr><td>May not be due to practice</td><td>Results from practice</td></tr>
+            <tr><td>Can be swayed by performance variables</td><td>Not swayed by performance variables</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CHARACTERISTICS + wrap -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What learning looks like over time</div>
+        <h2>Five signs of skill learning</h2>
+        <p>As a skill is genuinely learned, performance tends to show five characteristics:</p>
+        <div class="char-row">
+          <div class="char"><div class="cn">1</div><h4>Improvement</h4><p>Performance gets better over time.</p></div>
+          <div class="char"><div class="cn">2</div><h4>Consistency</h4><p>It becomes more reliable, trial to trial.</p></div>
+          <div class="char"><div class="cn">3</div><h4>Persistence</h4><p>Gains hold up over longer and longer stretches.</p></div>
+          <div class="char"><div class="cn">4</div><h4>Adaptability</h4><p>The skill works across varied contexts.</p></div>
+          <div class="char"><div class="cn">5</div><h4>Less attention</h4><p>It takes less mental effort to perform.</p></div>
+        </div>
+        <div class="callout">
+          <span class="clabel">Next: Performance Curves</span>
+          <p>You now have the definition and the performance/learning distinction. Next we plot performance against practice &mdash; and see why those curves still don&rsquo;t show you learning directly.</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">When you&rsquo;re done, continue to <strong>Lesson 2: Performance Curves</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer all three to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent= last ? "Finish" : "Next \u2192";
+    nx.disabled= !last && locked(cur);
+    document.getElementById("lockmsg").hidden = !(!last && locked(cur));
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  }
+  document.getElementById("btnNext").onclick=function(){ go(1); };
+  document.getElementById("btnBack").onclick=function(){ go(-1); };
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  function makeMultiCheck(sel, FB, keys, gateName, wrapId, noteId, doneMsg){
+    var done={};
+    document.querySelectorAll(sel).forEach(function(q){
+      var key=q.dataset.q;
+      q.querySelectorAll(".kc-opt").forEach(function(opt){
+        opt.addEventListener("click",function(){
+          q.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+          var ok=opt.dataset.c==="1";
+          if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+          else{
+            opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+            q.querySelectorAll(".kc-opt").forEach(function(o){
+              if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+          }
+          var fb=document.getElementById(key+"fb");
+          fb.className="kc-fb "+(ok?"ok":"no");
+          fb.innerHTML=FB[key][ok?"ok":"no"];
+          fb.hidden=false;
+          done[key]=true;
+          if(keys.every(function(k){return done[k];})){
+            answered[gateName]=true;
+            document.getElementById(wrapId).hidden=false;
+            document.getElementById(noteId).textContent=doneMsg;
+            document.getElementById("btnNext").disabled=false;
+            document.getElementById("lockmsg").hidden=true;
+          }
+        });
+      });
+    });
+  }
+
+  var PVFB={
+    p1:{ok:"<strong>Correct.</strong> Coffee and good sleep are classic <em>performance variables</em> \u2014 they lift this one attempt without proving the underlying skill changed.",
+        no:"This is a <strong>performance variable</strong>. Caffeine and sleep boost a single performance; they say nothing about durable capability. Take them away and the performance may sag."},
+    p2:{ok:"<strong>Correct.</strong> Durable, weeks later, without the therapist and despite fatigue \u2014 that's the fingerprint of a relatively permanent <strong>learning change</strong>.",
+        no:"This is a <strong>learning change</strong>. It persists across time and removed supports (no therapist, while tired) \u2014 exactly what temporary factors can't explain."},
+    p3:{ok:"<strong>Correct.</strong> The gait depends on the floor cues and collapses without them \u2014 a textbook temporary <strong>performance variable</strong>, not learning.",
+        no:"This is a <strong>performance variable</strong>. The improvement lives entirely in the cue; remove the support and it vanishes. Nothing permanent was learned."}
+  };
+  makeMultiCheck(".pv-q", PVFB, ["p1","p2","p3"], "pv", "pvWrap", "pvnote", "All three answered \u2014 you can continue.");
+
+  show(0);
+})();
+</script>
+</body>
+</html>
