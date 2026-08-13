@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 2 / Lesson 3 - Motor Learning Study Design
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 · Lesson 3 — Motor Learning Study Design</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 2 &nbsp;&rsaquo;&nbsp; <b>Lesson 3: Motor Learning Study Design</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">15</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 2 &middot; Lesson 3</div>
+        <h1>Motor Learning Study Design</h1>
+        <p>If learning can only be inferred, the inference has to be built well. Here&rsquo;s the design that does it.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~30 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 8</span>
+          <span><span class="dot"></span> Sets up the lab</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Explain why a practice-phase comparison <strong>can&rsquo;t</strong> tell you which group learned more.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Describe the <strong>transfer/retention design</strong> and the logic that makes it work.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Interpret the <strong>four possible outcomes</strong> of a retention test.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Lay out the <strong>phases of a typical study</strong> and distinguish outcome vs. production measures.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 THE PUTTING PROBLEM -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The problem</div>
+        <h2>Does a putting aid actually help people learn?</h2>
+        <p>You want to test whether a new <strong>golf putting alignment aid</strong> improves <em>learning</em> to putt. The device gives a mirror reflection for consistent setup and gated slots for square contact:</p>
+        <div class="aid-imgs">
+          <figure><img src="images/golf-aid-1.jpg" alt="A golfer using a putting alignment aid with a mirror for consistent setup and aim"><figcaption>Mirror reflection &mdash; consistent setup and aim</figcaption></figure>
+          <figure><img src="images/golf-aid-2.jpg" alt="Close-up of the putting aid's gate slots that guide square club-face contact"><figcaption>Gate slots &mdash; square contact and speed</figcaption></figure>
+        </div>
+        <p>So you run a clean experiment:</p>
+        <div class="exp-groups">
+          <div class="exp-g aid">
+            <div class="gk">Group 1</div>
+            <h4>Practices with the aid</h4>
+            <p>Putts using the alignment device on every trial.</p>
+          </div>
+          <div class="exp-g noaid">
+            <div class="gk">Group 2</div>
+            <h4>Practices without the aid</h4>
+            <p>Putts under otherwise identical conditions, no device.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px">Both groups practice the same amount. You measure success rate per 10 putts across 10 sessions, and plot the curves.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 WHICH LEARNED MORE (prediction gate) -->
+  <section class="screen" data-screen data-gate="guess">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Your call</div>
+        <h2>During practice, the aided group scores higher</h2>
+        <p>Throughout all 10 practice sessions, the group using the alignment aid sinks more putts. The curves are clear and consistent.</p>
+        <p><strong>Can you conclude the aid group learned more?</strong></p>
+        <div id="guessopts">
+          <button class="kc-opt" data-c="0">Yes &mdash; they performed better across every session, so they clearly learned more.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">No &mdash; better performance <em>during practice with the device</em> might be a temporary effect of the device.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="guessfb" role="status" hidden></div>
+        <p class="gate-note" id="guessnote">Choose an answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 EFFECTS OF PRACTICE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why you can&rsquo;t tell yet</div>
+        <h2>Practice has two kinds of effect</h2>
+        <p>Practice changes a learner in two ways at once, and a practice-phase curve blends them together:</p>
+        <div class="analogy">
+          <div class="ana temp">
+            <div class="verdict">Temporary</div>
+            <h4>Vanish with time or changed conditions</h4>
+            <p>Effects that disappear once you rest, or once the conditions change &mdash; like the aid being removed.</p>
+          </div>
+          <div class="ana perm">
+            <div class="verdict">Relatively permanent</div>
+            <h4>Persist across days and years</h4>
+            <p>The durable changes that are the actual target &mdash; what we mean by learning.</p>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The trap</span>
+          <p>The aided group&rsquo;s better practice performance <em>could</em> be real learning &mdash; or just the temporary crutch of the device. From the practice curve alone, <strong>you cannot tell which</strong>. That&rsquo;s the whole problem.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 THE DESIGN -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The solution</div>
+        <h2>The transfer / retention design</h2>
+        <p>To separate the two kinds of effect, you add two things after practice ends:</p>
+        <div class="phases">
+          <div class="phase rest">
+            <div class="pdot">1</div>
+            <div class="pbody">
+              <h4>Wait &mdash; let temporary effects fade</h4>
+              <p>Insert a rest period so any temporary effects of practice dissipate. The amount varies, but typically <strong>at least 24 hours</strong>.</p>
+            </div>
+          </div>
+          <div class="phase test">
+            <div class="pdot">2</div>
+            <div class="pbody">
+              <h4>Re-test everyone under identical conditions</h4>
+              <p>Bring all groups back and test them the same way &mdash; crucially, <strong>with no alignment aid for anyone</strong>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="clabel">The logic</span>
+          <p>Any difference that <em>remains</em> at the retention test &mdash; after temporary effects have faded and the crutch is gone &mdash; must reflect a difference in the <strong>relatively permanent capability</strong> built during practice. That is learning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 RETENTION VS TRANSFER quick note -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Two flavors of the test</div>
+        <h2>Retention vs. transfer test</h2>
+        <p>The final test comes in two forms, and the difference matters:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">R</span><span class="txt"><strong>Retention test</strong> &mdash; the <em>same</em> task, performed later. Asks: did the capability last?</span></li>
+          <li><span class="obj-num">T</span><span class="txt"><strong>Transfer test</strong> &mdash; a <em>related but different</em> task or context. Asks: did the capability generalize?</span></li>
+        </ul>
+        <p>Either one, given after rest and under common conditions, isolates the permanent effect. We&rsquo;ll dig into transfer specifically in the next lesson.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 INTERACTIVE: FOUR SITUATIONS -->
+  <section class="screen" data-screen data-gate="sits">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Read the results</div>
+        <h2>Four things the retention test could show</h2>
+        <p>The practice curves are fixed: the aid group (teal) outperformed the no-aid group (gold) all through practice. Now the retention test comes back. <strong>Select each of the four outcomes</strong> to see where the groups land and what it means.</p>
+        <svg viewBox="0 0 340 200" id="sitSvg" role="img" aria-label="Chart comparing an alignment-aid group and a no-aid group during practice and at a retention test">
+  <!-- axes -->
+  <line x1="34" y1="165" x2="320" y2="165" stroke="#c3ced4" stroke-width="1.5"/>
+  <line x1="34" y1="165" x2="34" y2="18" stroke="#c3ced4" stroke-width="1.5"/>
+  <text x="120" y="184" text-anchor="middle" font-size="9" fill="#7a8a99">Practice sessions</text>
+  <text x="283" y="184" text-anchor="middle" font-size="9" fill="#7a8a99">Retention test</text>
+  <text x="15" y="92" text-anchor="middle" font-size="9" fill="#7a8a99" transform="rotate(-90 15 92)">Performance</text>
+  <!-- rest divider -->
+  <line x1="205" y1="20" x2="205" y2="165" stroke="#d5dde2" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="248" y1="20" x2="248" y2="165" stroke="#d5dde2" stroke-width="1" stroke-dasharray="4 4"/>
+  <text x="226" y="30" text-anchor="middle" font-size="8" fill="#aab6bf">rest</text>
+  <!-- practice curves (fixed): aid ends higher than no-aid -->
+  <path d="M34 150 C 90 95, 150 70, 200 58" fill="none" stroke="#1a7f8e" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M34 152 C 90 120, 150 108, 200 100" fill="none" stroke="#e0a458" stroke-width="2.6" stroke-linecap="round"/>
+  <!-- practice end labels -->
+  <circle cx="200" cy="58" r="3.5" fill="#1a7f8e"/>
+  <circle cx="200" cy="100" r="3.5" fill="#e0a458"/>
+  <!-- retention connectors + points (these get redrawn by JS) -->
+  <path id="aidConn" d="M200 58 L285 58" fill="none" stroke="#1a7f8e" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>
+  <path id="noaidConn" d="M200 100 L285 100" fill="none" stroke="#e0a458" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>
+  <circle id="aidPt" cx="285" cy="58" r="5" fill="#1a7f8e" opacity="0"/>
+  <circle id="noaidPt" cx="285" cy="100" r="5" fill="#e0a458" opacity="0"/>
+  <!-- legend -->
+  <rect x="44" y="24" width="10" height="10" rx="2" fill="#1a7f8e"/><text x="58" y="33" font-size="9" fill="#3d4d5c">Alignment aid</text>
+  <rect x="44" y="38" width="10" height="10" rx="2" fill="#e0a458"/><text x="58" y="47" font-size="9" fill="#3d4d5c">No aid</text>
+</svg>
+        <div class="sit-controls">
+          <button class="sitbtn" data-s="1">Situation 1</button>
+          <button class="sitbtn" data-s="2">Situation 2</button>
+          <button class="sitbtn" data-s="3">Situation 3</button>
+          <button class="sitbtn" data-s="4">Situation 4</button>
+        </div>
+        <div class="sit-readout" id="sitReadout">
+          <div class="sr-tag">Select a situation</div>
+          <h4>What did the retention test reveal?</h4>
+          <p>Each button redraws the retention-test result and interprets it. Try all four &mdash; they cover every way the study could turn out.</p>
+        </div>
+        <p class="gate-note" id="sitnote" style="margin-top:14px">Explore all four to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 SITUATION 4 EMPHASIS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The counterintuitive one</div>
+        <h2>When practicing with help <em>hurts</em> learning</h2>
+        <p>Situation 4 is the surprise: the aid group looked best during practice but ended up <strong>worse</strong> at retention. The device created a <em>sense</em> of learning that evaporated when it was removed.</p>
+        <div class="callout why">
+          <span class="clabel">This is not a fluke</span>
+          <p>Certain practice conditions reliably do this &mdash; they boost performance now while degrading learning. <strong>Extrinsic feedback</strong> given too often, and <strong>massed practice</strong>, are two examples you&rsquo;ll meet later. Bjork&rsquo;s &ldquo;desirable difficulties&rdquo; from Lesson 1 is the flip side of the same coin.</p>
+        </div>
+        <p>The practical lesson: never trust practice performance as proof of learning. Always look to the retention or transfer test.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 KC: interpret a result (gated single) -->
+  <section class="screen" data-screen data-gate="interp">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17.5px;margin:4px 0 18px">A group trained with constant therapist cueing outperforms a no-cueing group all through practice. At a retention test 48 hours later &mdash; no cueing for anyone &mdash; the two groups score <strong>the same</strong>. What do you conclude?</p>
+        <div id="interpopts">
+          <button class="kc-opt" data-c="0">Cueing improved learning.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Cueing produced only temporary gains; it did not improve learning.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Cueing impaired learning.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="interpfb" role="status" hidden></div>
+        <p class="gate-note" id="interpnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 TYPICAL DESIGN PHASES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Putting it together</div>
+        <h2>The shape of a motor learning study</h2>
+        <p>Almost every motor learning study &mdash; including the one you&rsquo;ll run in lab &mdash; follows the same sequence of phases:</p>
+        <div class="phases">
+          <div class="phase"><div class="pdot">1</div><div class="pbody"><h4>Familiarization</h4><p>Learners get comfortable with the task and equipment so first-timer confusion doesn&rsquo;t pollute the data.</p></div></div>
+          <div class="phase"><div class="pdot">2</div><div class="pbody"><h4>Baseline test</h4><p>Measure starting performance before any practice, so you can see change.</p></div></div>
+          <div class="phase"><div class="pdot">3</div><div class="pbody"><h4>Acquisition</h4><p>The practice phase &mdash; trials grouped into blocks. This is where the manipulation (the aid, the feedback, the schedule) happens.</p></div></div>
+          <div class="phase rest"><div class="pdot">4</div><div class="pbody"><h4>Rest</h4><p>Let temporary effects dissipate &mdash; typically at least 24 hours.</p></div></div>
+          <div class="phase test"><div class="pdot">5</div><div class="pbody"><h4>Retention / transfer test</h4><p>Re-test all groups under identical conditions. This is the measurement that speaks to learning.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 ORDER THE PHASES (interactive, gated) -->
+  <section class="screen" data-screen data-gate="order">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Check yourself</div>
+        <h2>Put the study in order</h2>
+        <p>Here are the five phases, shuffled. <strong>Drag them into the correct order</strong>, top to bottom &mdash; or tap one, then tap another, to swap them. On a keyboard, focus a card and use the &uarr; / &darr; keys.</p>
+        <ol class="order-list" id="orderList" aria-label="Arrange the study phases in order"></ol>
+        <button class="btn check-btn" id="orderCheck" type="button">Check my order</button>
+        <div class="order-fb" id="orderFb" role="status" hidden></div>
+        <p class="gate-note" id="ordernote">Arrange the phases and check to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 WHAT TO MEASURE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Measurement</div>
+        <h2>What do you actually measure?</h2>
+        <p>Quantitative measurement is essential &mdash; and it takes two decisions: <strong>which</strong> aspects of performance to measure, and <strong>how</strong> to measure them.</p>
+        <div class="callout">
+          <span class="clabel">Try it</span>
+          <p>Throwing at a target: do you measure how close to the bullseye (the result)? Or the arm&rsquo;s joint angles and muscle timing (the movement that produced it)? Both are valid &mdash; they answer different questions. That split defines the two measurement families on the next screen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 TWO MEASURE TYPES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Two families of measure</div>
+        <h2>Outcome vs. production measures</h2>
+        <div class="meas">
+          <div class="meas-col outcome">
+            <div class="mh">Performance outcome</div>
+            <div class="mc">
+              <p class="def">The <strong>result</strong> of the movement &mdash; what happened, not how.</p>
+              <ul>
+                <li>How far the ball was thrown</li>
+                <li>Reaction time</li>
+                <li>Error from a target</li>
+                <li>Number of successful trials</li>
+              </ul>
+              <p class="note">Tells you the outcome &mdash; but nothing about the muscles or nervous system that produced it.</p>
+            </div>
+          </div>
+          <div class="meas-col production">
+            <div class="mh">Performance production</div>
+            <div class="mc">
+              <p class="def"><strong>How</strong> the nervous, muscular, and skeletal systems produced the movement.</p>
+              <ul>
+                <li>Kinematics of joint movements</li>
+                <li>Muscle activation (EMG)</li>
+                <li>Brain activity (EEG, fNIRS, fMRI)</li>
+              </ul>
+              <p class="note">Speaks to the movement and neuromotor levels &mdash; the mechanisms underneath the outcome.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Explain why practice-phase performance <strong>can&rsquo;t</strong> establish learning.</span></li>
+          <li><span class="n">2</span><span class="t">Describe the <strong>transfer/retention design</strong> &mdash; rest, then re-test under common conditions &mdash; and why it works.</span></li>
+          <li><span class="n">3</span><span class="t">Interpret all <strong>four retention-test outcomes</strong>, including the counterintuitive one.</span></li>
+          <li><span class="n">4</span><span class="t">Lay out the five study <strong>phases</strong> and tell <strong>outcome</strong> from <strong>production</strong> measures.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next: Transfer of Learning</span>
+          <p>You&rsquo;ve met the transfer <em>test</em>. Next we treat transfer as a phenomenon in its own right &mdash; near vs. far, positive vs. negative, and why it&rsquo;s the real goal of practice.</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">When you&rsquo;re done, continue to <strong>Lesson 4: Transfer of Learning</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent= last ? "Finish" : "Next \u2192";
+    nx.disabled= !last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden = !(!last && locked(cur));
+    lm.textContent = (screens[cur].dataset.gate==="sits") ? "Explore all four to continue"
+                   : (screens[cur].dataset.gate==="order") ? "Arrange and check to continue"
+                   : "Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  }
+  document.getElementById("btnNext").onclick=function(){ go(1); };
+  document.getElementById("btnBack").onclick=function(){ go(-1); };
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  function makeSingle(wrapId, fbId, noteId, gate, FBok, FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{
+          opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){
+            if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+        }
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+
+  makeSingle("guessopts","guessfb","guessnote","guess",
+    "<strong>Exactly.</strong> Better performance <em>with the device in hand</em> could be a temporary crutch, not durable learning. You can't separate the two from the practice curve alone \u2014 which is why we need a different design.",
+    "<strong>Careful.</strong> Performing better <em>while using the aid</em> doesn't prove they learned more \u2014 the gain might vanish the moment the device is removed. The practice curve can't separate temporary help from real learning.");
+
+  makeSingle("interpopts","interpfb","interpnote","interp",
+    "<strong>Correct.</strong> Equal scores at retention, after rest and with the cue removed, mean the cueing advantage was <em>temporary</em>. No lasting learning difference \u2014 that's Situation 3.",
+    "<strong>Reconsider.</strong> At retention the groups are <em>equal</em>. The practice advantage disappeared once the cue was gone and time had passed \u2014 so cueing gave only temporary gains, not better learning.");
+
+  // interactive four situations
+  var SIT={
+    "1":{aidY:58,noaidY:120,cls:"",tag:"Situation 1 \u2014 aid clearly ahead",
+         h:"The aid group performs much better at retention",
+         p:"The advantage survives rest and the removal of the device. Interpretation: practicing with the aid produced <strong>more motor learning</strong> than practicing without it."},
+    "2":{aidY:78,noaidY:120,cls:"",tag:"Situation 2 \u2014 aid ahead, but less",
+         h:"The aid group is still better, but the gap shrank",
+         p:"Some of the practice advantage held up, some didn't. Interpretation: the aid produced <strong>real learning</strong> <em>and</em> some <strong>temporary</strong> effect \u2014 the temporary part faded at retention."},
+    "3":{aidY:110,noaidY:114,cls:"",tag:"Situation 3 \u2014 groups equal",
+         h:"Both groups land in the same place",
+         p:"The practice advantage vanished once the device was gone. Interpretation: the aid gave only <strong>temporary</strong> gains during practice \u2014 it did <strong>not</strong> improve learning."},
+    "4":{aidY:128,noaidY:104,cls:"warn",tag:"Situation 4 \u2014 aid now worse",
+         h:"The aid group ends up below the no-aid group",
+         p:"The device flattered performance during practice but <strong>impaired learning</strong>. The gains felt real, then disappeared \u2014 and left the aid group behind. Counterintuitive, but it genuinely happens."}
+  };
+  var svg=document.getElementById("sitSvg");
+  var aidConn=document.getElementById("aidConn"), noaidConn=document.getElementById("noaidConn");
+  var aidPt=document.getElementById("aidPt"), noaidPt=document.getElementById("noaidPt");
+  var seen={}, sitBtns=document.querySelectorAll(".sitbtn");
+  sitBtns.forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var s=btn.dataset.s, d=SIT[s];
+      sitBtns.forEach(function(x){x.classList.remove("active")});
+      btn.classList.add("active");
+      // redraw retention endpoints
+      aidConn.setAttribute("d","M200 58 L285 "+d.aidY); aidConn.setAttribute("opacity","1");
+      noaidConn.setAttribute("d","M200 100 L285 "+d.noaidY); noaidConn.setAttribute("opacity","1");
+      aidPt.setAttribute("cy",d.aidY); aidPt.setAttribute("opacity","1");
+      noaidPt.setAttribute("cy",d.noaidY); noaidPt.setAttribute("opacity","1");
+      var ro=document.getElementById("sitReadout");
+      ro.className="sit-readout"+(d.cls?" "+d.cls:"");
+      ro.innerHTML="<div class='sr-tag'>"+d.tag+"</div><h4>"+d.h+"</h4><p>"+d.p+"</p>";
+      seen[s]=true;
+      if(seen["1"]&&seen["2"]&&seen["3"]&&seen["4"]){
+        answered.sits=true;
+        document.getElementById("sitnote").textContent="All four explored \u2014 you can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      }
+    });
+  });
+
+  // order-the-phases interaction
+  (function(){
+    var correct=[
+      {id:"fam",label:"Familiarization"},
+      {id:"base",label:"Baseline test"},
+      {id:"acq",label:"Acquisition (practice)"},
+      {id:"rest",label:"Rest"},
+      {id:"test",label:"Retention / transfer test"}
+    ];
+    var list=document.getElementById("orderList");
+    // shuffle (ensure not already in order)
+    function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
+    var order=shuffle(correct);
+    var tries=0;
+    while(order.map(function(x){return x.id}).join()===correct.map(function(x){return x.id}).join() && tries++<10){order=shuffle(correct);}
+
+    var selected=null;
+    function render(){
+      list.innerHTML="";
+      order.forEach(function(item,idx){
+        var li=document.createElement("li");
+        li.className="order-item"; li.draggable=true; li.tabIndex=0;
+        li.dataset.id=item.id;
+        li.setAttribute("aria-label",item.label+", position "+(idx+1)+" of "+order.length);
+        li.innerHTML='<span class="pos">'+(idx+1)+'</span><span class="grip" aria-hidden="true">&#8942;&#8942;</span>'+item.label;
+        list.appendChild(li);
+      });
+      wire();
+    }
+    function idxOf(el){return Array.prototype.indexOf.call(list.children,el);}
+    function move(from,to){
+      if(to<0||to>=order.length)return;
+      var m=order.splice(from,1)[0]; order.splice(to,0,m); render();
+      list.children[to].focus();
+    }
+    function swap(i,j){var t=order[i];order[i]=order[j];order[j]=t;render();}
+
+    function wire(){
+      var items=list.querySelectorAll(".order-item");
+      items.forEach(function(li){
+        // tap to select then tap target to swap
+        li.addEventListener("click",function(e){
+          var i=idxOf(li);
+          if(selected===null){ selected=i; li.classList.add("selected"); }
+          else if(selected===i){ selected=null; li.classList.remove("selected"); }
+          else { swap(selected,i); selected=null; }
+        });
+        // keyboard reorder
+        li.addEventListener("keydown",function(e){
+          var i=idxOf(li);
+          if(e.key==="ArrowUp"){e.preventDefault();move(i,i-1);}
+          else if(e.key==="ArrowDown"){e.preventDefault();move(i,i+1);}
+        });
+        // native drag
+        li.addEventListener("dragstart",function(e){ li.classList.add("dragging"); e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain",li.dataset.id);}catch(x){} });
+        li.addEventListener("dragend",function(){ li.classList.remove("dragging"); list.querySelectorAll(".over").forEach(function(o){o.classList.remove("over")}); });
+        li.addEventListener("dragover",function(e){ e.preventDefault(); li.classList.add("over"); });
+        li.addEventListener("dragleave",function(){ li.classList.remove("over"); });
+        li.addEventListener("drop",function(e){
+          e.preventDefault(); li.classList.remove("over");
+          var dragging=list.querySelector(".dragging"); if(!dragging)return;
+          var from=idxOf(dragging), to=idxOf(li);
+          if(from!==to) move(from,to);
+        });
+      });
+    }
+    render();
+
+    document.getElementById("orderCheck").addEventListener("click",function(){
+      var items=list.querySelectorAll(".order-item");
+      var right=true;
+      items.forEach(function(li,idx){
+        li.classList.remove("ok","bad","selected");
+        if(order[idx].id===correct[idx].id){li.classList.add("ok");}
+        else{li.classList.add("bad");right=false;}
+      });
+      selected=null;
+      var fb=document.getElementById("orderFb");
+      if(right){
+        fb.className="order-fb ok";
+        fb.innerHTML="<strong>That's the sequence.</strong> Familiarization &rarr; baseline &rarr; acquisition &rarr; rest &rarr; retention/transfer test. The rest before the final test is what lets temporary effects fade &mdash; without it, you can't read learning.";
+        fb.hidden=false;
+        answered.order=true;
+        document.getElementById("ordernote").textContent="Correct \u2014 you can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      }else{
+        fb.className="order-fb no";
+        fb.innerHTML="<strong>Not quite.</strong> The green cards are in the right spot; the red ones aren't. Hint: nothing can be measured before the learner is <em>familiarized</em>, and the <em>rest</em> must come right before the final test.";
+        fb.hidden=false;
+      }
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
