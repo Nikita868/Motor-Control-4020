@@ -163,6 +163,27 @@
   .pchip.chosen{border-color:var(--accent);background:var(--accent-soft)}
   .pchip.dim{opacity:.55}
 
+
+  /* clickable implication / taxonomy cards */
+  .reveal-list{display:flex;flex-direction:column;gap:11px;margin-top:18px}
+  .reveal-card{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0;cursor:pointer;font-family:inherit;overflow:hidden;transition:.16s}
+  .reveal-card:hover{border-color:var(--accent);background:#fafdfe}
+  .reveal-card[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 3px 12px rgba(26,127,142,.10)}
+  .reveal-head{display:grid;grid-template-columns:34px 1fr 28px;gap:12px;align-items:center;padding:15px 17px}
+  .reveal-num{width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .reveal-title{font-size:15.5px;font-weight:750;color:var(--ink);line-height:1.35}
+  .reveal-plus{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .22s}
+  .reveal-card[aria-expanded="true"] .reveal-plus{transform:rotate(45deg)}
+  .reveal-body{display:block;max-height:0;overflow:hidden;padding:0 18px 0 63px;transition:max-height .28s ease,padding .28s ease}
+  .reveal-card[aria-expanded="true"] .reveal-body{max-height:420px;padding-bottom:16px}
+  .reveal-body p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .reveal-body p:last-child{margin-bottom:0}
+  .taxonomy-mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  @media(max-width:600px){.taxonomy-mini{grid-template-columns:1fr}}
+  .tax-box{border:1px solid var(--line);border-radius:8px;background:#fafbfc;padding:12px 13px}
+  .tax-box h4{font-size:14px;margin:0 0 4px;color:var(--ink)}
+  .tax-box p{font-size:13.3px;margin:0;color:#556}
+
   .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
   .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
   .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
@@ -453,12 +474,34 @@
       <div class="eyebrow">What the differential approach adds</div>
       <h2>Individual differences are part of motor learning</h2>
       <p>Group averages are useful, but they can hide the fact that learners bring different motor abilities to a task. The differential approach asks what those differences are and whether performance relationships across tasks reveal common or specific underlying abilities.</p>
-      <ul class="obj-list">
-        <li><span class="obj-num">1</span><span class="txt"><strong>Do not assume success on one task predicts success on another.</strong> The two tasks may rely on different abilities.</span></li>
-        <li><span class="obj-num">2</span><span class="txt"><strong>Think about the abilities demanded by the specific skill.</strong> Motor abilities contribute to the achievement potential a learner brings to that task.</span></li>
-        <li><span class="obj-num">3</span><span class="txt"><strong>Look at individuals, not only averages.</strong> Differences in starting performance and rate of improvement are meaningful questions, not just statistical noise.</span></li>
-      </ul>
-      <div class="callout"><span class="clabel">Lab connection</span><p>Balance provides a clean way to test the specificity idea: does performance on one balance task actually predict performance on another?</p></div>
+      <p style="font-size:14.5px;color:var(--muted);margin-top:2px"><strong>Select each point</strong> to reveal why it matters.</p>
+
+      <div class="reveal-list">
+        <button class="reveal-card" type="button" aria-expanded="false">
+          <span class="reveal-head"><span class="reveal-num">1</span><span class="reveal-title">Do not assume success on one task predicts success on another.</span><span class="reveal-plus">+</span></span>
+          <span class="reveal-body"><p>The two tasks may rely on different abilities. A person can perform very well on one motor task and only moderately on another, even when the tasks seem superficially similar.</p></span>
+        </button>
+
+        <button class="reveal-card" type="button" aria-expanded="false">
+          <span class="reveal-head"><span class="reveal-num">2</span><span class="reveal-title">Think about the abilities demanded by the specific skill &mdash; but remember that there is no single agreed-upon list of human motor abilities.</span><span class="reveal-plus">+</span></span>
+          <span class="reveal-body">
+            <p>Researchers have proposed different ways to organize motor abilities. One influential example comes from <strong>Edwin Fleishman</strong>, who developed a taxonomy for human-factors and job-performance research.</p>
+            <p>Fleishman&rsquo;s goal was to identify the <strong>fewest independent ability categories</strong> that would still be useful for describing performance across a wide variety of tasks.</p>
+            <div class="taxonomy-mini">
+              <div class="tax-box"><h4>Perceptual-motor abilities</h4><p>Fleishman proposed <strong>11</strong> categories in this broad group.</p></div>
+              <div class="tax-box"><h4>Physical proficiency abilities</h4><p>He proposed <strong>9</strong> categories in this broad group.</p></div>
+            </div>
+            <p style="margin-top:10px"><strong>Important:</strong> treat taxonomies like this as proposed frameworks, not a universally accepted master list of all the abilities people possess.</p>
+          </span>
+        </button>
+
+        <button class="reveal-card" type="button" aria-expanded="false">
+          <span class="reveal-head"><span class="reveal-num">3</span><span class="reveal-title">Look at individuals, not only averages.</span><span class="reveal-plus">+</span></span>
+          <span class="reveal-body"><p>Differences in starting performance and rate of improvement are meaningful questions, not just statistical noise. Those differences may help us identify which underlying characteristics matter for a particular task.</p></span>
+        </button>
+      </div>
+
+      <div class="callout" style="margin-top:18px"><span class="clabel">Lab connection</span><p>Balance provides a clean way to test the specificity idea: does performance on one balance task actually predict performance on another?</p></div>
     </div></div>
   </section>
 
@@ -500,6 +543,12 @@
     b.onclick=function(){if(i<=furthest) show(i);}; dotsWrap.appendChild(b);
   });
   function locked(i){var g=screens[i].dataset.gate; return g && !answered[g];}
+  document.querySelectorAll('.reveal-card').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var open=btn.getAttribute('aria-expanded')==='true';
+      btn.setAttribute('aria-expanded',open?'false':'true');
+    });
+  });
   function show(i){
     screens[cur].classList.remove('active'); cur=i; screens[cur].classList.add('active');
     if(cur>furthest) furthest=cur;
