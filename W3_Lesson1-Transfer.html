@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 2 / Lesson 4 - Transfer of Learning
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 · Lesson 4 — Transfer of Learning</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 2 &nbsp;&rsaquo;&nbsp; <b>Lesson 4: Transfer of Learning</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">17</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 2 &middot; Lesson 4</div>
+        <h1>Transfer of Learning</h1>
+        <p>Practice is never the goal. What you actually want is for the skill to show up somewhere else &mdash; a new task, a real patient, the world.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~25 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 8</span>
+          <span><span class="dot"></span> Opens this week</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Distinguish a <strong>retention test</strong> from a <strong>transfer test</strong>, and tell <strong>near</strong> from <strong>far</strong> transfer.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Explain why <strong>task similarity</strong> drives transfer (the <strong>identical elements</strong> hypothesis).</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Describe when transfer helps most, and name the <strong>factors that promote</strong> it.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Distinguish <strong>positive</strong> from <strong>negative</strong> transfer, and read a real transfer study.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 RETENTION VS TRANSFER -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Two kinds of test</div>
+        <h2>Retention vs. transfer</h2>
+        <p>You met both briefly in Lesson 3. Here&rsquo;s the full distinction:</p>
+        <div class="tx-cols">
+          <div class="tx-col near">
+            <div class="th">Retention test</div>
+            <div class="tc">
+              <p class="d">Skill assessed under the <strong>same</strong> conditions as practice.</p>
+              <ul>
+                <li><strong>Asks:</strong> did the skill <em>persist</em> after practice ended?</li>
+                <li>Retention = the maintenance of a skill over time.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tx-col far">
+            <div class="th">Transfer test</div>
+            <div class="tc">
+              <p class="d">Performance under conditions that <strong>differ</strong> from practice.</p>
+              <ul>
+                <li><strong>Asks:</strong> did the learning <em>generalize</em> to something new?</li>
+                <li>Transfer = the influence of prior learning on a new skill, or the same skill in unpracticed conditions.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 TRANSFER EXAMPLES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Everyday transfer</div>
+        <h2>You rely on transfer constantly</h2>
+        <p>Almost nothing you practice is used in exactly the setting you practiced it. Transfer is what makes practice worth doing:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">&rarr;</span><span class="txt">Learning to type on a computer keyboard &mdash; then typing on a phone screen.</span></li>
+          <li><span class="obj-num">&rarr;</span><span class="txt">Learning to drive a manual transmission &mdash; then driving an automatic.</span></li>
+          <li><span class="obj-num">&rarr;</span><span class="txt">Learning a tennis forehand &mdash; then playing pickleball.</span></li>
+          <li><span class="obj-num">&rarr;</span><span class="txt">Rollerblading &mdash; then stepping onto ice skates.</span></li>
+        </ul>
+        <div class="reflect">
+          <span class="rlabel">Reflect</span>
+          <p>Think of a skill in <em>your</em> field that you first practice in one setting and then must perform in another. What changes between the two &mdash; and what carries over?</p>
+          <textarea class="reflect-input" id="reflectBox" rows="5" placeholder="Type your response here&hellip;" aria-label="Your reflection"></textarea>
+          <div class="reflect-actions">
+            <span class="reflect-status" id="reflectStatus" role="status"></span>
+            <button type="button" class="reflect-copy" id="reflectCopy">Copy my response</button>
+          </div>
+          <p class="reflect-note">This is a personal thinking prompt &mdash; it isn&rsquo;t submitted or graded. Your text is saved on <em>this device only</em>. Use <strong>Copy my response</strong> to paste it into a discussion, journal, or assignment if one is set.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 NEAR VS FAR -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">How much carries over</div>
+        <h2>Near vs. far transfer</h2>
+        <p>Transfer isn&rsquo;t all-or-nothing. How much carries over depends on how much the two skills <strong>share</strong>.</p>
+        <div class="nf-bar">
+          <span class="nf-end l">Near</span>
+          <span class="nf-end r">Far</span>
+        </div>
+        <div class="nf-sub"><span>Many shared features &middot; more transfer</span><span>Few shared features &middot; less transfer</span></div>
+        <div class="tx-cols" style="margin-top:22px">
+          <div class="tx-col near">
+            <div class="th">Near transfer</div>
+            <div class="tc">
+              <p class="d">Many features in common &mdash; usually a large amount of transfer.</p>
+              <ul>
+                <li>Brushing teeth with the right hand &rarr; the left hand</li>
+                <li>A jump shot from one distance &rarr; another distance</li>
+                <li>Tennis backhand &rarr; pickleball backhand</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tx-col far">
+            <div class="th">Far transfer</div>
+            <div class="tc">
+              <p class="d">Few features in common &mdash; usually much less transfer.</p>
+              <ul>
+                <li>Tennis serve &rarr; pickleball serve</li>
+                <li>Tennis two-handed backhand &rarr; a baseball swing</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 KC: near or far (clinical, gated all three) -->
+  <section class="screen" data-screen data-gate="nf">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2 style="font-size:23px;margin-bottom:8px">Near or far?</h2>
+        <p style="font-size:15.5px;margin-bottom:22px">For each clinical pair, decide whether moving from the first to the second is <strong>near</strong> or <strong>far</strong> transfer. Answer all three to continue.</p>
+
+        <div class="nf-q" data-q="n1">
+          <p class="kc-q">1. Practicing blood-pressure measurement on a calm classmate &rarr; measuring it on a real, anxious patient.</p>
+          <button class="kc-opt" data-c="1">Near transfer<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Far transfer<span class="mark"></span></button>
+          <div class="kc-fb" id="n1fb" role="status" hidden></div>
+        </div>
+
+        <div class="nf-q" data-q="n2" style="margin-top:26px">
+          <p class="kc-q">2. Learning a bed-to-wheelchair transfer &rarr; performing a wheelchair-to-car-seat transfer.</p>
+          <button class="kc-opt" data-c="1">Near transfer<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Far transfer<span class="mark"></span></button>
+          <div class="kc-fb" id="n2fb" role="status" hidden></div>
+        </div>
+
+        <div class="nf-q" data-q="n3" style="margin-top:26px">
+          <p class="kc-q">3. Suturing on a foam practice pad &rarr; closing a wound on living human skin.</p>
+          <button class="kc-opt" data-c="1">Near transfer<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Far transfer<span class="mark"></span></button>
+          <div class="kc-fb" id="n3fb" role="status" hidden></div>
+        </div>
+
+        <div class="callout why" id="nfWrap" hidden style="margin-top:24px">
+          <span class="clabel">A judgment call &mdash; on a spectrum</span>
+          <p>All three are <strong>near</strong> transfer: the core skill is largely the same, with changed context (anxiety, a different surface, tissue that bleeds and tears). But &ldquo;near&rdquo; and &ldquo;far&rdquo; are ends of a spectrum, not boxes &mdash; the anxious patient and living skin add real demands, which is exactly why we don&rsquo;t treat foam-pad success as proof of clinical readiness. That gap is a transfer problem.</p>
+        </div>
+        <p class="gate-note" id="nfnote">Answer all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 TASK SIMILARITY / IDENTICAL ELEMENTS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why near beats far</div>
+        <h2>Similarity drives transfer</h2>
+        <p>You just judged those clinical pairs as &ldquo;near&rdquo; because the two skills <em>shared</em> so much. That&rsquo;s the whole principle:</p>
+        <div class="statement" style="padding:32px 34px;margin:6px 0 4px">
+          <p style="font-size:19px">Transfer between two tasks increases as the <em>similarity</em> between them increases.</p>
+        </div>
+        <p style="margin-top:18px">Why would sharing features matter? The classic answer is the <strong>identical elements hypothesis</strong> (Thorndike &amp; Woodworth, 1901):</p>
+        <div class="callout why">
+          <span class="clabel">Identical elements hypothesis</span>
+          <p>Learning transfers from one skill to another <em>to the extent that the two skills share the same underlying elements</em> &mdash; the same movement components, perceptual demands, or concepts. More shared elements &rarr; more transfer. It&rsquo;s not magic generalization; it&rsquo;s literally reusing parts you already built.</p>
+        </div>
+        <p>A tennis backhand shares many elements with a pickleball backhand &mdash; so it transfers well. Balancing a stick shares almost none with suturing &mdash; so it doesn&rsquo;t.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 EARLY STAGES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">When transfer helps most</div>
+        <h2>Transfer gives you a head start &mdash; not a finish</h2>
+        <p>Transfer is <strong>greatest in the early stages</strong> of learning a new skill. Prior experience helps you <em>get going</em> &mdash; but to actually get good, you have to deliberately practice the target skill itself.</p>
+        <div class="callout">
+          <span class="clabel">The tennis / pickleball rule of thumb</span>
+          <p>You <em>can&rsquo;t</em> become good at tennis by playing pickleball &mdash; but pickleball experience will help you <em>get started</em>. The shared elements give you a running start; the differences still have to be trained directly.</p>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Why this matters clinically</span>
+          <p>Practicing a transfer on a foam pad or a simulator can get a learner <em>started</em> safely &mdash; but competence on the real task still requires practice on (or very close to) the real task. Never mistake a good head start for arrival.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 LORDAHL & ARCHER (interactive prediction) -->
+  <section class="screen" data-screen data-gate="rpm">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A classic study</div>
+        <h2>Practice at the speed you&rsquo;ll be tested</h2>
+        <p><strong>Lordahl &amp; Archer (1958)</strong> used a <em>rotary pursuit</em> task &mdash; keeping a stylus on a target spinning on a turntable. Three groups practiced at different speeds:</p>
+        <div class="rpm-groups">
+          <div class="rpm-g"><span class="rpm-n">40</span><span class="rpm-u">RPM</span></div>
+          <div class="rpm-g"><span class="rpm-n">60</span><span class="rpm-u">RPM</span></div>
+          <div class="rpm-g"><span class="rpm-n">80</span><span class="rpm-u">RPM</span></div>
+        </div>
+        <p style="margin-top:18px">The next day, <strong>everyone was tested at 60 RPM</strong>. <strong>Which practice group do you predict did best on that 60 RPM test?</strong></p>
+        <div class="predict" id="rpmPredict">
+          <button class="pchip" data-v="40">The 40 RPM group</button>
+          <button class="pchip" data-v="60">The 60 RPM group</button>
+          <button class="pchip" data-v="80">The 80 RPM group</button>
+          <button class="pchip" data-v="same">All about equal</button>
+        </div>
+        <div class="kc-fb" id="rpmfb" role="status" hidden></div>
+        <div class="callout" id="rpmSpec" hidden style="margin-top:14px">
+          <span class="clabel">A preview</span>
+          <p>This is a first taste of <strong>specificity of practice</strong> &mdash; the idea that what you learn is tightly bound to the exact conditions you practice in. We&rsquo;ll take it up in its own right later in this module.</p>
+        </div>
+        <p class="gate-note" id="rpmnote">Make a prediction to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 PROMOTING FACTORS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What carries across</div>
+        <h2>Three things that promote transfer</h2>
+        <p>When transfer <em>does</em> happen, it&rsquo;s usually because the two skills share one of these three kinds of element:</p>
+        <div class="pf-list">
+          <div class="pf">
+            <div class="pf-n">1</div>
+            <div class="pf-b">
+              <h4>Fundamental movement patterns</h4>
+              <p>A shared underlying pattern reused across skills. The overarm pattern, for instance, is fundamental to a throw, a tennis serve, and a volleyball spike.</p>
+            </div>
+          </div>
+          <div class="pf">
+            <div class="pf-n">2</div>
+            <div class="pf-b">
+              <h4>Perceptual elements</h4>
+              <p>Shared demands on reading the environment &mdash; anticipating and reacting to intercept different kinds of moving balls draws on the same perceptual skill.</p>
+            </div>
+          </div>
+          <div class="pf">
+            <div class="pf-n">3</div>
+            <div class="pf-b">
+              <h4>Strategic &amp; conceptual similarities</h4>
+              <p>Shared rules, concepts, or strategies. Two invasion sports with similar tactics transfer at the level of <em>decisions</em>, even when the movements differ.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 POSITIVE VS NEGATIVE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Which direction</div>
+        <h2>Positive vs. negative transfer</h2>
+        <p>Prior learning doesn&rsquo;t only <em>help</em> a new skill. Sometimes it gets in the way.</p>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Positive transfer</div>
+            <h4>Prior learning helps</h4>
+            <p>What you already learned <strong>enhances</strong> performance of the new skill. Most near transfer is positive &mdash; a tennis forehand helps your pickleball forehand.</p>
+          </div>
+          <div class="pn neg">
+            <div class="pnh">Negative transfer</div>
+            <h4>Prior learning interferes</h4>
+            <p>Old habits <strong>degrade</strong> the new skill. A deeply grooved tennis serve can fight the very different motion a pickleball serve needs.</p>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">How you actually measure it</span>
+          <p>Positive or negative compared to <em>what?</em> To a <strong>no-practice control group</strong>. If a group that trained the first skill does better on the new one than a group that didn&rsquo;t, that&rsquo;s positive transfer; worse means negative. The control group is what makes the comparison meaningful &mdash; the same logic as the retention design in Lesson 3.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 VR STUDY SETUP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A transfer study</div>
+        <h2>Does VR practice transfer to the real world?</h2>
+        <p>A natural transfer question with a clear design. <strong>Michalski and colleagues (2019)</strong> asked whether practicing table tennis <em>in virtual reality</em> would improve <em>real</em> table tennis.</p>
+        <div class="phases">
+          <div class="phase"><div class="pdot">1</div><div class="pbody"><h4>Baseline</h4><p>An expert coach rated everyone&rsquo;s real-world table tennis before training.</p></div></div>
+          <div class="phase"><div class="pdot">2</div><div class="pbody"><h4>Training (acquisition)</h4><p>The VR group played immersive matches against an AI opponent. The <strong>control group did not</strong>.</p></div></div>
+          <div class="phase test"><div class="pdot">3</div><div class="pbody"><h4>Transfer test</h4><p>The same coach re-rated everyone&rsquo;s <strong>real</strong> table tennis &mdash; performance in a condition never practiced physically.</p></div></div>
+        </div>
+        <figure class="study-fig">
+          <img src="images/vr-study-design.png" alt="Study design: all participants took a real-world table tennis pre-test, then the VR group did a familiarization plus six VR training sessions while the control group had no training, before all participants took a real-world post-test. Photos show a participant wearing a VR headset with a 3D-printed paddle and the in-headset table tennis view.">
+          <figcaption>The design at a glance: a pre-test for everyone, VR training (F = familiarization, T1&ndash;T6 = sessions) for one group only, then a post-test for everyone. Below: the headset with a 3D-printed paddle, and the participant&rsquo;s in-VR view. <span class="fig-src">From Michalski et al. (2019), <em>PLoS ONE</em>, CC BY 4.0.</span></figcaption>
+        </figure>
+        <p class="jcite" style="font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)">Michalski, S., Szpak, A., Saredakis, D., Ross, T., Billinghurst, M., &amp; Loetscher, T. (2019). Getting your game on: Using virtual reality to improve real table tennis skills. <em>PLoS ONE, 14</em>(9), e0222351.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 VR RESULT -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The result</div>
+        <h2>The skill transferred</h2>
+        <p>The VR group&rsquo;s <strong>real-world</strong> table tennis improved significantly from pre-test to post-test &mdash; and clearly more than the no-training control group. Practice in a virtual environment produced <strong>positive transfer</strong> to physical performance.</p>
+        <figure class="study-fig">
+          <img src="images/vr-study-results.png" alt="Line graph of mean quantitative assessment scores. At pre-test the VR and control groups start close together, around 80 to 90. At post-test the VR group rises to about 190 while the control group reaches about 111. Annotations read p equals .359 between groups at pre-test, p less than .001 for each group's rise, and p less than .001 between groups at post-test.">
+          <figcaption>Real-world table tennis scores, pre- vs. post-test, for the VR and control groups. <span class="fig-src">From Michalski et al. (2019), <em>PLoS ONE</em>, CC BY 4.0.</span></figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">How to read the <em>p</em>-values</span>
+          <p>A <strong><em>p</em>-value</strong> estimates how likely a difference this big could have appeared by <em>chance alone</em>. The convention: <strong><em>p</em> &lt; .05</strong> is treated as <em>statistically significant</em> &mdash; unlikely to be just chance. Smaller is stronger, so <strong><em>p</em> &lt; .001</strong> is a very confident difference. On this graph:</p>
+          <ul class="pval-list">
+            <li><strong><em>p</em> = .359 at pre-test</strong> &mdash; the two groups start out <em>the same</em> (well above .05, so no real difference). Good: the groups were comparable before training.</li>
+            <li><strong><em>p</em> &lt; .001 for each rising line</strong> &mdash; both groups improved, and neither rise is likely due to chance.</li>
+            <li><strong><em>p</em> &lt; .001 between groups at post-test</strong> &mdash; the gap at the end is real. The VR group didn&rsquo;t just improve; it improved <em>significantly more</em> than the control. That&rsquo;s the transfer effect.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 WHY CONTROL MATTERS KC (gated single) -->
+  <section class="screen" data-screen data-gate="ctrl">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17.5px;margin:4px 0 18px">Why did the VR study need a <strong>no-training control group</strong> that was tested at baseline and transfer just like the VR group?</p>
+        <div id="ctrlopts">
+          <button class="kc-opt" data-c="0">To give the researchers more participants to average over.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">To rule out improvement from other causes &mdash; retesting, maturation, familiarity &mdash; so any extra gain can be credited to the VR training.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">To let the control group practice a different skill for comparison.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="ctrlfb" role="status" hidden></div>
+        <p class="gate-note" id="ctrlnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CLINICAL SIGNIFICANCE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why this matters for you</div>
+        <h2>Transfer is the real goal of practice</h2>
+        <p>Every setting where you&rsquo;ll teach a motor skill is a transfer problem in disguise:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">&rarr;</span><span class="txt">A patient masters a transfer <em>in the clinic</em> &mdash; but needs it <em>at home</em>, on different furniture.</span></li>
+          <li><span class="obj-num">&rarr;</span><span class="txt">A student sutures a foam pad &mdash; but must eventually close real tissue.</span></li>
+          <li><span class="obj-num">&rarr;</span><span class="txt">Rehab exercises are practiced on a mat &mdash; but life happens on stairs and sidewalks.</span></li>
+        </ul>
+        <div class="callout why">
+          <span class="clabel">The design implication</span>
+          <p>If the goal is performance in the real setting, practice should share features with that setting &mdash; and success should be judged by a <strong>transfer test</strong>, not by how good practice looked. This is the through-line of the whole module.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 CONNECTING BACK + FORWARD -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Where transfer sits</div>
+        <h2>From measuring learning to shaping it</h2>
+        <p>Module 2 built one chain of reasoning &mdash; and transfer is the hinge that carries it into the questions ahead:</p>
+        <ul class="sum-list">
+          <li><span class="n">&larr;</span><span class="t"><strong>Behind you (Module 2):</strong> learning isn&rsquo;t performance, a performance curve can&rsquo;t reveal learning, and the retention/transfer design is what finally separates them.</span></li>
+          <li><span class="n">&bull;</span><span class="t"><strong>Right here:</strong> transfer &mdash; near/far, positive/negative &mdash; is the real target. A skill is only worth practicing if it shows up where it&rsquo;s needed.</span></li>
+          <li><span class="n">&rarr;</span><span class="t"><strong>Ahead:</strong> if transfer is the goal, <em>how you practice</em> determines whether you reach it. That&rsquo;s the rest of this module.</span></li>
+        </ul>
+        <div class="callout why">
+          <span class="clabel">The design implication carries forward</span>
+          <p>Because practice should share features with the real setting, the <em>specificity</em> of practice, the role of <em>deliberate</em> practice, and the <em>individual differences</em> that shape learning all become practical design questions &mdash; which is exactly where we go next.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 CLOSING -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">You&rsquo;ve completed the transfer lesson</div>
+        <h2>What&rsquo;s coming next</h2>
+        <p>Transfer told you <em>what</em> practice is for. The rest of this module is about <em>how</em> to practice so you actually get there &mdash; and why the same practice works differently for different people.</p>
+        <div class="callout">
+          <span class="clabel">Next in this module</span>
+          <p>Three threads ahead: <strong>individual differences</strong> and the differential approach &mdash; why some people learn a given skill faster than others; <strong>deliberate practice</strong> &mdash; the structured, effortful, feedback-rich practice behind expertise; and <strong>specificity of practice</strong> &mdash; why what you learn depends so heavily on the exact conditions you practice in.</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:#3d4d5c">Next steps in Canvas: complete this week&rsquo;s <strong>homework activity</strong> and the <strong>quiz</strong> on transfer of learning.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent= last ? "Finish" : "Next \u2192";
+    nx.disabled= !last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden = !(!last && locked(cur));
+    lm.textContent = (screens[cur].dataset.gate==="nf") ? "Answer all three to continue"
+                   : (screens[cur].dataset.gate==="rpm") ? "Make a prediction to continue"
+                   : "Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  }
+  document.getElementById("btnNext").onclick=function(){ go(1); };
+  document.getElementById("btnBack").onclick=function(){ go(-1); };
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  function makeMultiCheck(sel, FB, keys, gateName, wrapId, noteId, doneMsg){
+    var done={};
+    document.querySelectorAll(sel).forEach(function(q){
+      var key=q.dataset.q;
+      q.querySelectorAll(".kc-opt").forEach(function(opt){
+        opt.addEventListener("click",function(){
+          q.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+          var ok=opt.dataset.c==="1";
+          if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+          else{
+            opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+            q.querySelectorAll(".kc-opt").forEach(function(o){
+              if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+          }
+          var fb=document.getElementById(key+"fb");
+          fb.className="kc-fb "+(ok?"ok":"no");
+          fb.innerHTML=FB[key][ok?"ok":"no"];
+          fb.hidden=false;
+          done[key]=true;
+          if(keys.every(function(k){return done[k];})){
+            answered[gateName]=true;
+            document.getElementById(wrapId).hidden=false;
+            document.getElementById(noteId).textContent=doneMsg;
+            document.getElementById("btnNext").disabled=false;
+            document.getElementById("lockmsg").hidden=true;
+          }
+        });
+      });
+    });
+  }
+  function makeSingle(wrapId, fbId, noteId, gate, FBok, FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{
+          opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){
+            if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+        }
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+
+  var NFFB={
+    n1:{ok:"<strong>Correct.</strong> The measurement skill is the same; only the context (an anxious patient) changes. That's <strong>near</strong> transfer \u2014 though the anxiety adds a real demand.",
+        no:"This is <strong>near</strong> transfer. The core skill \u2014 cuff placement, reading the gauge \u2014 is identical; what changes is the patient's state. Shared features dominate, so transfer should be high (but not automatic)."},
+    n2:{ok:"<strong>Correct.</strong> Both are patient transfers using the same body mechanics and principles \u2014 <strong>near</strong> transfer, despite the different endpoint.",
+        no:"This is <strong>near</strong> transfer. Bed-to-wheelchair and wheelchair-to-car share the core mechanics of a supported transfer; the surfaces differ but the skill is largely the same."},
+    n3:{ok:"<strong>Correct.</strong> Same suturing technique, different tissue \u2014 <strong>near</strong> transfer, with living skin adding real complications.",
+        no:"This is <strong>near</strong> transfer. The suturing motion is the same; the change is the material. Living tissue bleeds, tears, and moves \u2014 real added demands \u2014 but the skill itself carries over strongly."}
+  };
+  makeMultiCheck(".nf-q", NFFB, ["n1","n2","n3"], "nf", "nfWrap", "nfnote", "All three answered \u2014 you can continue.");
+
+  makeSingle("ctrlopts","ctrlfb","ctrlnote","ctrl",
+    "<strong>Correct.</strong> Without a control group, you couldn't tell VR-driven gains from improvement due to simply being retested, growing more comfortable, or time passing. The control isolates the training's effect \u2014 exactly the logic of Lesson 3.",
+    "<strong>Reconsider.</strong> The point of the control isn't sample size or a second skill \u2014 it's to rule out <em>other</em> reasons performance might rise (retesting, familiarity, maturation), so the extra gain can be credited to the VR training itself.");
+
+  // reflection box: best-effort local save + copy
+  (function(){
+    var box=document.getElementById("reflectBox");
+    if(!box) return;
+    var status=document.getElementById("reflectStatus");
+    var copyBtn=document.getElementById("reflectCopy");
+    var KEY="hlsc4025_m2l4_reflect";
+    var canStore=true;
+    // restore
+    try{ var saved=window.localStorage.getItem(KEY); if(saved){ box.value=saved; status.textContent="Saved response restored."; } }
+    catch(e){ canStore=false; }
+    // save on input (debounced)
+    var t;
+    box.addEventListener("input",function(){
+      if(!canStore){ status.textContent=""; return; }
+      clearTimeout(t);
+      t=setTimeout(function(){
+        try{ window.localStorage.setItem(KEY, box.value); status.textContent = box.value.trim() ? "Saved on this device \u2713" : ""; }
+        catch(e){ canStore=false; status.textContent=""; }
+      },400);
+    });
+    // copy
+    copyBtn.addEventListener("click",function(){
+      var text=box.value;
+      if(!text.trim()){ status.textContent="Nothing to copy yet."; return; }
+      function done(){ status.textContent="Copied to clipboard \u2713"; }
+      function fallback(){
+        try{ box.focus(); box.select(); document.execCommand("copy");
+          box.setSelectionRange(box.value.length,box.value.length); done(); }
+        catch(e){ status.textContent="Press Ctrl/Cmd+C to copy."; }
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(fallback);
+      } else { fallback(); }
+    });
+  })();
+
+  // Lordahl & Archer prediction
+  var rpmP=document.getElementById("rpmPredict");
+  if(rpmP){
+    rpmP.querySelectorAll(".pchip").forEach(function(chip){
+      chip.addEventListener("click",function(){
+        rpmP.querySelectorAll(".pchip").forEach(function(c){c.disabled=true; if(c.dataset.v!=="60")c.classList.add("dim");});
+        rpmP.querySelectorAll(".pchip").forEach(function(c){ if(c.dataset.v==="60"){c.classList.add("right");c.classList.remove("dim");}});
+        var fb=document.getElementById("rpmfb");
+        var right=chip.dataset.v==="60";
+        fb.className="kc-fb "+(right?"ok":"no");
+        fb.innerHTML = right
+          ? "<strong>Correct.</strong> The <strong>60 RPM group did best</strong> at 60 RPM &mdash; they had practiced the <em>exact</em> task they were tested on. The 40 and 80 groups, despite practicing the same basic skill, transferred <em>worse</em>. Practicing at a different speed wasn't the same task."
+          : "<strong>Actually, the 60 RPM group won.</strong> They practiced the exact speed they were tested at. The 40 and 80 groups practiced the same basic skill but at a different speed &mdash; and it transferred <em>worse</em>. Similarity to the test condition is what paid off.";
+        fb.hidden=false;
+        var note=document.getElementById("rpmSpec");
+        if(note) note.hidden=false;
+        answered.rpm=true;
+        document.getElementById("rpmnote").textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+
+  show(0);
+})();
+</script>
+</body>
+</html>
