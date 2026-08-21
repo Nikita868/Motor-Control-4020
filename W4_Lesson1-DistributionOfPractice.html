@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 4 / Lesson 1 - Distribution of Practice
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 · Lesson 1 — Distribution of Practice</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 4 &nbsp;&rsaquo;&nbsp; <b>Lesson 1: Distribution of Practice</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">12</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 4 &middot; Lesson 1</div>
+        <h1>Distribution of Practice</h1>
+        <p>Same total practice time. Very different results &mdash; depending on how you spread it out.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~25 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 9</span>
+          <span><span class="dot"></span> Practice scheduling &middot; 1 of 3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define <strong>massed</strong> and <strong>distributed</strong> practice.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">State how distribution affects <strong>performance</strong> vs. <strong>learning</strong> &mdash; and why they diverge.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Summarize the <strong>mechanisms</strong> behind the spacing effect.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Weigh the <strong>practical costs</strong> of distributed practice in a clinical setting.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 OPENING DECISION (interactive prediction) -->
+  <section class="screen" data-screen data-gate="open">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Start with a decision</div>
+        <h2>Imagine you&rsquo;re teaching someone to tie surgical knots</h2>
+        <p>You have <strong>80 minutes total</strong> this week to teach <strong>four kinds of surgical knots</strong>. Same eighty minutes either way. <strong>What&rsquo;s your intuition &mdash; how would you schedule them?</strong></p>
+        <figure class="study-fig" style="margin:18px 0">
+          <img src="images/surgical-knots-chart.png" alt="A reference chart showing eleven types of surgical knots being tied with instruments and hands, including constrictor knots, ligatures, and surgical ties." style="max-height:340px;object-fit:contain;background:#fff">
+          <figcaption>The kind of skill in question: surgical knot-tying has many named variations to master. <span class="fig-src">Reference chart, animatedknots.com.</span></figcaption>
+        </figure>
+        <div id="openopts" style="margin-top:20px">
+          <button class="kc-opt" data-c="0"><strong>One massed block</strong> &mdash; a single 80-minute session, all at once.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1"><strong>Distributed</strong> &mdash; two 40-minute sessions on different days.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="openfb" role="status" hidden></div>
+        <p class="gate-note" id="opennote">Go with your gut to continue &mdash; there&rsquo;s no penalty for either.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 DEFINITIONS + VIZ -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The two schedules</div>
+        <h2>Massed vs. distributed practice</h2>
+        <p>The difference is about <em>how practice is spread across time</em> &mdash; not how much practice you do. Same total minutes, different spacing:</p>
+        <div class="sched-viz">
+          <div class="sched-row massed">
+            <div class="sr-label">Massed (concentrated)</div>
+            <div class="sched-track">
+              <div class="blk practice" style="flex:8">80 min, one sitting</div>
+            </div>
+            <div class="sched-cap">Practice compressed in time &mdash; long sessions, little or no rest between.</div>
+          </div>
+          <div class="sched-row dist">
+            <div class="sr-label">Distributed (spaced)</div>
+            <div class="sched-track">
+              <div class="blk practice" style="flex:4">40 min</div>
+              <div class="blk rest" style="flex:3">rest</div>
+              <div class="blk practice" style="flex:4">40 min</div>
+            </div>
+            <div class="sched-cap">Practice spaced out &mdash; shorter sessions separated by rest (here, a different day).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 CORE FINDING + FEELS TRAP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The core finding</div>
+        <h2>Distributed practice wins for learning</h2>
+        <p>As a rule of thumb, <strong>shorter but more frequent</strong> sessions produce better retention than one long block of practice. The benefit shows up across skill types &mdash; continuous and discrete, open and closed.</p>
+        <div class="statement gold" style="margin:6px 0">
+          <div class="eyebrow">The catch</div>
+          <p>Massed practice often makes you <em>feel</em> you learned more &mdash; because your performance climbs within the long session. That feeling is misleading.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Summer term vs. a full semester</span>
+          <p>Cramming a course into a few intense weeks can <em>feel</em> productive and even boost short-term performance &mdash; but the same material spread across a full semester is usually retained better. This is the performance-vs-learning distinction from Module 2, now as a scheduling choice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 BOETTCHER STUDY SETUP + PREDICTION -->
+  <section class="screen" data-screen data-gate="boett">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A clinical study example</div>
+        <h2>Laparoscopic suturing: massed vs. spaced</h2>
+        <p><strong>Laparoscopic surgery training often happens in one full-day session for medical residents.</strong> Is that good for long-term retention? <strong>Boettcher et al. (2017)</strong> put it to the test.</p>
+        <div class="setup-imgs">
+          <figure class="study-fig">
+            <img src="images/laparoscopic-surgery.png" alt="A laparoscopic surgery in progress: several long instruments inserted through ports in a patient's abdomen, operated by gloved hands.">
+            <figcaption>Laparoscopic surgery relies on fine instrument skills like suturing. <span class="fig-src">Stock photo.</span></figcaption>
+          </figure>
+          <figure class="study-fig">
+            <img src="images/surgeons-knot.png" alt="Illustration of a surgeon's knot, a square knot with an extra twist in the first throw." style="object-fit:contain;background:#fff;padding:8px">
+            <figcaption>The task: tying surgeon&rsquo;s square knots on a bowel model.</figcaption>
+          </figure>
+        </div>
+        <div class="eyebrow" style="margin-top:22px">Experimental design</div>
+        <p style="margin-top:4px">Twenty medical students were randomly split into two groups &mdash; <strong>10 in each</strong>:</p>
+        <div class="exp-groups">
+          <div class="exp-g aid">
+            <div class="gk">Massed &middot; n = 10</div>
+            <h4>3 hours, one day</h4>
+            <p>180 minutes of training in a single block.</p>
+          </div>
+          <div class="exp-g noaid">
+            <div class="gk">Spaced &middot; n = 10</div>
+            <h4>Three 40-min sessions</h4>
+            <p>120 minutes total, with 20-minute breaks between sessions.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px">Notice: the spaced group practiced <strong>less total time</strong> (120 vs. 180 min). <strong>Predict the retention result:</strong></p>
+        <div class="predict" id="boettpredict">
+          <button class="pchip" data-v="massed">Massed did better</button>
+          <button class="pchip" data-v="spaced">Spaced did better</button>
+          <button class="pchip" data-v="equal">About the same</button>
+        </div>
+        <div class="kc-fb" id="boettfb" role="status" hidden></div>
+        <p class="gate-note" id="boettnote">Make a prediction to continue.</p>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:18px;padding-top:12px;border-top:1px dashed var(--line)">Boettcher, J., Klippgen, L., Mietzsch, S., Grotelüschen, R., Klinke, M., Reinshagen, K., &amp; Boettcher, M. (2017). The spaced learning concept significantly improves training for laparoscopic suturing: A pilot randomized controlled study. <em>Surgical Endoscopy, 32</em>(1), 154&ndash;159. <a href="https://link.springer.com/article/10.1007/s00464-017-5650-6" target="_blank" rel="noopener">link.springer.com/article/10.1007/s00464-017-5650-6</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 BOETTCHER RESULT -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The result</div>
+        <h2>Spaced won &mdash; with less total practice</h2>
+        <p>The spaced-learning group improved <strong>more</strong> than the controls on <em>both</em> measures &mdash; despite practicing an hour <em>less</em>. Here are the actual data:</p>
+        <figure class="study-fig">
+          <img src="images/boettcher-results.png" alt="Two bar charts. Left, performance score: controls rise from about 15 to 16.5 pre to post (p=0.26, not significant); the spaced-learning group rises from about 13 to 19 (p<0.001), and the two groups differ at post-test (p=0.042). Right, knot quality score: controls rise from about 2.6 to 3.7 (p=0.031); spaced learning rises from about 2.7 to 4.2 (p=0.003), differing at post-test (p=0.010).">
+          <figcaption>Pre- and post-training scores for the control (massed-style) and spaced-learning groups, on two measures. <span class="fig-src">From Boettcher et al. (2017), <em>Surgical Endoscopy</em>.</span></figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Performance score (left panel)</span>
+          <p>The <strong>control group barely improved</strong> from pre to post &mdash; their small change wasn&rsquo;t statistically significant. The <strong>spaced group improved sharply</strong>, and by the post-test they clearly outscored the controls. Spacing drove a real gain where the massed-style schedule didn&rsquo;t.</p>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Knot quality score (right panel)</span>
+          <p>Here <strong>both groups</strong> improved &mdash; but the spaced group improved <em>more</em>, ending up significantly better at the post-test. So the spaced advantage showed up in the <em>quality</em> of the knots, not just the overall performance score.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">The takeaway</span>
+          <p>On both measures, the spaced group ended up better than the controls &mdash; better learning, from <em>less</em> total practice time. Spacing didn&rsquo;t just save an hour; it taught more per minute.</p>
+        </div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)">Boettcher, J., Klippgen, L., Mietzsch, S., Grotelüschen, R., Klinke, M., Reinshagen, K., &amp; Boettcher, M. (2017). The spaced learning concept significantly improves training for laparoscopic suturing. <em>Surgical Endoscopy, 32</em>(1), 154&ndash;159. <a href="https://link.springer.com/article/10.1007/s00464-017-5650-6" target="_blank" rel="noopener">link.springer.com/article/10.1007/s00464-017-5650-6</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 MECHANISMS (click to reveal) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why does spacing help?</div>
+        <h2>Four mechanisms behind the spacing effect</h2>
+        <p>No single reason fully explains it &mdash; several forces likely act together. <strong>Select each card</strong> to reveal how it works.</p>
+        <div class="mech-grid">
+          <button class="mech" aria-expanded="false" onclick="mechTog(this)">
+            <span class="mech-head"><span class="mech-ic">&#10022;</span><span class="mech-t">Memory consolidation</span><span class="mech-plus">+</span></span>
+            <span class="mech-body">Long-term memory storage takes time &mdash; and <strong>sleep</strong>. Spacing sessions across days lets each bout consolidate before the next, which a single block can&rsquo;t do.</span>
+          </button>
+          <button class="mech" aria-expanded="false" onclick="mechTog(this)">
+            <span class="mech-head"><span class="mech-ic">&#9210;</span><span class="mech-t">Less fatigue</span><span class="mech-plus">+</span></span>
+            <span class="mech-body">Massed practice builds mental and physical <strong>fatigue</strong> that drags down both performance and learning. Rest between sessions keeps the learner fresh.</span>
+          </button>
+          <button class="mech" aria-expanded="false" onclick="mechTog(this)">
+            <span class="mech-head"><span class="mech-ic">&#8607;</span><span class="mech-t">Increased effort</span><span class="mech-plus">+</span></span>
+            <span class="mech-body">Restarting after a break means <strong>reactivating</strong> the skill from a slight warm-up decrement. That extra effort each session is itself good for learning &mdash; a &ldquo;desirable difficulty.&rdquo;</span>
+          </button>
+          <button class="mech" aria-expanded="false" onclick="mechTog(this)">
+            <span class="mech-head"><span class="mech-ic">&#9878;</span><span class="mech-t">Accurate self-appraisal</span><span class="mech-plus">+</span></span>
+            <span class="mech-body">Massed practice inflates how skilled you <em>think</em> you are, reducing the incentive to search for better movement solutions. Spacing gives a truer read on your real capability.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 LUZ JUGGLING (rank the schedules) -->
+  <section class="screen" data-screen data-gate="luz">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">How far does spacing go?</div>
+        <h2>Three ways to distribute the same practice</h2>
+        <p>The surgical study compared massed against <em>one</em> spaced schedule. But spacing isn&rsquo;t all-or-nothing &mdash; you can distribute the same practice more or less aggressively. Does <em>more</em> spacing keep helping?</p>
+        <p>Back to juggling (the skill from the performance-curves lesson). <strong>Luz et al. (2022)</strong> taught the three-ball cascade to learners under three different schedules &mdash; each using the <strong>same total practice time</strong>, differing only in how it was spread out &mdash; then gave everyone a 24-hour retention test:</p>
+        <ul class="obj-list" style="margin:16px 0">
+          <li><span class="obj-num">A</span><span class="txt"><strong>Massed:</strong> one 30-minute session, nonstop.</span></li>
+          <li><span class="obj-num">B</span><span class="txt"><strong>Distributed within a day:</strong> six 5-minute sessions, same day.</span></li>
+          <li><span class="obj-num">C</span><span class="txt"><strong>Distributed across days:</strong> three 10-minute sessions over three days.</span></li>
+        </ul>
+        <p><strong>Predict how they ranked.</strong> Drag the schedules from <em>best</em> learning at retention (top) to <em>worst</em> (bottom), then check. Tap two cards to swap, or use &uarr;/&darr; on a focused card.</p>
+        <ol class="rank-list" id="luzList" aria-label="Rank the three practice schedules"></ol>
+        <button class="btn check-btn" id="luzCheck" type="button">Check my ranking</button>
+        <div class="order-fb" id="luzFb" role="status" hidden></div>
+        <p class="gate-note" id="luznote">Rank all three and check to continue.</p>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:18px;padding-top:12px;border-top:1px dashed var(--line)">Luz, J. E. M., Santos, H. D., &amp; Bonuzzi, G. M. G. (2022). Effects of the different distributed practice regimes on the learning of three-ball cascade juggling task. <em>Brazilian Journal of Motor Behavior, 16</em>(2), 153&ndash;161.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 COSTS (reflection) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The other side</div>
+        <h2>So why isn&rsquo;t all practice distributed?</h2>
+        <p>Distributed practice is better for learning &mdash; but it isn&rsquo;t free. Before revealing common costs, think about your own setting:</p>
+        <div class="reflect">
+          <span class="rlabel">Reflect</span>
+          <p>In your field (PT, OT, dentistry&hellip;), what would make it <em>hard</em> to spread a patient&rsquo;s or student&rsquo;s practice across many short sessions instead of one long one?</p>
+          <textarea class="reflect-input" id="costBox" rows="3" placeholder="Type your thoughts here&hellip;" aria-label="Your reflection on costs"></textarea>
+          <p class="reflect-note">Personal thinking prompt &mdash; not submitted or graded, saved on this device only.</p>
+        </div>
+        <button class="mech" aria-expanded="false" onclick="mechTog(this)" style="margin-top:16px">
+          <span class="mech-head"><span class="mech-ic">&#8964;</span><span class="mech-t">Reveal some common costs</span><span class="mech-plus">+</span></span>
+          <span class="mech-body">Distributed schedules take <strong>more total calendar time</strong> to complete a curriculum; they require <strong>more scheduling and travel</strong> (a real barrier for patients attending clinic); they can be harder to fit into <strong>billing and staffing</strong> structures; and learners may resist them because massed practice <em>feels</em> more productive. The clinician&rsquo;s job is to balance the learning advantage against these practical limits.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 KNOWLEDGE CHECK (gated) -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17.5px;margin:4px 0 18px">A patient recovering hand function has 90 minutes of therapy time available this week. Based on the distribution principle, which schedule best supports <strong>long-term learning</strong>?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="0">One 90-minute session &mdash; it lets the patient build momentum without restarting.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="1">Three 30-minute sessions on different days.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Whichever makes the patient feel most confident during the session.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Define <strong>massed</strong> vs. <strong>distributed</strong> practice &mdash; a difference of spacing, not amount.</span></li>
+          <li><span class="n">2</span><span class="t">Explain that distributed practice usually produces <strong>better learning</strong>, even though massed can <em>feel</em> better and boost momentary performance.</span></li>
+          <li><span class="n">3</span><span class="t">Name the <strong>mechanisms</strong>: consolidation, less fatigue, more effort, accurate self-appraisal.</span></li>
+          <li><span class="n">4</span><span class="t">Weigh the real <strong>costs</strong> of distribution against its learning benefit.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next: Variability of Practice</span>
+          <p>We&rsquo;ve covered <em>how to space</em> practice in time. Next: how much to <em>vary</em> what you practice &mdash; and why messier, more variable practice often teaches more.</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">Return to Canvas for the next lesson, <strong>Variability of Practice</strong>, when you&rsquo;re ready.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={open:"Make your choice to continue",boett:"Make a prediction to continue",luz:"Rank all three and check to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent= last ? "Finish" : "Next \u2192";
+    nx.disabled= !last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden = !(!last && locked(cur));
+    lm.textContent = GATEMSG[screens[cur].dataset.gate] || "Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  }
+  document.getElementById("btnNext").onclick=function(){ go(1); };
+  document.getElementById("btnBack").onclick=function(){ go(-1); };
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  // reveal toggle (mechanisms + costs)
+  window.mechTog=function(btn){
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded", open?"false":"true");
+  };
+
+  function makeSingle(wrapId, fbId, noteId, gate, FBok, FBno, contMsg){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{
+          opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){
+            if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+        }
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent=contMsg||"You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+
+  // opening decision: distributed is "correct" but massed gets a fair response
+  makeSingle("openopts","openfb","opennote","open",
+    "<strong>Good choice.</strong> Distributing the 80 minutes across two days is very likely to produce better retention. Hold onto your reasoning &mdash; the rest of the lesson explains why spacing wins.",
+    "<strong>A reasonable instinct &mdash; and a common one.</strong> One long block <em>feels</em> efficient, and your performance would climb within it. But as you&rsquo;ll see, the same 80 minutes usually produces better <em>learning</em> when split across days. Let&rsquo;s find out why.",
+    "You can continue.");
+
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> Three shorter sessions on different days distribute the practice &mdash; better consolidation, less fatigue, more retention. The extra calendar time is the trade-off you accept for better learning.",
+    "<strong>Reconsider.</strong> One long block and &ldquo;whatever feels best&rdquo; both fall for the massed-practice trap &mdash; momentary confidence isn&rsquo;t learning. Spreading the 90 minutes across three days best supports long-term retention.");
+
+  // Boettcher prediction
+  var bp=document.getElementById("boettpredict");
+  bp.querySelectorAll(".pchip").forEach(function(chip){
+    chip.addEventListener("click",function(){
+      bp.querySelectorAll(".pchip").forEach(function(c){c.disabled=true; if(c.dataset.v!=="spaced")c.classList.add("dim");});
+      bp.querySelectorAll(".pchip").forEach(function(c){ if(c.dataset.v==="spaced"){c.classList.add("right");c.classList.remove("dim");}});
+      var fb=document.getElementById("boettfb"), right=chip.dataset.v==="spaced";
+      fb.className="kc-fb "+(right?"ok":"no");
+      fb.innerHTML=right
+        ? "<strong>Correct.</strong> The spaced group retained more &mdash; even though they practiced an hour <em>less</em>. See the next screen."
+        : "<strong>Not what happened.</strong> The spaced group actually retained <em>more</em> than the massed group &mdash; with less total practice time. See the next screen.";
+      fb.hidden=false;
+      answered.boett=true;
+      document.getElementById("boettnote").textContent="You can continue.";
+      document.getElementById("btnNext").disabled=false;
+      document.getElementById("lockmsg").hidden=true;
+    });
+  });
+
+  // Luz ranking interaction
+  (function(){
+    var correct=[
+      {id:"between",label:"Distributed across 3 days",tag:"3 &times; 10 min"},
+      {id:"within",label:"Distributed within one day",tag:"6 &times; 5 min"},
+      {id:"massed",label:"Massed in one session",tag:"30 min nonstop"}
+    ];
+    var list=document.getElementById("luzList"), selected=null;
+    function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
+    var order=shuffle(correct), tries=0;
+    while(order.map(function(x){return x.id}).join()===correct.map(function(x){return x.id}).join() && tries++<10){order=shuffle(correct);}
+    function render(){
+      list.innerHTML="";
+      order.forEach(function(item,idx){
+        var li=document.createElement("li");
+        li.className="rank-item"; li.draggable=true; li.tabIndex=0; li.dataset.id=item.id;
+        li.setAttribute("aria-label",item.label+", position "+(idx+1));
+        li.innerHTML='<span class="rk-pos">'+(idx+1)+'</span><span class="rk-grip" aria-hidden="true">&#8942;&#8942;</span>'+item.label+'<span class="rk-tag">'+item.tag+'</span>';
+        list.appendChild(li);
+      });
+      wire();
+    }
+    function idxOf(el){return Array.prototype.indexOf.call(list.children,el);}
+    function move(from,to){if(to<0||to>=order.length)return;var m=order.splice(from,1)[0];order.splice(to,0,m);render();list.children[to].focus();}
+    function swap(i,j){var t=order[i];order[i]=order[j];order[j]=t;render();}
+    function wire(){
+      list.querySelectorAll(".rank-item").forEach(function(li){
+        li.addEventListener("click",function(){
+          var i=idxOf(li);
+          if(selected===null){selected=i;li.classList.add("selected");}
+          else if(selected===i){selected=null;li.classList.remove("selected");}
+          else{swap(selected,i);selected=null;}
+        });
+        li.addEventListener("keydown",function(e){
+          var i=idxOf(li);
+          if(e.key==="ArrowUp"){e.preventDefault();move(i,i-1);}
+          else if(e.key==="ArrowDown"){e.preventDefault();move(i,i+1);}
+        });
+        li.addEventListener("dragstart",function(e){li.classList.add("dragging");e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain",li.dataset.id);}catch(x){}});
+        li.addEventListener("dragend",function(){li.classList.remove("dragging");list.querySelectorAll(".over").forEach(function(o){o.classList.remove("over")});});
+        li.addEventListener("dragover",function(e){e.preventDefault();li.classList.add("over");});
+        li.addEventListener("dragleave",function(){li.classList.remove("over");});
+        li.addEventListener("drop",function(e){e.preventDefault();li.classList.remove("over");var d=list.querySelector(".dragging");if(!d)return;var from=idxOf(d),to=idxOf(li);if(from!==to)move(from,to);});
+      });
+    }
+    render();
+    document.getElementById("luzCheck").addEventListener("click",function(){
+      var items=list.querySelectorAll(".rank-item"), right=true;
+      items.forEach(function(li,idx){
+        li.classList.remove("ok","bad","selected");
+        if(order[idx].id===correct[idx].id){li.classList.add("ok");}else{li.classList.add("bad");right=false;}
+      });
+      selected=null;
+      var fb=document.getElementById("luzFb");
+      if(right){
+        fb.className="order-fb ok";
+        fb.innerHTML="<strong>That&rsquo;s the finding.</strong> Practice distributed <em>across days</em> produced the best learning, then within-day distribution, with massed practice last. The more the practice was spaced &mdash; especially across sleep &mdash; the better the retention.";
+        fb.hidden=false; answered.luz=true;
+        document.getElementById("luznote").textContent="Correct \u2014 you can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      }else{
+        fb.className="order-fb no";
+        fb.innerHTML="<strong>Not quite.</strong> Green cards are correctly placed. Hint: think about which schedule allows the <em>most</em> spacing &mdash; and which one lets <em>sleep</em> do its consolidating work between sessions.";
+        fb.hidden=false;
+      }
+    });
+  })();
+
+  // cost reflection box: best-effort local save
+  (function(){
+    var box=document.getElementById("costBox"); if(!box) return;
+    var KEY="hlsc4025_m4l1_costs", canStore=true, t;
+    try{var s=window.localStorage.getItem(KEY); if(s) box.value=s;}catch(e){canStore=false;}
+    box.addEventListener("input",function(){
+      if(!canStore)return; clearTimeout(t);
+      t=setTimeout(function(){try{window.localStorage.setItem(KEY,box.value);}catch(e){canStore=false;}},400);
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
