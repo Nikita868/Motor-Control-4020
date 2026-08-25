@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 4 / Lesson 3 - Whole vs. Part Practice
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 · Lesson 3 — Whole vs. Part Practice</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* ===== Lesson 2 additions ===== */
+  /* schedule visualizer */
+  .sv-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  @media(max-width:560px){.sv-controls{grid-template-columns:1fr}}
+  .svbtn{border:2px solid var(--line);border-radius:9px;padding:13px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;text-align:center;transition:.15s}
+  .svbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .svbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .svbtn .svb-t{font-size:15px;font-weight:800;display:block}
+  .svbtn .svb-s{font-size:11.5px;opacity:.8;display:block;margin-top:2px}
+  .sv-stage{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:20px}
+  .sv-track{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:44px;align-items:center}
+  .sv-cell{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .sv-cell.show{opacity:1;transform:none}
+  .sv-c1{background:#1a7f8e}.sv-c2{background:#e0a458}.sv-c3{background:#6a8caf}.sv-c4{background:#c46b6b}
+  .sv-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:12.5px;color:#3d4d5c}
+  .sv-legend span{display:inline-flex;align-items:center;gap:6px}
+  .sv-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sv-readout{margin-top:16px;padding:16px 18px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:70px}
+  .sv-readout .svr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sv-readout h4{font-size:16px;margin:5px 0 6px}
+  .sv-readout p{font-size:14px;color:#3d4d5c;margin:0}
+  .sv-ci{display:inline-block;margin-top:9px;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px}
+  .sv-ci.low{background:#eafaf1;color:#1d6b47}
+  .sv-ci.med{background:#fff6e6;color:#b5822f}
+  .sv-ci.high{background:#fdeeee;color:#a3403c}
+
+  /* CI continuum */
+  .ci-bar{position:relative;height:54px;margin:24px 0 10px;border-radius:27px;
+    background:linear-gradient(90deg,#eafaf1,#fff6e6,#fdeeee);border:1px solid var(--line)}
+  .ci-bar .ci-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .ci-bar .ci-end.l{left:20px;color:#1d6b47}
+  .ci-bar .ci-end.r{right:20px;color:#a3403c}
+  .ci-marks{display:flex;justify-content:space-between;margin-top:14px;gap:8px}
+  .ci-mark{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .ci-mark h4{font-size:14px;margin:0 0 3px}
+  .ci-mark .cim-seq{font-family:monospace;font-size:12px;color:var(--accent-dark);letter-spacing:1px;margin:4px 0}
+  .ci-mark p{font-size:12px;color:#556;margin:4px 0 0;line-height:1.4}
+
+  /* factors accordion (block-safe reveal, from limc pattern) */
+  .fac-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .fac{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;width:100%;transition:.16s;display:block}
+  .fac:hover{border-color:var(--accent);background:#fafdfe}
+  .fac[aria-expanded="true"]{border-color:var(--accent)}
+  .fac-head{display:flex;align-items:center;gap:12px;padding:15px 17px}
+  .fac-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .fac-t{font-size:15px;font-weight:700;color:var(--ink)}
+  .fac-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .fac[aria-expanded="true"] .fac-plus{transform:rotate(45deg)}
+  .fac-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;
+    padding:0 17px;font-size:14px;color:#3d4d5c;line-height:1.55}
+  .fac[aria-expanded="true"] .fac-body{max-height:320px;padding:0 17px 16px}
+
+
+  /* ===== Lesson 3 additions ===== */
+  /* knot complexity comparison */
+  .knot-compare{display:flex;flex-direction:column;gap:16px;margin-top:18px}
+  .knot-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .knot-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .knot-name{font-size:15.5px;font-weight:800;color:var(--ink)}
+  .knot-tag{font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 12px;border-radius:20px}
+  .knot-tag.low{background:#eafaf1;color:#1d6b47}
+  .knot-tag.high{background:#fdeeee;color:#a3403c}
+  .knot-steps{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+  .kstep{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:8px;
+    padding:8px 12px;background:#fafbfc;font-size:13px;font-weight:600;color:#3d4d5c}
+  .kstep .kn{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;
+    font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+  .knot-row:last-child .kstep .kn{background:var(--gold)}
+  .karrow{color:#b7c2ca;font-size:14px;font-weight:700}
+  @media(max-width:560px){.karrow{display:none}.knot-steps{gap:6px}}
+
+  /* example image trio */
+  .ex-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  @media(max-width:640px){.ex-trio{grid-template-columns:1fr}}
+  .ex-trio figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .ex-trio img{width:100%;height:150px;object-fit:cover;display:block}
+  .ex-trio figcaption{font-size:12.5px;color:#556;padding:9px 12px;text-align:center;background:#fafbfc;border-top:1px solid var(--line)}
+
+  /* complexity sorter */
+  .sort-stage{margin-top:20px}
+  .sort-item{border:1px solid var(--line);border-radius:9px;padding:14px 18px;background:#fff;margin-bottom:14px}
+  .sort-item .si-skill{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:12px}
+  .sort-btns{display:flex;gap:10px}
+  .sort-btns button{flex:1;border:2px solid var(--line);border-radius:8px;padding:10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);transition:.15s}
+  .sort-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .sort-btns button:disabled{cursor:default}
+  .sort-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .sort-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .sort-fb{font-size:13.5px;margin-top:10px;padding:10px 12px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .sort-fb[hidden]{display:none}
+  .sort-progress{font-size:13px;color:var(--muted);font-weight:700;margin-top:6px}
+
+  /* 2x2 decision matrix */
+  .matrix-wrap{margin-top:22px}
+  .matrix{display:grid;grid-template-columns:120px 1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:8px}
+  .mx-corner{}
+  .mx-colhead,.mx-rowhead{display:flex;align-items:center;justify-content:center;text-align:center;
+    font-weight:800;font-size:13px;padding:10px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark)}
+  .mx-rowhead{writing-mode:horizontal-tb}
+  .mx-cell{border:2px solid var(--line);border-radius:9px;padding:16px 14px;background:#fff;cursor:pointer;
+    transition:.15s;min-height:96px;display:flex;flex-direction:column;justify-content:center}
+  .mx-cell:hover{border-color:var(--accent);background:#fafdfe}
+  .mx-cell.revealed{cursor:default}
+  .mx-cell .mx-q{font-size:13px;color:var(--muted);font-weight:700}
+  .mx-cell .mx-a{font-size:15px;font-weight:800;margin-top:6px;display:none}
+  .mx-cell .mx-note{font-size:12.5px;color:#556;margin-top:6px;display:none;line-height:1.4}
+  .mx-cell.revealed .mx-a,.mx-cell.revealed .mx-note{display:block}
+  .mx-cell.revealed .mx-q{display:none}
+  .mx-cell.whole{border-color:#2e9e6b}
+  .mx-cell.whole.revealed{background:#eafaf1}
+  .mx-cell.whole .mx-a{color:#1d6b47}
+  .mx-cell.part{border-color:#c98a3c}
+  .mx-cell.part.revealed{background:#fef6ea}
+  .mx-cell.part .mx-a{color:#b5822f}
+  .mx-cell.either{border-color:#6a8caf}
+  .mx-cell.either.revealed{background:#eef3f8}
+  .mx-cell.either .mx-a{color:#40638a}
+  @media(max-width:600px){
+    .matrix{grid-template-columns:70px 1fr 1fr}
+    .mx-colhead,.mx-rowhead{font-size:11px;padding:6px}
+    .mx-cell{padding:12px 9px;min-height:120px}
+  }
+
+  /* technique cards with image */
+  .tech{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:center;margin-top:18px;
+    border:1px solid var(--line);border-radius:10px;padding:16px;background:#fff}
+  @media(max-width:560px){.tech{grid-template-columns:1fr}}
+  .tech img{width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .tech-body h4{font-size:16px;margin:0 0 6px;color:var(--accent-dark)}
+  .tech-body p{font-size:14px;color:#3d4d5c;margin:0;line-height:1.55}
+  .tech-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  @media(max-width:560px){.tech-trio{grid-template-columns:1fr}}
+  .tech-trio figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+  .tech-trio img{width:100%;height:120px;object-fit:cover;display:block}
+  .tech-trio figcaption{font-size:12px;color:#556;padding:7px 10px;text-align:center;background:#fafbfc}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 4 &nbsp;&rsaquo;&nbsp; <b>Lesson 3: Whole vs. Part Practice</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">17</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 4 &middot; Lesson 3</div>
+        <h1>Whole vs. Part Practice</h1>
+        <p>Do you teach a skill all at once, or break it into pieces? The answer depends on the skill itself.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~25 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 9</span>
+          <span><span class="dot"></span> Practice scheduling &middot; 3 of 3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define <strong>whole</strong> and <strong>part</strong> practice.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Use a skill&rsquo;s <strong>complexity</strong> and <strong>organization</strong> to choose between them.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain the main <strong>disadvantage</strong> of part practice.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Apply three part-practice techniques: <strong>segmentation</strong>, <strong>simplification</strong>, and <strong>attention directing</strong>.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 WHAT IS WHOLE/PART -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The question</div>
+        <h2>Whole or part practice?</h2>
+        <p><strong>Whole practice</strong> means practicing a skill in its entirety. <strong>Part practice</strong> means breaking it into components, practicing those separately, then combining them. The everyday question is simple to ask &mdash; and surprisingly tricky to answer:</p>
+        <div class="ex-trio">
+          <figure><img src="images/wp-tennis-serve.jpg" alt="A tennis player mid-serve on a clay court."><figcaption>Tennis serve &mdash; toss and swing separately, or together?</figcaption></figure>
+          <figure><img src="images/wp-dance.jpg" alt="A dance instructor and two students practicing a ballet movement in a studio."><figcaption>Dance routine &mdash; step by step, or the whole sequence?</figcaption></figure>
+          <figure><img src="images/wp-drumming.jpg" alt="A person playing a drum kit with both hands."><figcaption>Drumming &mdash; each hand alone, or both at once?</figcaption></figure>
+        </div>
+        <p style="margin-top:16px">A patient transfer, a musical instrument, a surgical procedure &mdash; every one forces the same choice: <strong>teach it whole, or break it into parts?</strong> So how do you decide?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 TWO FACTORS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">How to decide</div>
+        <h2>Two characteristics of the skill</h2>
+        <p>The classic framework (<strong>Naylor &amp; Biggs, 1963</strong>) says the decision rests on two features of the skill itself:</p>
+        <div class="pn-row">
+          <div class="pn pos" style="border-top-color:var(--accent)">
+            <div class="pnh" style="color:var(--accent-dark)">1. Complexity</div>
+            <h4>How many parts?</h4>
+            <p>The number of components a skill has &mdash; and how much attention it demands.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:var(--gold)">
+            <div class="pnh" style="color:#b5822f">2. Organization</div>
+            <h4>How interdependent?</h4>
+            <p>How tightly the parts depend on one another in space and time.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px">Get these two straight, and the whole-vs-part decision mostly falls out on its own. Let&rsquo;s take them one at a time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 COMPLEXITY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Factor 1</div>
+        <h2>Complexity = number of parts</h2>
+        <p><strong>Complexity</strong> is the number of components or parts a skill has. More complex skills have more parts and place more demand on information processing &mdash; especially for a beginner. Low-complexity skills have few parts and demand relatively little attention.</p>
+        <p style="margin-top:14px">Think back to the <strong>knot-tying</strong> from your applied activity. Two knots, same general skill &mdash; but a different number of steps:</p>
+        <div class="knot-compare">
+          <div class="knot-row">
+            <div class="knot-head"><span class="knot-name">Overhand knot</span><span class="knot-tag low">Less complex</span></div>
+            <div class="knot-steps">
+              <div class="kstep"><span class="kn">1</span>Form a loop</div>
+              <div class="karrow">&rarr;</div>
+              <div class="kstep"><span class="kn">2</span>Pass end through</div>
+              <div class="karrow">&rarr;</div>
+              <div class="kstep"><span class="kn">3</span>Pull tight</div>
+            </div>
+          </div>
+          <div class="knot-row">
+            <div class="knot-head"><span class="knot-name">Surgeon&rsquo;s knot</span><span class="knot-tag high">More complex</span></div>
+            <div class="knot-steps">
+              <div class="kstep"><span class="kn">1</span>Cross the ends</div>
+              <div class="karrow">&rarr;</div>
+              <div class="kstep"><span class="kn">2</span>Wrap twice</div>
+              <div class="karrow">&rarr;</div>
+              <div class="kstep"><span class="kn">3</span>Pull snug</div>
+              <div class="karrow">&rarr;</div>
+              <div class="kstep"><span class="kn">4</span>Cross back</div>
+              <div class="karrow">&rarr;</div>
+              <div class="kstep"><span class="kn">5</span>Wrap again</div>
+              <div class="karrow">&rarr;</div>
+              <div class="kstep"><span class="kn">6</span>Set the knot</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:14px;font-size:14px;color:var(--muted)">More steps &rarr; more components to hold in mind &rarr; higher complexity. That&rsquo;s the whole idea.</p>
+        <div class="callout warn">
+          <span class="clabel">Complexity &ne; difficulty</span>
+          <p>These are <em>not</em> the same thing. A dart throw is <em>low-complexity</em> (few parts) but can still be <em>difficult</em> to do well. Complexity is about how many pieces there are &mdash; not how hard the skill is to master.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 COMPLEXITY SORTER (interactive) -->
+  <section class="screen" data-screen data-gate="sort">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it</div>
+        <h2>High or low complexity?</h2>
+        <p>Classify each skill by its <strong>number of parts</strong> &mdash; not how hard it is. Answer all four to continue.</p>
+        <div class="sort-stage" id="sortStage"></div>
+        <p class="sort-progress" id="sortProg">0 of 4 classified</p>
+        <p class="gate-note" id="sortnote">Classify all four to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ORGANIZATION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Factor 2</div>
+        <h2>Organization = how interdependent the parts are</h2>
+        <p><strong>Organization</strong> describes how tightly the component parts relate to one another in space and time.</p>
+        <div class="pn-row">
+          <div class="pn neg" style="border-top-color:#d9534f">
+            <div class="pnh" style="color:#d9534f">High organization</div>
+            <h4>Parts are interdependent</h4>
+            <p>The timing of each element is crucial and depends on the others. <strong>Example:</strong> a basketball jump shot &mdash; legs, trunk, and arms must fire in one coordinated flow.</p>
+          </div>
+          <div class="pn pos">
+            <div class="pnh">Low organization</div>
+            <h4>Parts are independent</h4>
+            <p>Components can be performed relatively separately. <strong>Example:</strong> buttoning a shirt, or many dance routines &mdash; discrete steps strung together.</p>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The key intuition</span>
+          <p>If the parts are <strong>highly interdependent</strong>, breaking them apart destroys the very thing that makes the skill work &mdash; the timing between them. If the parts are <strong>independent</strong>, you can safely practice them one at a time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 THE MATRIX (interactive) -->
+  <section class="screen" data-screen data-gate="matrix">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Putting it together</div>
+        <h2>The whole-vs-part decision grid</h2>
+        <p>Cross complexity with organization and the recommendation appears. <strong>Select each cell</strong> to reveal what to do &mdash; and why.</p>
+        <div class="matrix-wrap">
+          <div class="matrix">
+            <div class="mx-corner"></div>
+            <div class="mx-colhead">Low organization<br><span style="font-weight:600;font-size:11px">(parts independent)</span></div>
+            <div class="mx-colhead">High organization<br><span style="font-weight:600;font-size:11px">(parts interdependent)</span></div>
+
+            <div class="mx-rowhead">Low complexity<br><span style="font-weight:600;font-size:11px">(few parts)</span></div>
+            <button class="mx-cell whole" data-k="a"><span class="mx-q">Tap to reveal</span><span class="mx-a">Whole practice</span><span class="mx-note">Few parts, and they&rsquo;re independent &mdash; there&rsquo;s little to break down. Just practice the whole thing. (e.g., a dart throw.)</span></button>
+            <button class="mx-cell whole" data-k="b"><span class="mx-q">Tap to reveal</span><span class="mx-a">Whole practice</span><span class="mx-note">Few parts, tightly timed &mdash; breaking them apart would wreck the timing, and there&rsquo;s little to gain. Keep it whole. (e.g., a golf swing, jump shot.)</span></button>
+
+            <div class="mx-rowhead">High complexity<br><span style="font-weight:600;font-size:11px">(many parts)</span></div>
+            <button class="mx-cell part" data-k="c"><span class="mx-q">Tap to reveal</span><span class="mx-a">Part practice</span><span class="mx-note">Many parts, but independent &mdash; the ideal case for breaking it down. Practice parts, then combine. (e.g., a dance routine, surgical checklist.)</span></button>
+            <button class="mx-cell either" data-k="d"><span class="mx-q">Tap to reveal</span><span class="mx-a">It depends</span><span class="mx-note">Many parts <em>and</em> tightly interdependent &mdash; the hard case. Too complex for pure whole practice, but parts lose the timing. Use special part-practice techniques (coming up).</span></button>
+          </div>
+        </div>
+        <p class="gate-note" id="mxnote" style="margin-top:16px">Reveal all four cells to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 APPLY THE MATRIX (prediction) -->
+  <section class="screen" data-screen data-gate="apply">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Apply it</div>
+        <h2>A quick call</h2>
+        <p>Someone is learning to play a <strong>melody with both hands</strong> on the piano &mdash; the two hands do different things (more parts to manage), and the notes must flow together in tight time, each hand depending on the other. That&rsquo;s edging toward <em>high complexity</em> <strong>and</strong> <em>high organization</em>. Based on the grid, what&rsquo;s the best approach?</p>
+        <div class="predict" id="applyPredict">
+          <button class="pchip" data-v="whole">Whole practice</button>
+          <button class="pchip" data-v="part">Part practice</button>
+          <button class="pchip" data-v="depends">Special techniques</button>
+        </div>
+        <div class="kc-fb" id="applyfb" role="status" hidden></div>
+        <p class="gate-note" id="applynote">Make a choice to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 BUT WAIT (part practice sometimes needed) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">But wait&hellip;</div>
+        <h2>Sometimes part practice is unavoidable</h2>
+        <p>Whole practice preserves the connection &mdash; but sometimes a skill is simply <strong>too difficult</strong> for a learner to attempt as one entire sequence. A beginner can&rsquo;t safely perform the whole thing at once.</p>
+        <div class="statement gold" style="margin:6px 0">
+          <p>For some skills and some learners, part practice isn&rsquo;t just an option &mdash; it&rsquo;s inevitable.</p>
+        </div>
+        <p>So the real question becomes: when you <em>must</em> break a skill down, how do you do it <strong>well</strong>? The techniques ahead show how &mdash; and what happens when the connection between parts is lost.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 LIMB COORDINATION SETUP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A hard case</div>
+        <h2>Skills that need both limbs at once</h2>
+        <p>Many motor skills require moving your arms or legs (or both) <em>simultaneously</em> to hit a spatial and temporal goal &mdash; think drumming, swimming, or a bimanual patient-handling task.</p>
+        <figure class="study-fig"><img src="images/wp-drumming.jpg" alt="A drummer playing a kit, each hand doing something different."><figcaption>The challenge: your limbs <em>want</em> to synchronize, and it&rsquo;s hard to break that tendency.</figcaption></figure>
+        <p>Both part and whole practice can work for these (Walter &amp; Swinnen, 1994). If you go the <strong>part</strong> route for an asymmetric two-handed skill, there&rsquo;s a specific strategy for it:</p>
+        <div class="callout why">
+          <span class="clabel">Fractionization strategy</span>
+          <p>For an <strong>asymmetric bimanual skill</strong> (the two hands doing different things), practice <strong>each hand or arm individually</strong> first &mdash; then combine them into the full two-handed movement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SEGMENTATION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Technique 1</div>
+        <h2>Segmentation (progressive part method)</h2>
+        <p>Begin with the first part of the skill, then <strong>progressively add</strong> each next part, until the whole skill is practiced together.</p>
+        <div class="sched-viz">
+          <div class="sched-row dist">
+            <div class="sr-label">How it builds</div>
+            <div class="sched-track">
+              <div class="blk practice" style="flex:2">A</div>
+              <div class="blk practice" style="flex:3;background:#6fb3bd">A+B</div>
+              <div class="blk practice" style="flex:4;background:#1a7f8e">A+B+C</div>
+              <div class="blk practice" style="flex:5;background:#127080">whole</div>
+            </div>
+            <div class="sched-cap">Each step keeps the earlier parts <em>connected</em> as new ones are added &mdash; so the joins get practiced too.</div>
+          </div>
+        </div>
+        <p style="margin-top:16px">Because each part is added <em>onto</em> the previous ones, segmentation preserves the connections that pure part practice destroys. Good for a dance sequence, a surgical procedure, or a multi-step transfer.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 SIMPLIFICATION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Technique 2</div>
+        <h2>Simplification</h2>
+        <p>Practice an <strong>easier variation</strong> of the whole skill before attempting the real thing. The skill stays whole &mdash; you just reduce its difficulty at first. Classic clinical and everyday examples:</p>
+        <div class="tech-trio">
+          <figure><img src="images/wp-balance-bike.jpg" alt="A young child riding a pedal-less balance bike."><figcaption>Balance bike &mdash; balance without pedaling</figcaption></figure>
+          <figure><img src="images/wp-gait-harness.jpg" alt="A patient walking on a treadmill supported by an overhead body-weight harness."><figcaption>Gait harness &mdash; walking with support</figcaption></figure>
+          <figure><img src="images/wp-floatie.png" alt="A child swimming with a foam flotation buoy, next to a picture of the buoy."><figcaption>Flotation aid &mdash; swimming with buoyancy</figcaption></figure>
+        </div>
+        <p style="margin-top:16px">Each keeps the whole skill intact while removing one source of difficulty &mdash; balance, body weight, or buoyancy &mdash; so the learner can rehearse the real coordination safely.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 DISADVANTAGE OF PART PRACTICE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The catch</div>
+        <h2>The big disadvantage of part practice</h2>
+        <p>When you practice parts separately and then put them together, performance can <strong>break down</strong> &mdash; because the learner never practiced the <em>connection</em> between the components.</p>
+        <figure class="study-fig"><img src="images/wp-swim-wrong.png" alt="An underwater photo of a swimmer whose arm and leg timing is uncoordinated, marked with a red WRONG label."><figcaption>Practice the arm action and leg action separately, then combine them&hellip;</figcaption></figure>
+        <div class="callout warn">
+          <span class="clabel">What went wrong</span>
+          <p>Imagine practicing the <strong>leg kick</strong> and the <strong>arm stroke</strong> of swimming separately, then swimming for real. The timing of the natural sequence between upper and lower body is <em>off</em> &mdash; because the learner never practiced how the parts <strong>connect</strong>. For highly-organized skills, the connection <em>is</em> the skill.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 ATTENTION DIRECTING -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Technique 3</div>
+        <h2>Attention directing</h2>
+        <p>So how do you get the focus of part practice <em>without</em> breaking that connection? This is the elegant answer. The learner performs the <strong>whole</strong> skill physically, but you direct their <strong>attention</strong> to one component at a time. They practice the whole movement while <em>cognitively</em> focusing on a part &mdash; so the connection is never lost.</p>
+        <div class="tech">
+          <img src="images/wp-rdl.jpg" alt="An illustrated sequence of a Romanian deadlift showing starting position and the downward and upward movement.">
+          <div class="tech-body">
+            <h4>Example: coaching a deadlift</h4>
+            <p>The lifter performs the entire lift, but you cue one element per rep: &ldquo;big chest,&rdquo; then &ldquo;hinge at the hips,&rdquo; then &ldquo;feel the hamstring stretch,&rdquo; then &ldquo;neutral spine.&rdquo; Whole movement, one focus at a time.</p>
+          </div>
+        </div>
+        <p style="margin-top:14px;font-size:13px;color:var(--muted)">Deadlift technique illustration via NSCA. This is &ldquo;part practice&rdquo; done entirely in the mind &mdash; the body never stops doing the whole skill.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 KNOWLEDGE CHECK -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">A PT is teaching a complex, multi-step transfer where the steps are fairly <strong>independent</strong> of one another, but there are many of them and the whole sequence overwhelms the patient. What&rsquo;s the most appropriate approach?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="1"><strong>Segmentation</strong> &mdash; teach the first step, then progressively add each next step until the whole transfer is practiced together.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>Whole practice only</strong> &mdash; always keep skills whole, no matter how overwhelming.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>Practice each step in isolation</strong> and never combine them.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Define <strong>whole</strong> vs. <strong>part</strong> practice.</span></li>
+          <li><span class="n">2</span><span class="t">Use <strong>complexity</strong> (number of parts) and <strong>organization</strong> (how interdependent) to decide between them.</span></li>
+          <li><span class="n">3</span><span class="t">Explain part practice&rsquo;s main disadvantage &mdash; losing the <strong>connection</strong> between components.</span></li>
+          <li><span class="n">4</span><span class="t">Apply <strong>segmentation</strong>, <strong>simplification</strong>, and <strong>attention directing</strong> when part practice is needed.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">That completes the practice-scheduling set</span>
+          <p>Across three lessons you&rsquo;ve covered how to <em>space</em> practice (distribution), how to <em>vary</em> it (variability and contextual interference), and how to <em>break it down</em> (whole vs. part). Together they&rsquo;re the toolkit for organizing any practice session.</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">Return to Canvas for this week&rsquo;s homework and quiz.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={sort:"Classify all four to continue",matrix:"Reveal all four cells to continue",
+    apply:"Make a choice to continue",kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent= last ? "Finish" : "Next \u2192";
+    nx.disabled= !last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden = !(!last && locked(cur));
+    lm.textContent = GATEMSG[screens[cur].dataset.gate] || "Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  }
+  document.getElementById("btnNext").onclick=function(){ go(1); };
+  document.getElementById("btnBack").onclick=function(){ go(-1); };
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  function makeSingle(wrapId, fbId, noteId, gate, FBok, FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{
+          opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){
+            if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+        }
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> Many parts (high complexity) but independent, and the whole overwhelms the patient &mdash; segmentation lets you build the sequence gradually while keeping each new step connected to the last.",
+    "<strong>Reconsider.</strong> Whole practice would overwhelm this patient, and isolating steps forever never teaches the sequence. Segmentation &mdash; progressively adding steps &mdash; fits a complex skill with independent parts.");
+
+  function makePredict(wrapId, fbId, noteId, gate, correctVal, okMsg, noMsg){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".pchip").forEach(function(chip){
+      chip.addEventListener("click",function(){
+        wrap.querySelectorAll(".pchip").forEach(function(c){c.disabled=true; if(c.dataset.v!==correctVal)c.classList.add("dim");});
+        wrap.querySelectorAll(".pchip").forEach(function(c){ if(c.dataset.v===correctVal){c.classList.add("right");c.classList.remove("dim");}});
+        var fb=document.getElementById(fbId), right=chip.dataset.v===correctVal;
+        fb.className="kc-fb "+(right?"ok":"no");
+        fb.innerHTML=right?okMsg:noMsg; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  makePredict("applyPredict","applyfb","applynote","apply","depends",
+    "<strong>Exactly.</strong> Many parts <em>and</em> tight timing lands in the &ldquo;it depends&rdquo; cell &mdash; this is where the <strong>special part-practice techniques</strong> come in. You&rsquo;d likely <em>slow it down</em> (simplification), practice each <em>hand separately</em> then combine (fractionization), and <em>progressively add</em> phrases before playing the whole thing up to speed (segmentation). The next three screens cover exactly these.",
+    "<strong>Think again.</strong> With two hands (more parts) <em>and</em> tight timing between them, pure whole practice may overwhelm the learner &mdash; but pulling it fully apart loses the coordination. This is the &ldquo;it depends&rdquo; cell, calling for <strong>special techniques</strong>: slowing down, practicing hands separately, and progressively adding phrases. The next three screens cover exactly these.");
+
+  // ===== Complexity sorter =====
+  (function(){
+    var ITEMS=[
+      {skill:"Buttoning a button",ans:"low",why:"Few components &mdash; low complexity. (It can still be fiddly, but that&rsquo;s difficulty, not complexity.)"},
+      {skill:"A full salsa dance routine",ans:"high",why:"Many distinct steps and components &mdash; high complexity."},
+      {skill:"A dart throw",ans:"low",why:"Few parts &mdash; low complexity, even though throwing accurately is hard."},
+      {skill:"A multi-step surgical procedure",ans:"high",why:"Many sequential components &mdash; high complexity."}
+    ];
+    var stage=document.getElementById("sortStage"), done=0;
+    ITEMS.forEach(function(it,idx){
+      var div=document.createElement("div");
+      div.className="sort-item";
+      div.innerHTML='<div class="si-skill">'+it.skill+'</div>'+
+        '<div class="sort-btns"><button data-v="low">Low complexity</button><button data-v="high">High complexity</button></div>'+
+        '<div class="sort-fb" id="sortfb'+idx+'" hidden></div>';
+      stage.appendChild(div);
+      div.querySelectorAll(".sort-btns button").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          div.querySelectorAll(".sort-btns button").forEach(function(b){b.disabled=true;});
+          var ok=btn.dataset.v===it.ans;
+          if(ok){btn.classList.add("correct");}
+          else{btn.classList.add("wrong");
+            div.querySelectorAll(".sort-btns button").forEach(function(b){if(b.dataset.v===it.ans)b.classList.add("correct");});
+          }
+          var fb=div.querySelector(".sort-fb");
+          fb.innerHTML=(ok?"<strong>Correct.</strong> ":"<strong>Not quite.</strong> ")+it.why;
+          fb.hidden=false;
+          done++;
+          document.getElementById("sortProg").textContent=done+" of 4 classified";
+          if(done===4){
+            answered.sort=true;
+            document.getElementById("sortnote").textContent="All four classified \u2014 you can continue.";
+            document.getElementById("btnNext").disabled=false;
+            document.getElementById("lockmsg").hidden=true;
+          }
+        });
+      });
+    });
+  })();
+
+  // ===== Decision matrix =====
+  (function(){
+    var cells=document.querySelectorAll(".mx-cell"), seen=0;
+    cells.forEach(function(cell){
+      cell.addEventListener("click",function(){
+        if(cell.classList.contains("revealed"))return;
+        cell.classList.add("revealed"); seen++;
+        if(seen===cells.length){
+          answered.matrix=true;
+          document.getElementById("mxnote").textContent="All four revealed \u2014 you can continue.";
+          document.getElementById("btnNext").disabled=false;
+          document.getElementById("lockmsg").hidden=true;
+        }
+      });
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
