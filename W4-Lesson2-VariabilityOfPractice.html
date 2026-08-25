@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 4 / Lesson 2 - Variability of Practice
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 · Lesson 2 — Variability of Practice</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* ===== Lesson 2 additions ===== */
+  /* schedule visualizer */
+  .sv-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  @media(max-width:560px){.sv-controls{grid-template-columns:1fr}}
+  .svbtn{border:2px solid var(--line);border-radius:9px;padding:13px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;text-align:center;transition:.15s}
+  .svbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .svbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .svbtn .svb-t{font-size:15px;font-weight:800;display:block}
+  .svbtn .svb-s{font-size:11.5px;opacity:.8;display:block;margin-top:2px}
+  .sv-stage{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:20px}
+  .sv-track{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:44px;align-items:center}
+  .sv-cell{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .sv-cell.show{opacity:1;transform:none}
+  .sv-c1{background:#1a7f8e}.sv-c2{background:#e0a458}.sv-c3{background:#6a8caf}.sv-c4{background:#c46b6b}
+  .sv-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:12.5px;color:#3d4d5c}
+  .sv-legend span{display:inline-flex;align-items:center;gap:6px}
+  .sv-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sv-readout{margin-top:16px;padding:16px 18px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:70px}
+  .sv-readout .svr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sv-readout h4{font-size:16px;margin:5px 0 6px}
+  .sv-readout p{font-size:14px;color:#3d4d5c;margin:0}
+  .sv-ci{display:inline-block;margin-top:9px;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px}
+  .sv-ci.low{background:#eafaf1;color:#1d6b47}
+  .sv-ci.med{background:#fff6e6;color:#b5822f}
+  .sv-ci.high{background:#fdeeee;color:#a3403c}
+
+  /* CI continuum */
+  .ci-bar{position:relative;height:54px;margin:24px 0 10px;border-radius:27px;
+    background:linear-gradient(90deg,#eafaf1,#fff6e6,#fdeeee);border:1px solid var(--line)}
+  .ci-bar .ci-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .ci-bar .ci-end.l{left:20px;color:#1d6b47}
+  .ci-bar .ci-end.r{right:20px;color:#a3403c}
+  .ci-marks{display:flex;justify-content:space-between;margin-top:14px;gap:8px}
+  .ci-mark{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .ci-mark h4{font-size:14px;margin:0 0 3px}
+  .ci-mark .cim-seq{font-family:monospace;font-size:12px;color:var(--accent-dark);letter-spacing:1px;margin:4px 0}
+  .ci-mark p{font-size:12px;color:#556;margin:4px 0 0;line-height:1.4}
+
+  /* factors accordion (block-safe reveal, from limc pattern) */
+  .fac-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .fac{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;width:100%;transition:.16s;display:block}
+  .fac:hover{border-color:var(--accent);background:#fafdfe}
+  .fac[aria-expanded="true"]{border-color:var(--accent)}
+  .fac-head{display:flex;align-items:center;gap:12px;padding:15px 17px}
+  .fac-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .fac-t{font-size:15px;font-weight:700;color:var(--ink)}
+  .fac-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .fac[aria-expanded="true"] .fac-plus{transform:rotate(45deg)}
+  .fac-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;
+    padding:0 17px;font-size:14px;color:#3d4d5c;line-height:1.55}
+  .fac[aria-expanded="true"] .fac-body{max-height:320px;padding:0 17px 16px}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 4 &nbsp;&rsaquo;&nbsp; <b>Lesson 2: Variability of Practice</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">19</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 4 &middot; Lesson 2</div>
+        <h1>Variability of Practice</h1>
+        <p>The messier, more mixed-up practice often feels worse &mdash; and teaches more. Here&rsquo;s why.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~30 min</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 9</span>
+          <span><span class="dot"></span> Practice scheduling &middot; 2 of 3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define <strong>practice variability</strong> and distinguish <strong>constant</strong> from <strong>variable</strong> practice.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Distinguish <strong>blocked</strong>, <strong>random</strong>, and <strong>serial</strong> practice schedules.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain the <strong>contextual interference effect</strong> and the hypotheses behind it.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Name the <strong>factors</strong> that change when variable practice helps.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 WHAT IS PRACTICE VARIABILITY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Definition</div>
+        <h2>What is practice variability?</h2>
+        <p><strong>Practice variability</strong> is the variety of movement and context characteristics a learner experiences while practicing a skill.</p>
+        <div class="callout warn">
+          <span class="clabel">Don&rsquo;t confuse it with&hellip;</span>
+          <p>This has <em>nothing</em> to do with the <strong>performance variability</strong> (standard deviation, variable error) from the measurement lesson. That was about how <em>inconsistent</em> a performance was. This is a deliberate choice about how much to <em>vary what you practice</em>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 WHAT CAN YOU VARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Two things you can vary</div>
+        <h2>What can we vary?</h2>
+        <div class="tx-cols">
+          <div class="tx-col near">
+            <div class="th">The movement / skill</div>
+            <div class="tc">
+              <p class="d">Variations of a similar movement that the test might demand.</p>
+              <ul>
+                <li>Overarm, three-quarter, and side throws</li>
+                <li>A transfer to different heights or surfaces</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tx-col far">
+            <div class="th">The context of the skill</div>
+            <div class="tc">
+              <p class="d">The physical environment the skill happens in.</p>
+              <ul>
+                <li>Shooting from different distances or angles</li>
+                <li>With or without a defender or obstacle</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="clabel">A callback to Gentile&rsquo;s taxonomy</span>
+          <p>This maps onto <strong>regulatory conditions</strong> from early in the semester. Varying the features that <em>regulate</em> the movement (distance, angle, a defender) is what builds adaptable skill &mdash; varying non-regulatory features (crowd noise, room temperature) matters far less.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 CONSTANT VS VARIABLE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Within a single skill</div>
+        <h2>Constant vs. variable practice</h2>
+        <p>Take one skill &mdash; say, a soccer free kick. How you organize its practice falls on a spectrum:</p>
+        <figure class="study-fig" style="margin:16px 0"><img src="images/soccer-freekick.png" alt="A young soccer player striking a ball toward the goal as a goalkeeper prepares to defend." style="max-height:260px;object-fit:cover"><figcaption>One skill &mdash; a free kick &mdash; can be practiced from one fixed spot, or across many distances and angles.</figcaption></figure>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Constant practice</div>
+            <h4>One variation, repeated</h4>
+            <p>All acquisition trials on a <strong>single</strong> version of the skill &mdash; e.g., free kicks always from the same distance and setup.</p>
+          </div>
+          <div class="pn neg" style="border-top-color:var(--accent)">
+            <div class="pnh" style="color:var(--accent-dark)">Variable practice</div>
+            <h4>Several variations</h4>
+            <p>Trials across <strong>three or more</strong> variations &mdash; free kicks from different distances, angles, and game situations.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px;font-size:14px;color:var(--muted)">This constant/variable choice is about variability <em>within</em> a single skill.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 THE TRADE-OFF -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The pattern to expect</div>
+        <h2>Variable practice: worse now, better later</h2>
+        <p>Research in motor control and learning shows that variable practice typically produces a two-sided result. <strong>Select each to reveal it:</strong></p>
+        <div class="fac-list">
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">1</span><span class="fac-t">During practice: more errors</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">Performance looks <em>worse</em> than constant practice while you&rsquo;re still in the practice phase. The learner is juggling several variations, so their moment-to-moment performance suffers.</span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">2</span><span class="fac-t">At retention / transfer: better learning</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">Superior performance on the retention and transfer tests &mdash; the measure that actually counts. The variety that hurt during practice is what builds durable, adaptable skill.</span>
+          </button>
+        </div>
+        <div class="callout">
+          <span class="clabel">The same lesson, again</span>
+          <p>Just like distributed practice and the desirable-difficulties idea: what makes practice <em>feel</em> harder and look worse in the moment is often exactly what builds durable, adaptable learning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 SCHOENFELT STUDY + PREDICTION -->
+  <section class="screen" data-screen data-gate="schoen">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A study of an athletic skill</div>
+        <h2>Free-throw shooting: constant vs. variable</h2>
+        <p><strong>Schoenfelt et al. (2002)</strong> had people practice basketball free throws, 4 days a week for 3 weeks (40 shots per session), with a retention test 2 weeks later &mdash; taken <em>from the free-throw line</em>. The groups differed in <em>where</em> they practiced from:</p>
+        <figure class="study-fig" style="margin:16px 0"><img src="images/basketball-freethrow.png" alt="A basketball player at the free-throw line taking a foul shot during a game, with players lined up along the key." style="max-height:280px;object-fit:cover"><figcaption>The task: shooting free throws, tested from the regulation free-throw line.</figcaption></figure>
+        <ul class="obj-list" style="margin:14px 0">
+          <li><span class="obj-num">C</span><span class="txt"><strong>Constant:</strong> always from the free-throw line.</span></li>
+          <li><span class="obj-num">V</span><span class="txt"><strong>Variable:</strong> several conditions that mixed in other spots &mdash; in front of, behind, and around the line &mdash; often practicing the exact line only rarely.</span></li>
+        </ul>
+        <p>The retention test is from the line. The constant group practiced <em>exactly</em> that; the variable groups mostly didn&rsquo;t. <strong>Who do you predict improved more at the free throw?</strong></p>
+        <div class="predict" id="schoenpredict">
+          <button class="pchip" data-v="constant">The constant group</button>
+          <button class="pchip" data-v="variable">The variable group</button>
+          <button class="pchip" data-v="equal">About the same</button>
+        </div>
+        <div class="kc-fb" id="schoenfb" role="status" hidden></div>
+        <p class="gate-note" id="schoennote">Make a prediction to continue.</p>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:18px;padding-top:12px;border-top:1px dashed var(--line)">Shoenfelt, E. L., Snyder, L. A., Maue, A. E., McDowell, C. P., &amp; Woolard, C. D. (2002). Comparison of constant and variable practice conditions on free-throw shooting. <em>Perceptual and Motor Skills, 94</em>(3), 1113&ndash;1123.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 SCHOENFELT RESULT + WHY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The result</div>
+        <h2>The variable group won</h2>
+        <p>Even though the <strong>variable</strong> groups rarely practiced from the exact free-throw line, they <strong>improved more</strong> than the group that practiced only from the line. Varying the practice beat rehearsing the exact target skill.</p>
+        <div class="bigcurve" style="padding:20px 18px">
+          <svg viewBox="0 0 440 250" role="img" aria-label="Bar chart of percent improvement by practice condition: Constant 1.0 percent, Variable Front and Back 2.4 percent, Variable Combination 10.9 percent, Variable Random 7.4 percent.">
+            <!-- y axis -->
+            <line x1="52" y1="20" x2="52" y2="200" stroke="#c3ced4" stroke-width="1.5"/>
+            <line x1="52" y1="200" x2="420" y2="200" stroke="#c3ced4" stroke-width="1.5"/>
+            <text x="16" y="115" text-anchor="middle" font-size="11" fill="#7a8a99" transform="rotate(-90 16 115)">Percent improvement</text>
+            <!-- gridlines + labels at 0,4,8,12 -->
+            <text x="46" y="204" text-anchor="end" font-size="10" fill="#9aa7b0">0%</text>
+            <line x1="52" y1="140" x2="420" y2="140" stroke="#eef2f4" stroke-width="1"/>
+            <text x="46" y="144" text-anchor="end" font-size="10" fill="#9aa7b0">4%</text>
+            <line x1="52" y1="80" x2="420" y2="80" stroke="#eef2f4" stroke-width="1"/>
+            <text x="46" y="84" text-anchor="end" font-size="10" fill="#9aa7b0">8%</text>
+            <line x1="52" y1="20" x2="420" y2="20" stroke="#eef2f4" stroke-width="1"/>
+            <text x="46" y="24" text-anchor="end" font-size="10" fill="#9aa7b0">12%</text>
+            <!-- bars: scale 15%=180px tall region -> px per % = 15. y = 200 - val*15 -->
+            <!-- C = 1.0 -->
+            <rect x="78" y="185" width="58" height="15" rx="3" fill="#e0a458"/>
+            <text x="107" y="178" text-anchor="middle" font-size="12" font-weight="800" fill="#b5822f">1.0%</text>
+            <text x="107" y="216" text-anchor="middle" font-size="11" fill="#3d4d5c" font-weight="700">Constant</text>
+            <!-- VFB = 2.4 -->
+            <rect x="168" y="164" width="58" height="36" rx="3" fill="#6fb3bd"/>
+            <text x="197" y="157" text-anchor="middle" font-size="12" font-weight="800" fill="#1a7f8e">2.4%</text>
+            <text x="197" y="216" text-anchor="middle" font-size="11" fill="#3d4d5c">Var: F&amp;B</text>
+            <!-- VC = 10.9 -->
+            <rect x="258" y="36" width="58" height="164" rx="3" fill="#1a7f8e"/>
+            <text x="287" y="29" text-anchor="middle" font-size="12" font-weight="800" fill="#127080">10.9%</text>
+            <text x="287" y="216" text-anchor="middle" font-size="11" fill="#3d4d5c">Var: Combo</text>
+            <!-- VR = 7.4 -->
+            <rect x="348" y="89" width="58" height="111" rx="3" fill="#6fb3bd"/>
+            <text x="377" y="82" text-anchor="middle" font-size="12" font-weight="800" fill="#1a7f8e">7.4%</text>
+            <text x="377" y="216" text-anchor="middle" font-size="11" fill="#3d4d5c">Var: Random</text>
+          </svg>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:6px">Pre- to post-test improvement by condition. All three <span style="color:var(--accent-dark);font-weight:700">variable</span> conditions beat <span style="color:#b5822f;font-weight:700">constant</span> practice &mdash; and the biggest gain came from the combination that mixed several positions <em>including</em> the free-throw line.</p>
+        <button class="fac" aria-expanded="false" onclick="facTog(this)" style="margin-top:16px">
+          <span class="fac-head"><span class="fac-n">?</span><span class="fac-t">Why would that happen?</span><span class="fac-plus">+</span></span>
+          <span class="fac-body">The idea (which we&rsquo;ll formalize later as the <strong>generalized motor program</strong>) is this: practicing one fixed version teaches you only <em>that</em> version. Practicing many variations teaches the underlying movement <em>rule</em> &mdash; so you can dial in the right parameters for a new or slightly different situation. That adaptability <em>is</em> the learning. So, it&rsquo;s kind of like learning to learn.</span>
+        </button>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)">Data from Shoenfelt et al. (2002). C = Constant; F&amp;B = Front &amp; Back; Combo = Combination (included the free-throw line); Random = shots from around the key.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 WHAT TO VARY: REGULATORY CONDITIONS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Which features should you vary?</div>
+        <h2>What can you vary within a skill?</h2>
+        <p>Not every variation is worth practicing. Recall <strong>Gentile&rsquo;s taxonomy</strong> from early in the semester &mdash; the distinction between <strong>regulatory</strong> and <strong>non-regulatory</strong> conditions tells you which features actually matter.</p>
+        <p style="margin-top:12px">Take <strong>basketball shooting in a game</strong>:</p>
+        <div class="tx-cols" style="margin-top:16px">
+          <div class="tx-col near">
+            <div class="th">Vary regulatory conditions</div>
+            <div class="tc">
+              <p class="d">Features that <strong>shape the movement itself</strong> &mdash; varying these builds adaptable skill.</p>
+              <ul>
+                <li>Distance from the basket</li>
+                <li>Defensive players</li>
+                <li>Situation / time on the clock</li>
+                <li>Angle to the hoop</li>
+                <li>Type of shot</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tx-col far">
+            <div class="th">Vary non-regulatory conditions</div>
+            <div class="tc">
+              <p class="d">Features that <strong>don&rsquo;t shape the movement</strong> &mdash; varying these adds little.</p>
+              <ul>
+                <li>Crowd noise</li>
+                <li>Presence of spectators</li>
+                <li>Temperature of the gym</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <button class="fac" aria-expanded="false" onclick="facTog(this)">
+          <span class="fac-head"><span class="fac-n">!</span><span class="fac-t">The takeaway</span><span class="fac-plus">+</span></span>
+          <span class="fac-body">Effective variable practice varies the <strong>regulatory</strong> conditions &mdash; the ones that change how the movement must be produced. Varying non-regulatory conditions (noise, crowd) mostly just adds distraction, not adaptable learning.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 SCHEDULE VISUALIZER -->
+  <section class="screen" data-screen data-gate="sv">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Organizing multiple skills</div>
+        <h2>Blocked, random, and serial schedules</h2>
+        <p>Now zoom out from one skill to a <em>session with several skills</em>. Say you&rsquo;re coaching soccer and want to work on four skills: <strong>corner kick, free kick, penalty kick, and near passing</strong>. The <strong>order</strong> you practice them in is itself a powerful variable.</p>
+        <p style="margin:14px 0 0"><strong>Select each schedule</strong> to see how the same practice trials get arranged:</p>
+        <div class="sv-controls">
+          <button class="svbtn" data-s="blocked"><span class="svb-t">Blocked</span><span class="svb-s">&ldquo;drilled&rdquo; repetition</span></button>
+          <button class="svbtn" data-s="serial"><span class="svb-t">Serial</span><span class="svb-s">predictable cycle</span></button>
+          <button class="svbtn" data-s="random"><span class="svb-t">Random</span><span class="svb-s">no set order</span></button>
+        </div>
+        <div class="sv-stage">
+          <div class="sv-track" id="svTrack"></div>
+          <div class="sv-legend">
+            <span><i class="sv-c1"></i>1 Corner kick</span>
+            <span><i class="sv-c2"></i>2 Free kick</span>
+            <span><i class="sv-c3"></i>3 Penalty kick</span>
+            <span><i class="sv-c4"></i>4 Near passing</span>
+          </div>
+        </div>
+        <div class="sv-readout" id="svReadout">
+          <div class="svr-tag">Select a schedule</div>
+          <h4>See how the trials are ordered</h4>
+          <p>Each schedule uses the <em>same</em> number of trials per skill &mdash; only the order changes.</p>
+        </div>
+        <p class="gate-note" id="svnote" style="margin-top:14px">Explore all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 SHEA & MORGAN QUESTION -->
+  <section class="screen" data-screen data-gate="shea">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A classic study</div>
+        <h2>Blocked vs. random: which learns better?</h2>
+        <p><strong>Shea &amp; Morgan (1979)</strong> is the classic study here. Participants learned three different rapid arm-movement patterns (A, B, C): on a signal, each one required knocking down a specific sequence of small hinged barriers as fast as possible &mdash; a different order of movements for each task. The measure was total movement time. Same total trials, arranged either way:</p>
+        <ul class="obj-list" style="margin:14px 0">
+          <li><span class="obj-num">B</span><span class="txt"><strong>Blocked:</strong> AAAA BBBB CCCC</span></li>
+          <li><span class="obj-num">R</span><span class="txt"><strong>Random:</strong> A B C C B A A C B C A B</span></li>
+        </ul>
+        <p>They were tested on retention and transfer, 10 minutes and 10 days later. <strong>Which schedule do you predict produced better learning?</strong></p>
+        <div class="predict" id="sheapredict">
+          <button class="pchip" data-v="blocked">Blocked practice</button>
+          <button class="pchip" data-v="random">Random practice</button>
+          <button class="pchip" data-v="equal">No difference</button>
+        </div>
+        <div class="kc-fb" id="sheafb" role="status" hidden></div>
+        <p class="gate-note" id="sheanote">Make a prediction to continue.</p>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:18px;padding-top:12px;border-top:1px dashed var(--line)">Shea, J. B., &amp; Morgan, R. L. (1979). Contextual interference effects on the acquisition, retention, and transfer of a motor skill. <em>Journal of Experimental Psychology: Human Learning and Memory, 5</em>(2), 179&ndash;187.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SHEA RESULT + FIGURE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The result</div>
+        <h2>Random practiced worse &mdash; but learned more</h2>
+        <p>During practice (acquisition), the <strong>blocked</strong> group performed better &mdash; faster times. But on the <strong>retention tests, the random group won</strong> &mdash; the flipped result you&rsquo;ve now seen again and again.</p>
+        <figure class="study-fig">
+          <img src="images/shea-morgan-results.png" alt="Line graph of total movement time across six acquisition blocks and two retention tests. During acquisition the random group is slower (worse) than the blocked group but improves steeply. At retention, groups that were tested under random conditions after blocked training performed worst, while random-trained performers retained better.">
+          <figcaption>Total movement time (lower = better) across acquisition and retention. During practice, random is slower; at retention the advantage flips. <span class="fig-src">After Shea &amp; Morgan (1979).</span></figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Reading the graph</span>
+          <p><strong>Acquisition (left):</strong> the random group is <em>slower</em> &mdash; worse during practice &mdash; but closing the gap fast. <strong>Retention (right):</strong> the labels show training-then-test conditions. Performers who trained in a <strong>blocked</strong> schedule but were tested under <strong>random</strong> conditions (B-R) did <em>worst</em> &mdash; their practice hadn&rsquo;t prepared them to switch. Random practice built the more durable, flexible skill.</p>
+        </div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)">Shea, J. B., &amp; Morgan, R. L. (1979). Contextual interference effects on the acquisition, retention, and transfer of a motor skill. <em>Journal of Experimental Psychology: Human Learning and Memory, 5</em>(2), 179&ndash;187.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 CONTEXTUAL INTERFERENCE (its own screen) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The key concept</div>
+        <h2>Contextual interference</h2>
+        <p><strong>Contextual interference</strong> is the interference created when you switch among several similar-but-different skills during practice. Blocked practice keeps it low; random practice makes it high.</p>
+        <div class="statement gold" style="margin:6px 0">
+          <div class="eyebrow">The contextual interference effect</div>
+          <p>Low interference (blocked) &rarr; better practice performance. High interference (random) &rarr; better learning and retention.</p>
+        </div>
+        <p>This is the counterintuitive heart of the lesson: the very interference that makes random practice feel harder and look worse in the moment is <em>what drives the deeper learning</em>. The struggle isn&rsquo;t a side effect &mdash; it&rsquo;s the mechanism.</p>
+        <div class="callout">
+          <span class="clabel">A quick clinical translation</span>
+          <p>Drilling one skill until it&rsquo;s smooth (blocked) feels satisfying and looks like progress. But mixing skills the way real life demands them &mdash; the harder, messier session &mdash; is usually what transfers to the world outside the clinic or gym.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 CI CONTINUUM -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A continuum, not a switch</div>
+        <h2>How much interference?</h2>
+        <p>The three schedules line up along a contextual-interference continuum &mdash; from the easiest-feeling to the hardest-feeling practice:</p>
+        <div class="ci-bar">
+          <span class="ci-end l">Low CI</span>
+          <span class="ci-end r">High CI</span>
+        </div>
+        <div class="ci-marks">
+          <div class="ci-mark">
+            <h4>Blocked</h4>
+            <div class="cim-seq">AAABBBCCC</div>
+            <p>Easiest during practice, weakest learning.</p>
+          </div>
+          <div class="ci-mark">
+            <h4>Serial</h4>
+            <div class="cim-seq">ABCABCABC</div>
+            <p>Predictable cycle &mdash; moderate interference.</p>
+          </div>
+          <div class="ci-mark">
+            <h4>Random</h4>
+            <div class="cim-seq">ACBACBCAB</div>
+            <p>Hardest during practice, strongest learning.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="clabel">Serial counts as variable too</span>
+          <p>Serial practice produces results <em>similar to random</em> (Lee &amp; Magill, 1983). Blocked, serial, and random are all types of variable scheduling &mdash; they just sit at different points on the interference continuum.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CI MAIN MESSAGE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="statement gold">
+          <div class="eyebrow">The message to remember</div>
+          <p>Higher contextual interference during practice &mdash; more switching among skills &mdash; makes practice feel harder and look worse, but it <em>improves long-term retention and transfer of the skill</em>.</p>
+        </div>
+        <p style="margin-top:20px">This is the single most important idea from this half of the lesson. A blocked schedule flatters you with smooth practice; a random schedule frustrates you &mdash; and then pays you back at the retention test, when it counts.</p>
+        <div class="callout why">
+          <span class="clabel">One line to carry out</span>
+          <p>If you want a skill to <strong>last</strong> and to <strong>hold up in new situations</strong>, build some interference into practice. Comfort during practice is not the goal &mdash; durable, adaptable skill is.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 WHY RANDOM WORKS (reveal cards) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Two explanations</div>
+        <h2>Why does interference help?</h2>
+        <p>Two hypotheses explain the contextual interference effect. <strong>Select each</strong> to explore it.</p>
+        <div class="fac-list">
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">1</span><span class="fac-t">Elaboration hypothesis</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">Practicing several skills together makes each one more <strong>meaningful and distinctive</strong>. The learner constantly compares and contrasts the skills, which makes each memory richer and more durable. <em>(Shea &amp; Morgan, 1979.)</em></span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">2</span><span class="fac-t">Forgetting&ndash;reconstruction hypothesis</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">Switching skills forces you to partly <strong>forget</strong> your plan for one skill to perform another &mdash; so when you return to the first, you must <strong>reconstruct</strong> the movement plan from scratch. That effortful rebuilding is what strengthens learning. Blocked practice, by contrast, lets you &ldquo;copy and paste&rdquo; the same plan from working memory. <em>(Lee &amp; Magill, 1982.)</em></span>
+          </button>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Same theme</span>
+          <p>Both hypotheses describe a <em>desirable difficulty</em>: making practice more effortful in the moment &mdash; through comparison or through forced rebuilding &mdash; is exactly what deepens the learning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 IT DEPENDS - FACTORS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Important caveats</div>
+        <h2>When does variable practice help?</h2>
+        <p>The contextual interference effect is real but <strong>not universal</strong>. It depends on matching the challenge to the learner. <strong>Select each factor:</strong></p>
+        <div class="fac-list">
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">1</span><span class="fac-t">Open vs. closed skill</span><span class="fac-plus">+</span></span>
+            <span class="fac-body"><strong>Closed skills</strong> (predictable) show the classic benefit &mdash; a blocked schedule may be too easy, so adding interference helps. <strong>Open skills</strong> are already demanding, so a high-interference schedule can overwhelm the learner; blocked may work better.</span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">2</span><span class="fac-t">Simple vs. complex skill</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">The benefit shows up reliably for <strong>simple</strong> skills. For <strong>complex</strong> skills the findings are mixed: a hard task <em>plus</em> a hard (random) schedule can overwhelm learners. The sweet spot is a task and schedule that together are challenging but not overwhelming.</span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">3</span><span class="fac-t">Skill level of the learner</span><span class="fac-plus">+</span></span>
+            <span class="fac-body"><strong>Novices</strong> often do better with <strong>blocked</strong> practice &mdash; the task alone is already taxing, so a random schedule overloads them. <strong>Skilled performers</strong> benefit more from random practice. <em>(Hebert et al., 1996.)</em></span>
+          </button>
+        </div>
+        <div class="callout">
+          <span class="clabel">The unifying idea</span>
+          <p>It&rsquo;s all about the <strong>optimal challenge point</strong>: raise difficulty enough to engage the learner, but not so much that they&rsquo;re overwhelmed. That balance shifts with the skill and the person.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 KNOWLEDGE CHECK -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">An OT is helping a <strong>novice</strong> patient relearn several distinct hand skills after injury. The patient finds even one skill cognitively demanding right now. Based on the factors we covered, what&rsquo;s the best <em>starting</em> schedule?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="1">Start more <strong>blocked</strong> &mdash; the patient is a novice and easily overwhelmed &mdash; then add interference as they improve.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Go fully <strong>random</strong> immediately &mdash; high interference always produces the best learning.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Use <strong>constant</strong> practice of one skill forever &mdash; never vary anything.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Define <strong>practice variability</strong> and distinguish <strong>constant</strong> from <strong>variable</strong> practice.</span></li>
+          <li><span class="n">2</span><span class="t">Tell <strong>blocked</strong>, <strong>serial</strong>, and <strong>random</strong> schedules apart on the interference continuum.</span></li>
+          <li><span class="n">3</span><span class="t">Explain the <strong>contextual interference effect</strong> &mdash; and the elaboration and forgetting&ndash;reconstruction hypotheses.</span></li>
+          <li><span class="n">4</span><span class="t">Adjust the schedule to the <strong>skill and the learner</strong> using the optimal challenge point.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next: Whole vs. Part Practice</span>
+          <p>You&rsquo;ve covered how to <em>space</em> and how to <em>vary</em> practice. The last scheduling question: when should you practice a skill <em>whole</em>, and when should you break it into <em>parts</em>?</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">Return to Canvas for the final lesson in this set, <strong>Whole vs. Part Practice</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={schoen:"Make a prediction to continue",sv:"Explore all three to continue",
+    shea:"Make a prediction to continue",kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent= last ? "Finish" : "Next \u2192";
+    nx.disabled= !last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden = !(!last && locked(cur));
+    lm.textContent = GATEMSG[screens[cur].dataset.gate] || "Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){
+    var t=cur+d;
+    if(t<0||t>=TOT) return;
+    if(d>0 && locked(cur)) return;
+    show(t);
+  }
+  document.getElementById("btnNext").onclick=function(){ go(1); };
+  document.getElementById("btnBack").onclick=function(){ go(-1); };
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea")) return;
+    if(e.key==="ArrowRight") go(1);
+    if(e.key==="ArrowLeft") go(-1);
+  });
+
+  window.facTog=function(btn){
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded", open?"false":"true");
+  };
+
+  function makeSingle(wrapId, fbId, noteId, gate, FBok, FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{
+          opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){
+            if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});
+        }
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> For an easily-overwhelmed novice, start closer to <strong>blocked</strong> to keep the challenge manageable, then raise interference (serial, then random) as competence grows. That&rsquo;s the optimal challenge point in action.",
+    "<strong>Reconsider.</strong> &ldquo;Random always wins&rdquo; ignores the factors: a novice who finds one skill taxing will be <em>overwhelmed</em> by high interference. And constant practice of one skill forever builds no adaptability. Start blocked, then progress.");
+
+  // prediction helper (highlights the correct chip regardless of pick)
+  function makePredict(wrapId, fbId, noteId, gate, correctVal, okMsg, noMsg){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".pchip").forEach(function(chip){
+      chip.addEventListener("click",function(){
+        wrap.querySelectorAll(".pchip").forEach(function(c){c.disabled=true; if(c.dataset.v!==correctVal)c.classList.add("dim");});
+        wrap.querySelectorAll(".pchip").forEach(function(c){ if(c.dataset.v===correctVal){c.classList.add("right");c.classList.remove("dim");}});
+        var fb=document.getElementById(fbId), right=chip.dataset.v===correctVal;
+        fb.className="kc-fb "+(right?"ok":"no");
+        fb.innerHTML=right?okMsg:noMsg; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  makePredict("schoenpredict","schoenfb","schoennote","schoen","variable",
+    "<strong>Correct.</strong> The variable group retained the free throw <em>better</em> &mdash; despite rarely practicing from the exact line. Varying the practice built a more adaptable skill.",
+    "<strong>Surprising, but no.</strong> The <em>variable</em> group won &mdash; even though they rarely practiced from the exact free-throw line they were tested on. Variety beat specific rehearsal here.");
+  makePredict("sheapredict","sheafb","sheanote","shea","random",
+    "<strong>Correct.</strong> Random practice produced better retention and transfer &mdash; even though it looked worse <em>during</em> practice. The classic contextual interference effect.",
+    "<strong>Not quite.</strong> <em>Random</em> practice won for learning. It performed worse during practice, but produced better retention and transfer &mdash; the contextual interference effect.");
+
+  // ===== Schedule Visualizer =====
+  (function(){
+    var SEQS={
+      blocked:{seq:[1,1,1,2,2,2,3,3,3,4,4,4],ci:"low",citxt:"No switching",
+        h:"Blocked: all of one skill, then the next",
+        p:"Every trial of skill 1, then all of skill 2, and so on. The learner never switches between skills within a run &mdash; it feels smooth and easy."},
+      serial:{seq:[1,2,3,4,1,2,3,4,1,2,3,4],ci:"med",citxt:"Predictable switching",
+        h:"Serial: a repeating, predictable cycle",
+        p:"Skills cycle in a fixed order (1-2-3-4, repeat). The learner switches on every trial &mdash; but the order is predictable."},
+      random:{seq:[3,1,4,2,1,3,2,4,2,1,4,3],ci:"high",citxt:"Constant, unpredictable switching",
+        h:"Random: no predictable order",
+        p:"Skills switch constantly with no pattern. The learner can never settle into one skill &mdash; it feels the hardest."}
+    };
+    var track=document.getElementById("svTrack"), seen={}, btns=document.querySelectorAll(".svbtn");
+    function draw(key){
+      var d=SEQS[key]; track.innerHTML="";
+      d.seq.forEach(function(n,idx){
+        var c=document.createElement("div");
+        c.className="sv-cell sv-c"+n; c.textContent=n;
+        track.appendChild(c);
+        setTimeout(function(){c.classList.add("show");}, 40*idx);
+      });
+      var ro=document.getElementById("svReadout");
+      ro.innerHTML="<div class='svr-tag'>"+key+" practice</div><h4>"+d.h+"</h4><p>"+d.p+
+        "</p><span class='sv-ci "+d.ci+"'>"+d.citxt+"</span>";
+    }
+    btns.forEach(function(btn){
+      btn.addEventListener("click",function(){
+        btns.forEach(function(x){x.classList.remove("active")});
+        btn.classList.add("active");
+        var key=btn.dataset.s; draw(key); seen[key]=true;
+        if(seen.blocked&&seen.serial&&seen.random){
+          answered.sv=true;
+          document.getElementById("svnote").textContent="All three explored \u2014 you can continue.";
+          document.getElementById("btnNext").disabled=false;
+          document.getElementById("lockmsg").hidden=true;
+        }
+      });
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
