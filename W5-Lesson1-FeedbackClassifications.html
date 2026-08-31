@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 5 / Lesson 1 - Feedback Classifications
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 · Lesson 1 — Feedback Classifications</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* ===== Lesson 2 additions ===== */
+  /* schedule visualizer */
+  .sv-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  @media(max-width:560px){.sv-controls{grid-template-columns:1fr}}
+  .svbtn{border:2px solid var(--line);border-radius:9px;padding:13px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;text-align:center;transition:.15s}
+  .svbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .svbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .svbtn .svb-t{font-size:15px;font-weight:800;display:block}
+  .svbtn .svb-s{font-size:11.5px;opacity:.8;display:block;margin-top:2px}
+  .sv-stage{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:20px}
+  .sv-track{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:44px;align-items:center}
+  .sv-cell{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .sv-cell.show{opacity:1;transform:none}
+  .sv-c1{background:#1a7f8e}.sv-c2{background:#e0a458}.sv-c3{background:#6a8caf}.sv-c4{background:#c46b6b}
+  .sv-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:12.5px;color:#3d4d5c}
+  .sv-legend span{display:inline-flex;align-items:center;gap:6px}
+  .sv-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sv-readout{margin-top:16px;padding:16px 18px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:70px}
+  .sv-readout .svr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sv-readout h4{font-size:16px;margin:5px 0 6px}
+  .sv-readout p{font-size:14px;color:#3d4d5c;margin:0}
+  .sv-ci{display:inline-block;margin-top:9px;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px}
+  .sv-ci.low{background:#eafaf1;color:#1d6b47}
+  .sv-ci.med{background:#fff6e6;color:#b5822f}
+  .sv-ci.high{background:#fdeeee;color:#a3403c}
+
+  /* CI continuum */
+  .ci-bar{position:relative;height:54px;margin:24px 0 10px;border-radius:27px;
+    background:linear-gradient(90deg,#eafaf1,#fff6e6,#fdeeee);border:1px solid var(--line)}
+  .ci-bar .ci-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .ci-bar .ci-end.l{left:20px;color:#1d6b47}
+  .ci-bar .ci-end.r{right:20px;color:#a3403c}
+  .ci-marks{display:flex;justify-content:space-between;margin-top:14px;gap:8px}
+  .ci-mark{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .ci-mark h4{font-size:14px;margin:0 0 3px}
+  .ci-mark .cim-seq{font-family:monospace;font-size:12px;color:var(--accent-dark);letter-spacing:1px;margin:4px 0}
+  .ci-mark p{font-size:12px;color:#556;margin:4px 0 0;line-height:1.4}
+
+  /* factors accordion (block-safe reveal, from limc pattern) */
+  .fac-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .fac{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;width:100%;transition:.16s;display:block}
+  .fac:hover{border-color:var(--accent);background:#fafdfe}
+  .fac[aria-expanded="true"]{border-color:var(--accent)}
+  .fac-head{display:flex;align-items:center;gap:12px;padding:15px 17px}
+  .fac-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .fac-t{font-size:15px;font-weight:700;color:var(--ink)}
+  .fac-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .fac[aria-expanded="true"] .fac-plus{transform:rotate(45deg)}
+  .fac-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;
+    padding:0 17px;font-size:14px;color:#3d4d5c;line-height:1.55}
+  .fac[aria-expanded="true"] .fac-body{max-height:320px;padding:0 17px 16px}
+
+
+  /* ===== AFB Lesson 1 additions ===== */
+  /* video embed / placeholder */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+  /* KR/KP sorter */
+  .krkp-intro{display:flex;gap:12px;margin:16px 0}
+  .krkp-key{flex:1;border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fff}
+  .krkp-key.kr{border-top:3px solid var(--accent)}
+  .krkp-key.kp{border-top:3px solid var(--gold)}
+  .krkp-key h4{margin:0 0 4px;font-size:14px}
+  .krkp-key.kr h4{color:var(--accent-dark)}
+  .krkp-key.kp h4{color:#b5822f}
+  .krkp-key p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  .sortq{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fff;margin-bottom:12px}
+  .sortq .sq-txt{font-size:14.5px;color:var(--ink);margin-bottom:11px;line-height:1.5}
+  .sortq .sq-txt .ctx{font-weight:700;color:var(--accent-dark)}
+  .sq-btns{display:flex;gap:9px}
+  .sq-btns button{flex:1;border:2px solid var(--line);border-radius:8px;padding:9px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .sq-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .sq-btns button:disabled{cursor:default}
+  .sq-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .sq-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .sq-fb{font-size:12.5px;margin-top:9px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .sq-fb[hidden]{display:none}
+
+  /* two-axis classify (KR/KP x during/after) */
+  .classify-item{border:1px solid var(--line);border-radius:10px;padding:15px 17px;background:#fff;margin-bottom:14px}
+  .ci-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:13px}
+  .ci-scenario b{color:var(--accent-dark)}
+  .ci-axes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.ci-axes{grid-template-columns:1fr}}
+  .ci-axis .ax-label{font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .ci-axis .ax-btns{display:flex;gap:7px}
+  .ci-axis .ax-btns button{flex:1;border:2px solid var(--line);border-radius:7px;padding:8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s}
+  .ci-axis .ax-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .ci-axis .ax-btns button:disabled{cursor:default}
+  .ci-axis .ax-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .ci-axis .ax-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .ci-fb{font-size:12.5px;margin-top:11px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .ci-fb[hidden]{display:none}
+  .ci-img{margin:4px 0 12px}
+  .ci-img img{max-width:220px;width:100%;height:auto;border-radius:8px;border:1px solid var(--line)}
+  .ci-img svg{border-radius:8px;border:1px solid var(--line)}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 5 &nbsp;&rsaquo;&nbsp; <b>Lesson 1: Feedback Classifications</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">14</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 5 &middot; Lesson 1</div>
+        <h1>Feedback Classifications</h1>
+        <p>Before we can use feedback well, we need to name its types. What counts as feedback, when does it arrive, and what does it tell the learner?</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~20 min</span>
+          <span><span class="dot"></span> Augmented feedback &middot; 1 of 4</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee; Magill &amp; Anderson</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Distinguish <strong>task-intrinsic (inherent)</strong> feedback from <strong>augmented</strong> feedback.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Classify augmented feedback by <strong>timing</strong>: concurrent vs. terminal.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Define <strong>knowledge of results (KR)</strong> and <strong>knowledge of performance (KP)</strong>.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Classify real feedback examples along both dimensions.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 INHERENT VS AUGMENTED -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The big split</div>
+        <h2>Two sources of information</h2>
+        <p>Every time someone performs a movement, information about it can come from two places:</p>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Inherent (task-intrinsic)</div>
+            <h4>From the movement itself</h4>
+            <p>Information that arises as a <strong>natural consequence</strong> of the action &mdash; what you see, hear, and feel through your own senses. Watching your shot miss; feeling your balance shift.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:var(--gold)">
+            <div class="pnh" style="color:#b5822f">Augmented</div>
+            <h4>Added from outside</h4>
+            <p>Information <strong>supplied to the learner</strong> in addition to what their own senses provide &mdash; from a coach, clinician, or device. &ldquo;Bend your knees!&rdquo; &middot; &ldquo;You were faster than last time.&rdquo;</p>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="clabel">This whole module is about the second kind</span>
+          <p>Augmented feedback is the part a coach or clinician <em>controls</em> &mdash; so it&rsquo;s where your professional decisions live. That&rsquo;s why it&rsquo;s worth classifying carefully.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 QUICK INTUITION -->
+  <section class="screen" data-screen data-gate="intuit">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Quick check your intuition</div>
+        <h2>Inherent or augmented?</h2>
+        <p><strong>Scenario 1.</strong> A patient practicing sit-to-stand <strong>feels their thighs burn and sees themselves rise in the mirror</strong>. Is that inherent or augmented feedback?</p>
+        <div class="predict" id="intuitPredict">
+          <button class="pchip" data-v="inherent">Inherent</button>
+          <button class="pchip" data-v="augmented">Augmented</button>
+        </div>
+        <div class="kc-fb" id="intuitfb" role="status" hidden></div>
+        <p style="margin-top:22px"><strong>Scenario 2.</strong> As the same patient stands, their therapist says <strong>&ldquo;straighten up all the way &mdash; you&rsquo;re stopping a little short.&rdquo;</strong> Inherent or augmented?</p>
+        <div class="predict" id="intuit2Predict">
+          <button class="pchip" data-v="inherent">Inherent</button>
+          <button class="pchip" data-v="augmented">Augmented</button>
+        </div>
+        <div class="kc-fb" id="intuit2fb" role="status" hidden></div>
+        <p class="gate-note" id="intuitnote">Answer both to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 TIMING: CONCURRENT VS TERMINAL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">First dimension: timing</div>
+        <h2>When does the feedback arrive?</h2>
+        <p>Augmented feedback can be classified by <strong>when</strong> it&rsquo;s delivered relative to the movement:</p>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Concurrent</div>
+            <h4>During the movement</h4>
+            <p>Delivered <strong>while</strong> the action is happening. Can be visual, auditory, or haptic (e.g., vibration).</p>
+          </div>
+          <div class="pn pos" style="border-top-color:var(--gold)">
+            <div class="pnh" style="color:#b5822f">Terminal</div>
+            <h4>After the movement</h4>
+            <p>Delivered <strong>after</strong> the action is complete &mdash; about the result or the movement itself. This is the <strong>most common</strong> kind.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 CONCURRENT EXAMPLES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Concurrent feedback in the wild</div>
+        <h2>Feedback delivered <em>during</em> the action</h2>
+        <p>Concurrent feedback is often built into devices you already know:</p>
+        <figure class="study-fig"><img src="images/afb-blindspot.jpg" alt="A car side mirror showing an illuminated amber blind-spot warning icon."><figcaption><strong>Visual, concurrent:</strong> a blind-spot indicator lights up <em>while</em> you drive, the moment a car enters the blind spot.</figcaption></figure>
+        <figure class="study-fig"><img src="images/afb-vibrotactile-belt.jpg" alt="A diagram of a vibrotactile balance belt worn around the waist with numbered vibrating units, shown with a force plate sensing center of foot pressure."><figcaption><strong>Haptic, concurrent:</strong> a vibrotactile belt with vibrating units around the waist, driven by a force plate tracking center of pressure.</figcaption></figure>
+        <div class="callout">
+          <span class="clabel">Haptic, concurrent</span>
+          <p>A <strong>vibrotactile balance belt</strong> buzzes on one side the moment your center of pressure drifts too close to the edge of your base of support &mdash; giving a balance-impaired patient a real-time nudge back to center. The feedback happens <em>during</em> the sway, not after.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">You&rsquo;ve felt this one</span>
+          <p>Your <strong>smartwatch tapping your wrist</strong> &mdash; to flag a notification, or to cue &ldquo;time to stand&rdquo; or &ldquo;turn left&rdquo; during navigation &mdash; is the same idea: haptic information delivered <em>in the moment</em>, while you&rsquo;re doing something else.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 TERMINAL FEEDBACK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The other side of timing</div>
+        <h2>Terminal feedback: delivered <em>after</em> the movement</h2>
+        <p><strong>Terminal feedback</strong> arrives once the action is complete. It can describe the <em>result</em> of the movement or the <em>movement itself</em> &mdash; and it&rsquo;s the <strong>most common</strong> form of augmented feedback in coaching and the clinic.</p>
+        <div class="ex-trio" style="grid-template-columns:1fr 1fr;">
+          <figure style="border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;margin:0;padding:14px 16px">
+            <figcaption style="text-align:left;font-size:13.5px;color:#3d4d5c;padding:0;background:none;border:none"><strong style="color:var(--accent-dark)">&ldquo;You finished half a second faster.&rdquo;</strong><br>A sprint time read out after the run.</figcaption>
+          </figure>
+          <figure style="border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;margin:0;padding:14px 16px">
+            <figcaption style="text-align:left;font-size:13.5px;color:#3d4d5c;padding:0;background:none;border:none"><strong style="color:var(--accent-dark)">&ldquo;Your knee collapsed inward on that squat.&rdquo;</strong><br>A form note given once the rep is done.</figcaption>
+          </figure>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Why terminal feedback matters most</span>
+          <p>Because it comes <em>after</em> the movement, terminal feedback doesn&rsquo;t interfere with performing the skill &mdash; and it gives the learner something to process before the next attempt. That&rsquo;s why almost all of the research (and the rest of this module) focuses on it. It splits into two kinds, depending on what it&rsquo;s <em>about</em> &mdash; coming up next.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 KR VS KP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Second dimension: content</div>
+        <h2>KR and KP: what is the feedback <em>about</em>?</h2>
+        <p>Terminal feedback (after the movement) splits by <strong>what information it carries</strong>:</p>
+        <div class="krkp-intro">
+          <div class="krkp-key kr">
+            <h4>Knowledge of Results (KR)</h4>
+            <p>Information about the <strong>outcome</strong> of the attempt &mdash; did you achieve the goal? Verbal or verbalizable. <em>&ldquo;You were 3 cm short.&rdquo;</em></p>
+          </div>
+          <div class="krkp-key kp">
+            <h4>Knowledge of Performance (KP)</h4>
+            <p>Information about the <strong>movement form</strong> &mdash; how you produced the action. Verbal or nonverbal. <em>&ldquo;Your backswing was too short.&rdquo;</em></p>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The one-line distinction</span>
+          <p><strong>KR = the result</strong> (what happened). <strong>KP = the performance</strong> (how you moved). A stopwatch time is KR; a note about your knee angle is KP.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 THEO VIDEO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">See it in action</div>
+        <h2>KR and KP while learning to write</h2>
+        <p>In this clip, my son <strong>Theo</strong> practices writing his name while I give him feedback in real time. Listen for the difference:</p>
+        <ul class="obj-list" style="margin:14px 0">
+          <li><span class="obj-num" style="background:var(--accent)">R</span><span class="txt"><strong>KR (the result):</strong> &ldquo;That&rsquo;s super-giant!&rdquo; &mdash; a comment on the outcome (how the letters turned out).</span></li>
+          <li><span class="obj-num" style="background:var(--gold)">P</span><span class="txt"><strong>KP (the performance):</strong> &ldquo;Hold your fingers in a pinch as you write&rdquo; &middot; &ldquo;Maybe a little rushing here&hellip;&rdquo; &mdash; both target <em>how</em> he&rsquo;s moving, not the result.</span></li>
+        </ul>
+        <div class="videobox">
+          <div class="frame">
+            <iframe src="https://www.youtube.com/embed/D5xnXx1_57Y" title="KR and KP feedback demonstration while learning to write" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <div class="video-cap">Notice how KR comments on the <em>outcome</em> of the writing, while KP corrects <em>how</em> the pencil is held.<br><span class="vlink">Video not loading? Open it here: <a href="https://youtube.com/shorts/D5xnXx1_57Y" target="_blank" rel="noopener">youtube.com/shorts/D5xnXx1_57Y</a></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 KR/KP SORTER -->
+  <section class="screen" data-screen data-gate="krkp">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it</div>
+        <h2>KR or KP?</h2>
+        <p>Each line is real feedback a professional might give. Decide whether it&rsquo;s about the <strong>result</strong> (KR) or the <strong>performance</strong> (KP). Answer all four to continue.</p>
+        <div class="krkp-intro">
+          <div class="krkp-key kr"><h4>KR = Result</h4><p>What happened / the outcome.</p></div>
+          <div class="krkp-key kp"><h4>KP = Performance</h4><p>How the movement was produced.</p></div>
+        </div>
+        <div id="krkpStage"></div>
+        <p class="sort-progress" id="krkpProg">0 of 4 classified</p>
+        <p class="gate-note" id="krkpnote">Classify all four to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 KP AS MANUAL GUIDANCE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A special form of KP</div>
+        <h2>KP can be physical, not just verbal</h2>
+        <p>Knowledge of performance doesn&rsquo;t have to be spoken. <strong>Physical (manual) guidance</strong> is KP delivered through touch &mdash; literally moving the learner&rsquo;s body through the correct form.</p>
+        <figure class="study-fig"><img src="images/afb-manual-guidance.jpg" alt="A gymnastics coach physically supporting and guiding a young gymnast through a handstand on a mat."><figcaption>Manual guidance in gymnastics &mdash; the coach&rsquo;s hands convey &ldquo;this is how the movement should feel.&rdquo;</figcaption></figure>
+        <p>Other examples: a trainer guiding a lifter through a new exercise (&ldquo;feel the correct movement&rdquo;), a PT guiding a patient&rsquo;s limb through proper form, or a post-op brace that physically limits range of motion to a safe band.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 CLASSIFY EXERCISE -->
+  <section class="screen" data-screen data-gate="classify">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Put it together</div>
+        <h2>Classify each feedback source</h2>
+        <p>Real tools from clinical and training settings. For each, decide <strong>both</strong>: is it KR or KP, and is it delivered <strong>during</strong> or <strong>after</strong> the movement? Classify both axes for all three to continue.</p>
+        <div id="classifyStage"></div>
+        <p class="gate-note" id="classifynote">Answer both axes for all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 KNOWLEDGE CHECK -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">A running coach watches an athlete finish a sprint and says: <em>&ldquo;Your split was 12.4 &mdash; half a second slower than yesterday.&rdquo;</em> How is this feedback best classified?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="1"><strong>Augmented, terminal, KR</strong> &mdash; it&rsquo;s added by the coach, given after the run, and reports the outcome (time).<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>Augmented, terminal, KP</strong> &mdash; because it came from the coach.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>Inherent, concurrent</strong> &mdash; the runner felt how fast they were going.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Separate <strong>inherent</strong> feedback (from the movement) from <strong>augmented</strong> feedback (added from outside).</span></li>
+          <li><span class="n">2</span><span class="t">Classify augmented feedback by <strong>timing</strong>: concurrent (during) vs. terminal (after).</span></li>
+          <li><span class="n">3</span><span class="t">Tell <strong>KR</strong> (the result) from <strong>KP</strong> (the performance) &mdash; including physical guidance as nonverbal KP.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next up</span>
+          <p>Now that you can <em>name</em> the types, Lesson 2 asks what augmented feedback actually <strong>does</strong> for learning &mdash; its informational, motivational, attentional, and dependency-producing roles.</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">Return to Canvas for this week&rsquo;s lab and discussion.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={intuit:"Make a choice to continue",krkp:"Classify all four to continue",
+    classify:"Answer both axes for all three to continue",kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next \u2192";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+
+  var gateParts={};
+  function makePredict(wrapId,fbId,noteId,gate,correctVal,okMsg,noMsg,partKey,partsNeeded){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".pchip").forEach(function(chip){
+      chip.addEventListener("click",function(){
+        wrap.querySelectorAll(".pchip").forEach(function(c){c.disabled=true; if(c.dataset.v!==correctVal)c.classList.add("dim");});
+        wrap.querySelectorAll(".pchip").forEach(function(c){if(c.dataset.v===correctVal){c.classList.add("right");c.classList.remove("dim");}});
+        var fb=document.getElementById(fbId), right=chip.dataset.v===correctVal;
+        fb.className="kc-fb "+(right?"ok":"no"); fb.innerHTML=right?okMsg:noMsg; fb.hidden=false;
+        var open=true;
+        if(partKey){
+          gateParts[gate]=gateParts[gate]||{};
+          gateParts[gate][partKey]=true;
+          open=Object.keys(gateParts[gate]).length>=partsNeeded;
+        }
+        if(open){
+          answered[gate]=true;
+          document.getElementById(noteId).textContent="You can continue.";
+          document.getElementById("btnNext").disabled=false;
+          document.getElementById("lockmsg").hidden=true;
+        }
+      });
+    });
+  }
+  makePredict("intuitPredict","intuitfb","intuitnote","intuit","inherent",
+    "<strong>Right.</strong> Both the burning thighs and the mirror view arise as natural consequences of the movement through the patient&rsquo;s own senses &mdash; that&rsquo;s <strong>inherent</strong> feedback. Nothing was added from outside.",
+    "<strong>Not quite.</strong> No one <em>added</em> this information &mdash; the patient sensed it directly through their own body and eyes. Information arising naturally from the movement is <strong>inherent</strong> feedback.","q1",2);
+  makePredict("intuit2Predict","intuit2fb","intuitnote","intuit","augmented",
+    "<strong>Right.</strong> The therapist <em>added</em> information the patient couldn&rsquo;t get from their own senses &mdash; that they stopped short. Supplied from outside = <strong>augmented</strong> feedback.",
+    "<strong>Not quite.</strong> This information came from the therapist, not the patient&rsquo;s own senses. Anything <em>supplied</em> to the learner on top of their sensory experience is <strong>augmented</strong> feedback.","q2",2);
+
+  function makeSingle(wrapId,fbId,noteId,gate,FBok,FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true;});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});}
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> The coach added it (augmented), gave it after the run (terminal), and it reports the <em>outcome</em> &mdash; the time (KR).",
+    "<strong>Reconsider.</strong> A time is an <em>outcome</em>, not a comment on movement form &mdash; so it&rsquo;s KR, not KP. And the athlete&rsquo;s felt speed would be inherent, but this line came from the coach.");
+
+  // KR/KP sorter
+  (function(){
+    var ITEMS=[
+      {ctx:"A golf instructor:",txt:"&ldquo;Your shot went into the right rough.&rdquo;",ans:"kr",why:"Reports where the ball ended up &mdash; the outcome. KR."},
+      {ctx:"A golf instructor:",txt:"&ldquo;You didn&rsquo;t take your backswing back far enough.&rdquo;",ans:"kp",why:"Describes how the swing was performed &mdash; the movement form. KP."},
+      {ctx:"A physical therapist:",txt:"&ldquo;You walked 10 feet farther today than yesterday.&rdquo;",ans:"kr",why:"Reports the outcome achieved &mdash; distance. KR."},
+      {ctx:"A physical therapist:",txt:"&ldquo;You should bend your knees more as you walk.&rdquo;",ans:"kp",why:"Targets the movement form itself. KP."}
+    ];
+    var stage=document.getElementById("krkpStage"), done=0;
+    ITEMS.forEach(function(it,idx){
+      var d=document.createElement("div");
+      d.className="sortq";
+      d.innerHTML='<div class="sq-txt"><span class="ctx">'+it.ctx+'</span> '+it.txt+'</div>'+
+        '<div class="sq-btns"><button data-v="kr">KR (result)</button><button data-v="kp">KP (performance)</button></div>'+
+        '<div class="sq-fb" hidden></div>';
+      stage.appendChild(d);
+      d.querySelectorAll(".sq-btns button").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          d.querySelectorAll(".sq-btns button").forEach(function(b){b.disabled=true;});
+          var ok=btn.dataset.v===it.ans;
+          if(ok)btn.classList.add("correct");
+          else{btn.classList.add("wrong");d.querySelectorAll(".sq-btns button").forEach(function(b){if(b.dataset.v===it.ans)b.classList.add("correct");});}
+          var fb=d.querySelector(".sq-fb");
+          fb.innerHTML=(ok?"<strong>Correct.</strong> ":"<strong>Not quite.</strong> ")+it.why; fb.hidden=false;
+          done++; document.getElementById("krkpProg").textContent=done+" of 4 classified";
+          if(done===4){answered.krkp=true;
+            document.getElementById("krkpnote").textContent="All four classified \u2014 you can continue.";
+            document.getElementById("btnNext").disabled=false;document.getElementById("lockmsg").hidden=true;}
+        });
+      });
+    });
+  })();
+
+  // Two-axis classify
+  (function(){
+    var ITEMS=[
+      {scenario:"A patient stands with <b>one foot on each of two weighing scales</b>. At the end of the trial, they see how many pounds went through each leg &mdash; revealing whether they&rsquo;re favoring one side.",
+       type:"kr",typeWhy:"It reports an outcome (how weight was distributed), not how to move &mdash; KR.",
+       time:"after",timeWhy:"They read the numbers at the end of the trial &mdash; terminal / after."},
+      {scenario:"A <b>TendoUnit</b> &mdash; a small sensor whose cord clips to the barbell &mdash; reports the power produced during a lift on its display once the rep is complete.",
+       img:"images/afb-tendounit.jpg",
+       type:"kr",typeWhy:"Power produced is an outcome measure &mdash; KR.",
+       time:"after",timeWhy:"It&rsquo;s displayed after the rep finishes &mdash; terminal / after."},
+      {scenario:"<b>Trapezius EMG biofeedback</b> helps a person learn to relax their neck while working, signaling in real time when the muscle is active.",
+       img:"images/afb-trap-emg.jpg",
+       type:"kp",typeWhy:"It&rsquo;s about how the body is working (muscle activation / form) &mdash; KP.",
+       time:"during",timeWhy:"The signal is live as they sit &mdash; concurrent / during."}
+    ];
+    var TENDO_SVG='<svg viewBox="0 0 300 130" role="img" aria-label="Diagram of a TendoUnit: a sensor on the floor connected by a cord to a barbell, with a small display unit showing power output." style="width:100%;max-width:300px;height:auto">'+
+      '<rect x="0" y="0" width="300" height="130" fill="#fafbfc"/>'+
+      '<!-- barbell -->'+
+      '<rect x="40" y="24" width="120" height="7" rx="3" fill="#3d4d5c"/>'+
+      '<circle cx="46" cy="27" r="15" fill="#1a7f8e"/><circle cx="154" cy="27" r="15" fill="#1a7f8e"/>'+
+      '<!-- cord -->'+
+      '<path d="M100 31 L100 96" stroke="#e0a458" stroke-width="2.5" stroke-dasharray="4 3"/>'+
+      '<!-- sensor on floor -->'+
+      '<rect x="80" y="96" width="40" height="16" rx="3" fill="#3d4d5c"/>'+
+      '<text x="100" y="107" text-anchor="middle" font-size="8" fill="#fff">sensor</text>'+
+      '<line x1="20" y1="112" x2="180" y2="112" stroke="#c3ced4" stroke-width="2"/>'+
+      '<!-- display unit -->'+
+      '<rect x="210" y="40" width="78" height="54" rx="6" fill="#12333f"/>'+
+      '<rect x="218" y="48" width="62" height="26" rx="3" fill="#1a7f8e"/>'+
+      '<text x="249" y="65" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">612 W</text>'+
+      '<text x="249" y="87" text-anchor="middle" font-size="8" fill="#9fb4bb">power output</text>'+
+      '<path d="M160 60 Q188 60 208 62" stroke="#b7c2ca" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>'+
+      '<defs><marker id="ar" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#b7c2ca"/></marker></defs>'+
+      '</svg>';
+    var stage=document.getElementById("classifyStage"), doneAxes=0, TOTAL=ITEMS.length*2;
+    ITEMS.forEach(function(it){
+      var d=document.createElement("div");
+      d.className="classify-item";
+      var imgHtml='';
+      if(it.img==='tendo-svg'){ imgHtml='<div class="ci-img">'+TENDO_SVG+'</div>'; }
+      else if(it.img){ imgHtml='<div class="ci-img"><img src="'+it.img+'" alt="" loading="lazy"></div>'; }
+      d.innerHTML='<div class="ci-scenario">'+it.scenario+'</div>'+imgHtml+
+        '<div class="ci-axes">'+
+          '<div class="ci-axis" data-axis="type"><div class="ax-label">KR or KP?</div><div class="ax-btns"><button data-v="kr">KR</button><button data-v="kp">KP</button></div></div>'+
+          '<div class="ci-axis" data-axis="time"><div class="ax-label">During or after?</div><div class="ax-btns"><button data-v="during">During</button><button data-v="after">After</button></div></div>'+
+        '</div>'+
+        '<div class="ci-fb" hidden></div>';
+      stage.appendChild(d);
+      var got={};
+      d.querySelectorAll(".ci-axis").forEach(function(ax){
+        var axis=ax.dataset.axis, correct=(axis==="type"?it.type:it.time), why=(axis==="type"?it.typeWhy:it.timeWhy);
+        ax.querySelectorAll(".ax-btns button").forEach(function(btn){
+          btn.addEventListener("click",function(){
+            ax.querySelectorAll(".ax-btns button").forEach(function(b){b.disabled=true;});
+            var ok=btn.dataset.v===correct;
+            if(ok)btn.classList.add("correct");
+            else{btn.classList.add("wrong");ax.querySelectorAll(".ax-btns button").forEach(function(b){if(b.dataset.v===correct)b.classList.add("correct");});}
+            got[axis]=why;
+            doneAxes++;
+            if(got.type&&got.time){
+              var fb=d.querySelector(".ci-fb");
+              fb.innerHTML="<strong>"+ (it.type.toUpperCase()) +", "+ (it.time==="during"?"during":"after") +".</strong> "+it.typeWhy+" "+it.timeWhy;
+              fb.hidden=false;
+            }
+            if(doneAxes===TOTAL){answered.classify=true;
+              document.getElementById("classifynote").textContent="All classified \u2014 you can continue.";
+              document.getElementById("btnNext").disabled=false;document.getElementById("lockmsg").hidden=true;}
+          });
+        });
+      });
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
