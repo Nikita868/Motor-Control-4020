@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 5 / Lesson 3 - How Much Feedback to Give
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 · Lesson 3 — How Much Feedback to Give?</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  a.cite-link{color:var(--accent-dark);font-weight:700;text-decoration:none;white-space:nowrap}
+  a.cite-link:hover{text-decoration:underline}
+  .refblock{font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line);line-height:1.65}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* ===== Lesson 2 additions ===== */
+  /* schedule visualizer */
+  .sv-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  @media(max-width:560px){.sv-controls{grid-template-columns:1fr}}
+  .svbtn{border:2px solid var(--line);border-radius:9px;padding:13px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;text-align:center;transition:.15s}
+  .svbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .svbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .svbtn .svb-t{font-size:15px;font-weight:800;display:block}
+  .svbtn .svb-s{font-size:11.5px;opacity:.8;display:block;margin-top:2px}
+  .sv-stage{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:20px}
+  .sv-track{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:44px;align-items:center}
+  .sv-cell{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .sv-cell.show{opacity:1;transform:none}
+  .sv-c1{background:#1a7f8e}.sv-c2{background:#e0a458}.sv-c3{background:#6a8caf}.sv-c4{background:#c46b6b}
+  .sv-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:12.5px;color:#3d4d5c}
+  .sv-legend span{display:inline-flex;align-items:center;gap:6px}
+  .sv-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sv-readout{margin-top:16px;padding:16px 18px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:70px}
+  .sv-readout .svr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sv-readout h4{font-size:16px;margin:5px 0 6px}
+  .sv-readout p{font-size:14px;color:#3d4d5c;margin:0}
+  .sv-ci{display:inline-block;margin-top:9px;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px}
+  .sv-ci.low{background:#eafaf1;color:#1d6b47}
+  .sv-ci.med{background:#fff6e6;color:#b5822f}
+  .sv-ci.high{background:#fdeeee;color:#a3403c}
+
+  /* CI continuum */
+  .ci-bar{position:relative;height:54px;margin:24px 0 10px;border-radius:27px;
+    background:linear-gradient(90deg,#eafaf1,#fff6e6,#fdeeee);border:1px solid var(--line)}
+  .ci-bar .ci-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .ci-bar .ci-end.l{left:20px;color:#1d6b47}
+  .ci-bar .ci-end.r{right:20px;color:#a3403c}
+  .ci-marks{display:flex;justify-content:space-between;margin-top:14px;gap:8px}
+  .ci-mark{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .ci-mark h4{font-size:14px;margin:0 0 3px}
+  .ci-mark .cim-seq{font-family:monospace;font-size:12px;color:var(--accent-dark);letter-spacing:1px;margin:4px 0}
+  .ci-mark p{font-size:12px;color:#556;margin:4px 0 0;line-height:1.4}
+
+  /* factors accordion (block-safe reveal, from limc pattern) */
+  .fac-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .fac{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;width:100%;transition:.16s;display:block}
+  .fac:hover{border-color:var(--accent);background:#fafdfe}
+  .fac[aria-expanded="true"]{border-color:var(--accent)}
+  .fac-head{display:flex;align-items:center;gap:12px;padding:15px 17px}
+  .fac-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .fac-t{font-size:15px;font-weight:700;color:var(--ink)}
+  .fac-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .fac[aria-expanded="true"] .fac-plus{transform:rotate(45deg)}
+  .fac-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;
+    padding:0 17px;font-size:14px;color:#3d4d5c;line-height:1.55}
+  .fac[aria-expanded="true"] .fac-body{max-height:320px;padding:0 17px 16px}
+
+
+  /* ===== AFB Lesson 1 additions ===== */
+  /* video embed / placeholder */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+  /* KR/KP sorter */
+  .krkp-intro{display:flex;gap:12px;margin:16px 0}
+  .krkp-key{flex:1;border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fff}
+  .krkp-key.kr{border-top:3px solid var(--accent)}
+  .krkp-key.kp{border-top:3px solid var(--gold)}
+  .krkp-key h4{margin:0 0 4px;font-size:14px}
+  .krkp-key.kr h4{color:var(--accent-dark)}
+  .krkp-key.kp h4{color:#b5822f}
+  .krkp-key p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  .sortq{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fff;margin-bottom:12px}
+  .sortq .sq-txt{font-size:14.5px;color:var(--ink);margin-bottom:11px;line-height:1.5}
+  .sortq .sq-txt .ctx{font-weight:700;color:var(--accent-dark)}
+  .sq-btns{display:flex;gap:9px}
+  .sq-btns button{flex:1;border:2px solid var(--line);border-radius:8px;padding:9px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .sq-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .sq-btns button:disabled{cursor:default}
+  .sq-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .sq-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .sq-fb{font-size:12.5px;margin-top:9px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .sq-fb[hidden]{display:none}
+
+  /* two-axis classify (KR/KP x during/after) */
+  .classify-item{border:1px solid var(--line);border-radius:10px;padding:15px 17px;background:#fff;margin-bottom:14px}
+  .ci-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:13px}
+  .ci-scenario b{color:var(--accent-dark)}
+  .ci-axes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.ci-axes{grid-template-columns:1fr}}
+  .ci-axis .ax-label{font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .ci-axis .ax-btns{display:flex;gap:7px}
+  .ci-axis .ax-btns button{flex:1;border:2px solid var(--line);border-radius:7px;padding:8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s}
+  .ci-axis .ax-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .ci-axis .ax-btns button:disabled{cursor:default}
+  .ci-axis .ax-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .ci-axis .ax-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .ci-fb{font-size:12.5px;margin-top:11px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .ci-fb[hidden]{display:none}
+  .ci-img{margin:4px 0 12px}
+  .ci-img img{max-width:220px;width:100%;height:auto;border-radius:8px;border:1px solid var(--line)}
+  .ci-img svg{border-radius:8px;border:1px solid var(--line)}
+
+
+  /* ===== AFB Lesson 2 additions ===== */
+  /* four-roles overview grid */
+  .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.roles-grid{grid-template-columns:1fr}}
+  .role-card{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fff;position:relative}
+  .role-card .rc-tag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:9px}
+  .role-card.good .rc-tag{background:#eafaf1;color:#1d6b47}
+  .role-card.risk .rc-tag{background:#fdeeee;color:#a3403c}
+  .role-card h4{margin:0 0 5px;font-size:15.5px;color:var(--ink)}
+  .role-card p{margin:0;font-size:13px;color:#556;line-height:1.5}
+
+  /* error-loop svg holder */
+  .loopfig{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .loopfig svg{width:100%;max-width:560px;height:auto}
+  .loopfig .lf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic}
+
+  /* role sorter */
+  .rolesort-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .rsi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .rsi-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.rsi-btns{grid-template-columns:1fr}}
+  .rsi-btns button{border:2px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s;text-align:left}
+  .rsi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .rsi-btns button:disabled{cursor:default}
+  .rsi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .rsi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .rsi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .rsi-fb[hidden]{display:none}
+
+
+  /* ===== AFB Lesson 3 additions ===== */
+  /* group badge pill (wider than obj-num, for percentages) */
+  .grp-badge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:26px;padding:0 10px;
+    border-radius:14px;color:#fff;font-weight:800;font-size:13px;flex:none;margin-right:2px;letter-spacing:.3px}
+  /* study chart holder */
+  .chartfig{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .chartfig svg{width:100%;max-width:520px;height:auto}
+  .chartfig .cf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic;text-align:left}
+
+  /* bandwidth interactive */
+  .bw-tool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .bw-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .bw-controls label{font-size:14px;font-weight:700;color:var(--ink)}
+  .bw-controls input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+  .bw-val{font-size:15px;font-weight:800;color:var(--accent-dark);min-width:56px;text-align:right}
+  .bw-stage{margin-top:6px}
+  .bw-readout{margin-top:12px;display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px}
+  .bw-readout .ro{padding:8px 14px;border-radius:8px;background:var(--accent-soft);font-weight:700;color:#245a63}
+  .bw-readout .ro b{color:var(--accent-dark)}
+  .bw-hint{font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* full-width flip result box */
+  .flipresult{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;width:100%;margin:6px 0;display:block}
+  .flipresult .fr-inner{position:relative;display:block;width:100%;min-height:148px;transition:transform .55s;transform-style:preserve-3d}
+  .flipresult.flipped .fr-inner{transform:rotateY(180deg)}
+  .fr-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px 22px;box-sizing:border-box}
+  .fr-front{background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff}
+  .fr-front .fr-q{font-size:14.5px;font-weight:700;line-height:1.4}
+  .fr-front .fr-hint{font-size:12px;opacity:.85;margin-top:7px}
+  .fr-front .fr-hint::before{content:"\21BB  "}
+  .fr-back{background:#fdf3e0;border:1px solid #e0a458;transform:rotateY(180deg);color:#5a3d12;font-size:15px;line-height:1.55}
+  .fr-back strong{color:#b5822f}
+
+  /* flippable cards */
+  .flip-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.flip-grid{grid-template-columns:1fr}}
+  .flipcard{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1000px;height:130px;width:100%;display:block}
+  .flipcard .fc-inner{position:relative;display:block;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+  .fc-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px 16px;box-sizing:border-box}
+  .fc-front{background:#fff}
+  .fc-front .tm-n{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .fc-front .fc-title{font-size:16px;font-weight:800;color:var(--ink)}
+  .fc-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:8px}
+  .fc-back{background:var(--accent-soft);transform:rotateY(180deg);font-size:14px;color:#245a63;line-height:1.5}
+  .flipcard.flipped .fc-front{border-color:#2e9e6b}
+
+  /* technique overview list */
+  .tech-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:600px){.tech-list{grid-template-columns:1fr}}
+  .tech-mini{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff}
+  .tech-mini .tm-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .tech-mini h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+  .tech-mini p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 5 &nbsp;&rsaquo;&nbsp; <b>Lesson 3: How Much Feedback to Give?</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">18</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 5 &middot; Lesson 3</div>
+        <h1>How Much Feedback to Give?</h1>
+        <p>The guidance hypothesis warned that too much feedback backfires. So what&rsquo;s the right amount &mdash; and how do you dial it back?</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~28 min</span>
+          <span><span class="dot"></span> Augmented feedback &middot; 3 of 4</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee, Ch. 11</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Contrast the <strong>traditional</strong> and <strong>contemporary</strong> views on feedback frequency.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Describe four ways to reduce feedback: <strong>faded</strong>, <strong>bandwidth</strong>, <strong>summary</strong>, and <strong>self-selected</strong>.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Interpret the classic studies behind each (Winstein &amp; Schmidt, Smith, Schmidt et al.).</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Explain <em>why</em> reducing feedback often improves learning.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 WHAT DO YOU THINK -->
+  <section class="screen" data-screen data-gate="think">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Before we start &mdash; what&rsquo;s your intuition?</div>
+        <h2>How often should a learner get feedback?</h2>
+        <p>Imagine you&rsquo;re teaching someone a brand-new motor skill. To help them learn it as well as possible for the <em>long run</em>, when should you give them augmented feedback?</p>
+        <div class="predict" id="thinkPredict">
+          <button class="pchip" data-v="every">After <strong>every</strong> attempt (100%)</button>
+          <button class="pchip" data-v="less">After <strong>only some</strong> attempts (less than 100%)</button>
+        </div>
+        <div class="kc-fb" id="thinkfb" role="status" hidden></div>
+        <p class="gate-note" id="thinknote">Make your best guess to continue &mdash; there&rsquo;s no penalty for being wrong.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 THE FREQUENCY QUESTION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The core question</div>
+        <h2>How often should feedback come?</h2>
+        <p>For decades, the answer seemed obvious. But the research flipped it:</p>
+        <div class="pn-row">
+          <div class="pn neg" style="border-top-color:#d9534f">
+            <div class="pnh" style="color:#d9534f">Traditional view</div>
+            <h4>Every trial (100%)</h4>
+            <p>Give feedback after <em>every</em> attempt &mdash; the assumption was that no learning happened on trials without it.</p>
+          </div>
+          <div class="pn pos">
+            <div class="pnh">Contemporary view</div>
+            <h4>Less is often more</h4>
+            <p>Modern research supports <strong>reducing</strong> the frequency of augmented feedback &mdash; consistent with the guidance hypothesis.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="clabel">The through-line from Lesson 2</span>
+          <p>If too-frequent feedback creates dependency, then giving <em>less</em> should force the learner to build their own error-detection &mdash; and learn more durably. The studies ahead test exactly that.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 WINSTEIN & SCHMIDT -->
+  <section class="screen" data-screen data-gate="winstein">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The foundational study</div>
+        <h2>100% vs. 50% feedback</h2>
+        <p><strong>Winstein &amp; Schmidt (1990)</strong> had people practice moving a lever along a specified trajectory. Two groups differed only in how often they got KR about their error:</p>
+        <ul class="obj-list" style="margin:14px 0">
+          <li><span class="grp-badge" style="background:#4a6d8c">100%</span><span class="txt">KR after <strong>every</strong> trial.</span></li>
+          <li><span class="grp-badge" style="background:#c0504d">50%</span><span class="txt">KR after <strong>half</strong> the trials.</span></li>
+        </ul>
+        <p><strong>Predict:</strong> on a later retention test &mdash; where <strong>no augmented feedback was provided</strong> &mdash; which group performed better?</p>
+        <div class="predict" id="winPredict">
+          <button class="pchip" data-v="fifty">The 50% group</button>
+          <button class="pchip" data-v="hundred">The 100% group</button>
+          <button class="pchip" data-v="same">No difference</button>
+        </div>
+        <div class="kc-fb" id="winfb" role="status" hidden></div>
+        <p class="gate-note" id="winnote">Make a prediction to continue.</p>
+        <p class="refblock">Winstein, C. J., &amp; Schmidt, R. A. (1990). Reduced frequency of knowledge of results enhances motor skill learning. <em>Journal of Experimental Psychology: Learning, Memory, and Cognition, 16</em>(4), 677&ndash;691. &nbsp;<a class="cite-link" href="https://doi.org/10.1037/0278-7393.16.4.677" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 WINSTEIN RESULT -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The result</div>
+        <h2>Similar in practice &mdash; but 50% retained better</h2>
+        <p>During acquisition, the two groups looked <strong>nearly identical</strong>. The difference showed up where it counts: on the <strong>delayed retention test a day later</strong> (with no augmented feedback), the <strong>50%</strong> group had clearly lower error.</p>
+        <figure class="study-fig">
+          <img src="images/afb-winstein-schmidt.jpg" alt="Line graph of RMS error in degrees across 16 acquisition blocks over two practice days and two retention tests. The 100 percent and 50 percent groups track closely during acquisition; at the delayed retention test the 50 percent group has clearly lower error than the 100 percent group.">
+          <figcaption>Lower = better. The two groups track closely across acquisition (two practice days), but the gap opens at the <strong>delayed retention</strong> test: the 50% group holds its skill while the 100% group falls off. From Winstein &amp; Schmidt (1990).</figcaption>
+        </figure>
+        <div class="statement gold" style="margin:6px 0"><p><strong>Takeaway:</strong> less frequent KR produced <em>better</em> long-term learning of this task.</p></div>
+        <p class="refblock">Winstein, C. J., &amp; Schmidt, R. A. (1990). Reduced frequency of knowledge of results enhances motor skill learning. <em>Journal of Experimental Psychology: Learning, Memory, and Cognition, 16</em>(4), 677&ndash;691. &nbsp;<a class="cite-link" href="https://doi.org/10.1037/0278-7393.16.4.677" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 FOUR WAYS OVERVIEW -->
+  <section class="screen" data-screen data-gate="flip4">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The toolkit</div>
+        <h2>Four ways to reduce feedback</h2>
+        <p>&ldquo;Give less&rdquo; is the principle &mdash; but <em>how</em> you reduce it matters. <strong>Flip each card</strong> to see the strategy. Flip all four to continue.</p>
+        <div class="flip-grid" id="flip4">
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="tm-n">1</span><span class="fc-title">Faded</span><span class="fc-hint">Flip &rarr;</span></span>
+              <span class="fc-face fc-back">Start frequent, then <strong>taper off</strong> as skill develops.</span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="tm-n">2</span><span class="fc-title">Bandwidth</span><span class="fc-hint">Flip &rarr;</span></span>
+              <span class="fc-face fc-back">Feedback <strong>only when</strong> performance falls outside an acceptable range.</span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="tm-n">3</span><span class="fc-title">Summary / averaged</span><span class="fc-hint">Flip &rarr;</span></span>
+              <span class="fc-face fc-back">Withhold across trials, then <strong>summarize the whole set</strong> at once.</span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="tm-n">4</span><span class="fc-title">Self-selected</span><span class="fc-hint">Flip &rarr;</span></span>
+              <span class="fc-face fc-back">Let the <strong>learner choose</strong> when they receive it.</span>
+            </span>
+          </button>
+        </div>
+        <p class="gate-note" id="flip4note">Flip all four cards to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 FADED -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Technique 1</div>
+        <h2>Faded feedback</h2>
+        <p>Give feedback at <strong>high frequency early</strong> in practice &mdash; when the learner needs guidance toward the goal &mdash; then <strong>gradually reduce</strong> it as skill develops.</p>
+        <div class="sched-viz">
+          <div class="sched-row dist">
+            <div class="sr-label">Feedback frequency over practice</div>
+            <div class="sched-track">
+              <div class="blk practice" style="flex:5;background:#127080">High</div>
+              <div class="blk practice" style="flex:4;background:#1a7f8e">&darr;</div>
+              <div class="blk practice" style="flex:3;background:#6fb3bd">&darr;</div>
+              <div class="blk practice" style="flex:2;background:#a9d3d9;color:#245a63">Low</div>
+            </div>
+            <div class="sched-cap">Early practice leans on feedback; late practice weans off it &mdash; so the learner ends up relying on their own senses.</div>
+          </div>
+        </div>
+        <div class="krkp-intro">
+          <div class="krkp-key kr">
+            <h4>Clinical example</h4>
+            <p>A PT teaching a post-op patient to walk gives cues on <strong>nearly every step</strong> at first (&ldquo;heel first&hellip; now push off&rdquo;), then cues every few steps, then only occasionally &mdash; until the patient walks the hallway unaided.</p>
+          </div>
+          <div class="krkp-key kp">
+            <h4>Everyday / sport example</h4>
+            <p>A driving instructor comments on <strong>every turn</strong> during the first lessons, then only on the tricky ones, then goes mostly silent &mdash; letting the new driver read the road themselves.</p>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Why it&rsquo;s flexible</span>
+          <p>Because you control the fade, you can tune it to <strong>each learner</strong> &mdash; taper faster for someone progressing quickly, slower for someone who still needs support.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 BANDWIDTH CONCEPT + INTERACTIVE -->
+  <section class="screen" data-screen data-gate="bw">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Technique 2</div>
+        <h2>Bandwidth feedback</h2>
+        <p>Set an <strong>acceptable range</strong> around the goal. If performance lands <em>inside</em> the band, say nothing &mdash; the learner reads silence as &ldquo;good enough.&rdquo; Only when performance falls <em>outside</em> do you give precise feedback about the error.</p>
+        <p><strong>Try it.</strong> A patient is learning to squeeze a <strong>handgrip dynamometer</strong> to a target of <strong>50&nbsp;N</strong> &mdash; not too hard, not too soft. Each dot is one squeeze (one trial). Adjust the acceptable band and watch which squeezes trigger feedback:</p>
+        <div class="bw-tool">
+          <div class="bw-controls">
+            <label for="bwRange">Acceptable band around the 50&nbsp;N target:</label>
+            <input type="range" id="bwRange" min="0" max="20" value="5" step="1">
+            <span class="bw-val" id="bwVal">&plusmn;5%</span>
+          </div>
+          <div class="bw-stage">
+            <svg id="bwSvg" viewBox="0 0 480 240" role="img" aria-label="Interactive scatter of ten handgrip dynamometer squeezes around a 50 newton target, with an adjustable acceptable band. Squeezes inside the band get no feedback; squeezes outside get feedback.">
+              <!-- axes -->
+              <line x1="46" y1="16" x2="46" y2="200" stroke="#c3ced4" stroke-width="1.5"/>
+              <line x1="46" y1="200" x2="464" y2="200" stroke="#c3ced4" stroke-width="1.5"/>
+              <text x="16" y="108" text-anchor="middle" font-size="11" fill="#7a8a99" transform="rotate(-90 16 108)">Grip force (N)</text>
+              <text x="255" y="226" text-anchor="middle" font-size="11" fill="#3d4d5c" font-weight="700">Squeeze (trial)</text>
+              <!-- band (updated by JS) -->
+              <rect id="bwBand" x="46" y="90" width="418" height="40" fill="#e0a458" opacity="0.28"/>
+              <line id="bwTarget" x1="46" y1="110" x2="464" y2="110" stroke="#b5822f" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <text x="454" y="106" text-anchor="end" font-size="9" fill="#b5822f">50 N target</text>
+              <g id="bwPoints"></g>
+            </svg>
+          </div>
+          <div class="bw-readout">
+            <span class="ro"><b id="bwNoFb">0</b> squeezes: no feedback (inside band)</span>
+            <span class="ro"><b id="bwFb">0</b> squeezes: feedback given (outside)</span>
+          </div>
+          <p class="bw-hint">Drag the slider from a tight band to a wide one. Notice how a <strong>wider</strong> band means <strong>fewer</strong> squeezes trigger feedback &mdash; the learner is left to self-correct on the &ldquo;good enough&rdquo; ones. <em>Try both extremes to continue.</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 SMITH GOLF STUDY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A study of an athletic skill</div>
+        <h2>Bandwidth in action: golf putting</h2>
+        <p><strong>Smith et al. (1997)</strong> had novices practice a golf shot to a target 10 m away, with vision occluded so they had to rely on augmented feedback. Three groups differed in how wide their &ldquo;acceptable&rdquo; band was:</p>
+        <ul class="obj-list" style="margin:14px 0">
+          <li><span class="obj-num">0%</span><span class="txt">KP about form on <strong>every</strong> trial (no band).</span></li>
+          <li><span class="obj-num">5%</span><span class="txt">KP only if they missed by more than 0.5 m.</span></li>
+          <li><span class="obj-num">10%</span><span class="txt">KP only if they missed by more than 1 m (widest band).</span></li>
+        </ul>
+        <button class="flipresult" onclick="doFlipResult(this)">
+          <span class="fr-inner">
+            <span class="fr-face fr-front"><span class="fr-q">Which group performed best on the retention test?</span><span class="fr-hint">Click to reveal the result</span></span>
+            <span class="fr-face fr-back">The <strong>10% bandwidth</strong> group &mdash; who got the <em>least</em> feedback &mdash; performed best on the retention test.</span>
+          </span>
+        </button>
+        <p class="refblock">Smith, P. J., Taylor, S. J., &amp; Withers, K. (1997). Applying bandwidth feedback scheduling to a golf shot. <em>Research Quarterly for Exercise and Sport, 68</em>(3), 215&ndash;221. &nbsp;<a class="cite-link" href="https://doi.org/10.1080/02701367.1997.10608002" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 WHY BANDWIDTH WORKS -->
+  <section class="screen" data-screen data-gate="whybw">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Mechanism</div>
+        <h2>Why bandwidth feedback works</h2>
+        <p style="margin-bottom:4px">Open all three to continue.</p>
+        <div class="fac-list" id="whybwList">
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">1</span><span class="fac-t">It fades feedback automatically</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">As the learner improves, more trials land inside the band &mdash; so feedback naturally becomes less frequent. In the golf study, the 10% group got feedback on 78% of early trials, dropping to 25% by the end. It&rsquo;s <strong>faded feedback without having to plan the fade</strong>.</span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">2</span><span class="fac-t">It boosts motivation</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">Silence signals success. Landing inside the band and hearing nothing is itself encouraging &mdash; a built-in marker of &ldquo;you&rsquo;ve got this.&rdquo;</span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">3</span><span class="fac-t">It reduces overcorrection</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">Withholding feedback on &ldquo;good enough&rdquo; trials keeps the learner from chasing tiny errors and destabilizing an action that was already working &mdash; supporting more consistent movement.</span>
+          </button>
+        </div>
+        <p class="gate-note" id="whybwnote">Open all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SUMMARY FEEDBACK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Technique 3</div>
+        <h2>Summary &amp; averaged feedback</h2>
+        <p><strong>Summary feedback</strong> withholds feedback across a series of trials, then delivers it for the whole series at once.</p>
+        <p style="margin-top:12px">Say the learner does 5 trials:</p>
+        <div class="krkp-intro">
+          <div class="krkp-key kr"><h4>Summary</h4><p>Afterward, they see a <strong>graph of their error on each of the 5 trials</strong> &mdash; the full pattern at once.</p></div>
+          <div class="krkp-key kp"><h4>Averaged</h4><p>A variant: they see the <strong>average error across the 5 trials</strong> &mdash; a single summary number.</p></div>
+        </div>
+        <p style="margin-top:14px">Either way, the learner gets no trial-by-trial crutch &mdash; they have to perform the whole block relying on their own senses.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 SCHMIDT SUMMARY STUDY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The study</div>
+        <h2>How long should a summary be?</h2>
+        <p><strong>Schmidt et al. (1989)</strong> had people learn a timed lever-movement task, giving KR summarized after different numbers of trials: every trial (Sum 1), every 5, 10, or 15 (Sum 15).</p>
+        <div class="chartfig">
+          <svg viewBox="0 0 520 290" role="img" aria-label="Graph of error across acquisition and delayed retention. During acquisition Sum 1 has the lowest error and Sum 15 the highest. At delayed retention the order flips: Sum 1 is worst and Sum 15 is best.">
+            <line x1="52" y1="24" x2="52" y2="230" stroke="#c3ced4" stroke-width="1.5"/>
+            <line x1="52" y1="230" x2="500" y2="230" stroke="#c3ced4" stroke-width="1.5"/>
+            <text x="18" y="130" text-anchor="middle" font-size="11" fill="#7a8a99" transform="rotate(-90 18 130)">Error (msec)</text>
+            <text x="180" y="250" text-anchor="middle" font-size="11" fill="#3d4d5c" font-weight="700">Acquisition</text>
+            <text x="430" y="250" text-anchor="middle" font-size="11" fill="#3d4d5c" font-weight="700">Delayed retention</text>
+            <line x1="340" y1="24" x2="340" y2="230" stroke="#dfe6ea" stroke-width="1" stroke-dasharray="3 3"/>
+            <!-- Sum 1 (best in acq, worst in ret) -->
+            <polyline fill="none" stroke="#1a7f8e" stroke-width="3" points="72,120 110,182 150,196 190,188 230,196 270,200"/>
+            <circle cx="420" cy="70" r="5" fill="#1a7f8e"/>
+            <text x="300" y="200" font-size="10" fill="#1a7f8e" font-weight="700">Sum 1</text>
+            <!-- Sum 15 (worst in acq, best in ret) -->
+            <polyline fill="none" stroke="#e0a458" stroke-width="3" points="72,44 110,150 150,158 190,168 230,176 270,186"/>
+            <circle cx="420" cy="150" r="5" fill="#e0a458"/>
+            <text x="300" y="180" font-size="10" fill="#b5822f" font-weight="700">Sum 15</text>
+            <!-- retention labels -->
+            <text x="436" y="74" font-size="10" fill="#1a7f8e" font-weight="700">Sum 1 (worst)</text>
+            <text x="436" y="154" font-size="10" fill="#b5822f" font-weight="700">Sum 15 (best)</text>
+          </svg>
+          <div class="cf-cap">The crossover: <strong>Sum 1</strong> looks best during practice but is <em>worst</em> at delayed retention; <strong>Sum 15</strong> flips to best. (Sum 5 and Sum 10 fall between.) Redrawn after Schmidt et al. (1989).</div>
+        </div>
+        <button class="flipresult" onclick="doFlipResult(this)">
+          <span class="fr-inner">
+            <span class="fr-face fr-front"><span class="fr-q">Which summary length produced the best long-term learning?</span><span class="fr-hint">Click to reveal the conclusion</span></span>
+            <span class="fr-face fr-back"><strong>Longer summaries</strong> &mdash; less frequent feedback &mdash; produced the best long-term learning (Sum 15 best at delayed retention).</span>
+          </span>
+        </button>
+        <p class="refblock">Schmidt, R. A., Young, D. E., Swinnen, S., &amp; Shapiro, D. C. (1989). Summary knowledge of results for skill acquisition: Support for the guidance hypothesis. <em>Journal of Experimental Psychology: Learning, Memory, and Cognition, 15</em>(2), 352&ndash;359. &nbsp;<a class="cite-link" href="https://doi.org/10.1037/0278-7393.15.2.352" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 WHY SUMMARY + OPTIMAL LENGTH -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Mechanism</div>
+        <h2>Why summary feedback works &mdash; and how long</h2>
+        <p>It shares the same logic as the other methods, with its own twist:</p>
+        <ul class="obj-list" style="margin:14px 0">
+          <li><span class="obj-num">&bull;</span><span class="txt">It <strong>may prevent</strong> the dependency that too-frequent feedback creates.</span></li>
+          <li><span class="obj-num">&bull;</span><span class="txt">It makes processing feedback <strong>more cognitively challenging</strong> &mdash; pushing learners to analyze their own movement-produced feedback and detect their own errors.</span></li>
+        </ul>
+        <div class="callout warn">
+          <span class="clabel">There&rsquo;s no single &ldquo;best&rdquo; length</span>
+          <p>The optimal summary length <strong>depends on the skill</strong>. For <em>simpler</em> skills, longer summaries (less frequent feedback) tend to work better. For <em>more complex</em> skills, shorter summaries help &mdash; the learner needs more frequent anchoring.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 SELF-SELECTED -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Technique 4</div>
+        <h2>Self-selected frequency</h2>
+        <p>The last method hands the decision to the learner: let <strong>them</strong> choose when they receive feedback. Giving learners this kind of <strong>autonomy</strong> over their feedback reliably benefits learning (Wulf, 2007; Wulf &amp; Lewthwaite, 2016).</p>
+        <div class="callout why">
+          <span class="clabel">Callback to Lesson 2</span>
+          <p>You saw this as the <em>direct motivational</em> role of feedback. Here it doubles as a <em>frequency-reduction</em> method &mdash; learners who control their own feedback tend to ask for it <strong>less</strong> often than a 100% schedule, and they request it after trials they judge as good.</p>
+        </div>
+        <p class="refblock">Wulf, G., &amp; Lewthwaite, R. (2016). Optimizing performance through intrinsic motivation and attention for learning: The OPTIMAL theory of motor learning. <em>Psychonomic Bulletin &amp; Review, 23</em>, 1382&ndash;1414. &nbsp;<a class="cite-link" href="https://doi.org/10.3758/s13423-015-0999-9" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 PULLING TOGETHER -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The common thread</div>
+        <h2>All four share one logic</h2>
+        <p>Faded, bandwidth, summary, self-selected &mdash; they look different, but each does the same essential thing:</p>
+        <div class="statement gold" style="margin:6px 0"><p>They reduce the learner&rsquo;s <strong>reliance on augmented feedback</strong>, forcing them to process their <em>own</em> intrinsic feedback and build durable error-detection.</p></div>
+        <p>That&rsquo;s the guidance hypothesis turned into practice. The feedback that felt helpful on every trial was preventing the learner from doing the very work that makes skill last.</p>
+        <div class="callout">
+          <span class="clabel">A caution, not a rule</span>
+          <p>&ldquo;Less feedback&rdquo; isn&rsquo;t universal &mdash; complex skills and early novices often need <em>more</em> support at first. The art is matching the reduction to the learner and the task.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 KNOWLEDGE CHECK -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">A therapist wants a patient to stop relying on constant cueing during a reaching task. She decides to give feedback <em>only when the reach misses the target by more than a set margin</em> &mdash; staying silent when it&rsquo;s close enough. Which reduction method is this?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="1"><strong>Bandwidth feedback</strong> &mdash; feedback is withheld inside an acceptable range and given only outside it.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>Summary feedback</strong> &mdash; because feedback is delivered all at once.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>Self-selected frequency</strong> &mdash; because the patient chooses when to get it.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Explain why the <strong>contemporary view</strong> favors reducing feedback frequency (Winstein &amp; Schmidt).</span></li>
+          <li><span class="n">2</span><span class="t">Describe <strong>faded</strong>, <strong>bandwidth</strong>, <strong>summary/averaged</strong>, and <strong>self-selected</strong> feedback.</span></li>
+          <li><span class="n">3</span><span class="t">Interpret the <strong>bandwidth</strong> (Smith) and <strong>summary</strong> (Schmidt) studies.</span></li>
+          <li><span class="n">4</span><span class="t">Explain the shared logic: reducing dependency builds durable <strong>error-detection</strong>.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next up</span>
+          <p>You now know <em>how much</em> feedback to give. Lesson 4 tackles the last practical questions: <strong>KP vs. KR, error vs. correct information, precision, and video feedback.</strong></p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">Return to Canvas for this week&rsquo;s lab and discussion.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={think:"Make your best guess to continue",winstein:"Make a prediction to continue",flip4:"Flip all four cards to continue",bw:"Try both extremes to continue",whybw:"Open all three to continue",kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next \u2192";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+
+  var facOpened={};
+  window.facTog=function(btn){
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded",open?"false":"true");
+    var list=btn.closest("[id$='List']");
+    if(list && list.id==="whybwList"){
+      facOpened[list.id]=facOpened[list.id]||new Set();
+      facOpened[list.id].add(btn);
+      var total=list.querySelectorAll(".fac").length;
+      if(facOpened[list.id].size>=total && !answered.whybw){
+        answered.whybw=true;
+        var note=document.getElementById("whybwnote");
+        if(note) note.textContent="All opened \u2014 you can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      }
+    }
+  };
+
+  window.doFlipResult=function(box){ box.classList.toggle("flipped"); };
+
+  var flippedSet={};
+  window.doFlip=function(card){
+    card.classList.toggle("flipped");
+    var grid=card.closest(".flip-grid");
+    if(!grid) return;
+    var gate=grid.id;
+    if(card.classList.contains("flipped")){
+      flippedSet[gate]=flippedSet[gate]||new Set();
+      flippedSet[gate].add(card);
+      var total=grid.querySelectorAll(".flipcard").length;
+      if(flippedSet[gate].size>=total && !answered[gate]){
+        answered[gate]=true;
+        var note=document.getElementById(gate+"note");
+        if(note) note.textContent="All flipped \u2014 you can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      }
+    }
+  };
+
+  function makePredict(wrapId,fbId,noteId,gate,correctVal,okMsg,noMsg){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".pchip").forEach(function(chip){
+      chip.addEventListener("click",function(){
+        wrap.querySelectorAll(".pchip").forEach(function(c){c.disabled=true; if(c.dataset.v!==correctVal)c.classList.add("dim");});
+        wrap.querySelectorAll(".pchip").forEach(function(c){if(c.dataset.v===correctVal){c.classList.add("right");c.classList.remove("dim");}});
+        var fb=document.getElementById(fbId), right=chip.dataset.v===correctVal;
+        fb.className="kc-fb "+(right?"ok":"no"); fb.innerHTML=right?okMsg:noMsg; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  // Intuition question - no single right answer, both responses accepted
+  (function(){
+    var wrap=document.getElementById("thinkPredict");
+    var msgs={
+      every:"<strong>That&rsquo;s the intuitive answer &mdash; and it was the traditional view too.</strong> Feedback every trial <em>feels</em> right. But over the next screens you&rsquo;ll see the research points somewhere surprising. Keep your guess in mind.",
+      less:"<strong>Interesting choice &mdash; and it turns out the research agrees with you.</strong> That runs against most people&rsquo;s instinct. Let&rsquo;s see the evidence for why less can be more."
+    };
+    wrap.querySelectorAll(".pchip").forEach(function(chip){
+      chip.addEventListener("click",function(){
+        wrap.querySelectorAll(".pchip").forEach(function(c){c.disabled=true;});
+        chip.classList.add("right");
+        var fb=document.getElementById("thinkfb");
+        fb.className="kc-fb ok"; fb.innerHTML=msgs[chip.dataset.v]; fb.hidden=false;
+        answered.think=true;
+        document.getElementById("thinknote").textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  })();
+  makePredict("winPredict","winfb","winnote","winstein","fifty",
+    "<strong>Correct.</strong> The 50% group retained the skill better. Getting feedback on only half the trials forced them to process their own movement information &mdash; building error-detection that lasted.",
+    "<strong>Not quite.</strong> Counterintuitively, the <strong>50%</strong> group learned better. Feedback on every trial produced good practice performance but weaker retention &mdash; the guidance hypothesis in action.");
+
+  function makeSingle(wrapId,fbId,noteId,gate,FBok,FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true;});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});}
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> Silence inside an acceptable margin, precise feedback outside it &mdash; that&rsquo;s bandwidth feedback exactly.",
+    "<strong>Reconsider.</strong> The defining feature here is the <em>acceptable margin</em>: feedback is withheld when the reach is close enough and given only when it&rsquo;s outside the range. That&rsquo;s bandwidth feedback.");
+
+  // Bandwidth interactive
+  (function(){
+    var TARGET=50, MIN=38, MAX=62;            // grip force range (N) for y mapping
+    var trials=[41,55,53,44,50,59,57,50,47,53]; // 10 squeezes around the 50 N target
+    var svgTop=16, svgBot=200, x0=60, xN=452;
+    function yFor(v){ return svgBot - (v-MIN)/(MAX-MIN)*(svgBot-svgTop); }
+    var ptsG=document.getElementById("bwPoints");
+    // y-axis tick labels (40, 50, 60 N)
+    var svgEl=document.getElementById("bwSvg");
+    [40,50,60].forEach(function(tick){
+      var tl=document.createElementNS("http://www.w3.org/2000/svg","text");
+      tl.setAttribute("x",42); tl.setAttribute("y",yFor(tick)+3); tl.setAttribute("text-anchor","end");
+      tl.setAttribute("font-size","9"); tl.setAttribute("fill","#9aa7b0"); tl.textContent=tick;
+      svgEl.insertBefore(tl, ptsG);
+    });
+    trials.forEach(function(v,i){
+      var x=x0+(xN-x0)*(i/(trials.length-1));
+      var c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      c.setAttribute("cx",x); c.setAttribute("cy",yFor(v)); c.setAttribute("r",6);
+      c.setAttribute("stroke","#2b3d4a"); c.setAttribute("stroke-width","2");
+      c.setAttribute("data-v",v); c.setAttribute("fill","#fff");
+      ptsG.appendChild(c);
+      var t=document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x",x); t.setAttribute("y",svgBot+16); t.setAttribute("text-anchor","middle");
+      t.setAttribute("font-size","9"); t.setAttribute("fill","#9aa7b0"); t.textContent=(i+1);
+      ptsG.appendChild(t);
+    });
+    var band=document.getElementById("bwBand");
+    var range=document.getElementById("bwRange"), val=document.getElementById("bwVal");
+    var noFbEl=document.getElementById("bwNoFb"), fbEl=document.getElementById("bwFb");
+    var sawLow=false, sawHigh=false;
+    function update(){
+      var pct=parseInt(range.value,10);
+      val.innerHTML="&plusmn;"+pct+"%";
+      var half=TARGET*(pct/100);
+      var top=yFor(TARGET+half), bot=yFor(TARGET-half);
+      band.setAttribute("y",top); band.setAttribute("height",Math.max(1,bot-top));
+      var inside=0, outside=0;
+      [].forEach.call(ptsG.querySelectorAll("circle"),function(c){
+        var v=parseFloat(c.getAttribute("data-v"));
+        if(pct>0 && Math.abs(v-TARGET)<=half){ c.setAttribute("fill","#eafaf1"); c.setAttribute("stroke","#2e9e6b"); inside++; }
+        else { c.setAttribute("fill","#fdeeee"); c.setAttribute("stroke","#d9534f"); outside++; }
+      });
+      noFbEl.textContent=inside; fbEl.textContent=outside;
+      if(pct<=1) sawLow=true;
+      if(pct>=15) sawHigh=true;
+      if(sawLow && sawHigh && !answered.bw){
+        answered.bw=true;
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      }
+    }
+    range.addEventListener("input",update);
+    update();
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
