@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025 | Lab 3 - Bilateral Transfer Tracing Task (async data collection app)
+  Standalone in-browser task. Enforces the pretest -> practice -> posttest
+  protocol, counts discrete boundary crossings, records total trace time, and
+  builds a live results table for students to copy into the companion lab doc.
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 3 — Bilateral Transfer Tracing Task</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px; --green:#2e9e6b; --red:#d9534f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600}
+  .crumb b{color:var(--ink)}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .inner{max-width:820px;margin:0 auto;width:100%;padding:32px 24px 60px}
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  h1{font-size:32px;line-height:1.15;font-weight:800;letter-spacing:-.5px;margin-bottom:12px}
+  h2{font-size:24px;line-height:1.2;font-weight:800;margin-bottom:12px}
+  h3{font-size:17px;font-weight:750;margin:16px 0 8px}
+  p{font-size:16px;color:#3d4d5c;margin-bottom:12px}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 30px;margin-bottom:18px}
+  @media(max-width:640px){.card{padding:20px 16px}.inner{padding:22px 14px 48px}h1{font-size:25px}h2{font-size:20px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:15px 18px;border-radius:0 8px 8px 0;margin:14px 0}
+  .callout p{margin:0;font-size:14.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;
+    font-size:15px;font-weight:700;padding:12px 24px;border-radius:8px;cursor:pointer;transition:background .2s,transform .1s}
+  .btn:hover{background:var(--accent-dark)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{background:#b9c6cd;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--accent-dark);border:1.5px solid var(--accent)}
+  .btn.ghost:hover{background:var(--accent-soft)}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+
+  /* step tracker */
+  .steps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+  .step-pill{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;background:#eef2f4;color:var(--muted);border:1px solid var(--line)}
+  .step-pill.done{background:var(--accent-soft);color:var(--accent-dark);border-color:#bfe0e5}
+  .step-pill.current{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  .hand-banner{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+    color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:16px;transition:background .25s}
+  .hand-banner.dom{background:linear-gradient(135deg,var(--accent),var(--accent-dark))}
+  .hand-banner.non{background:linear-gradient(135deg,#c8862f,#a5641a)}
+  .hand-banner .icon{flex:none;font-size:30px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+  .hand-banner .big{font-size:22px;font-weight:800}
+  .hand-banner .sub{font-size:13.5px;opacity:.92}
+  .hand-banner .phase{margin-left:auto;font-size:12px;font-weight:700;background:rgba(255,255,255,.20);padding:5px 12px;border-radius:20px}
+
+  .stage-wrap{position:relative;background:#fff;border:1px solid var(--line);border-radius:10px;touch-action:none;overflow:hidden}
+  svg{display:block;width:100%;height:auto;touch-action:none}
+  .channel-fill{fill:#f0f6f7;stroke:none}
+  .channel-wall{fill:none;stroke:var(--accent);stroke-width:2.5;opacity:.85}
+  .startzone{fill:#d6efdd;stroke:var(--green);stroke-width:1.5}
+  .endzone{fill:#fbe9c9;stroke:var(--gold);stroke-width:1.5}
+  .zonelabel{font-size:12px;font-weight:800;fill:#4a5a63;text-anchor:middle}
+  .trace-path{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .trace-in{stroke:#2e9e6b}
+  .trace-out{stroke:var(--red)}
+
+  .readout{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .stat{flex:1;min-width:120px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 16px;text-align:center}
+  .stat .v{font-size:26px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .stat .l{font-size:11.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  .hint{font-size:13.5px;color:var(--muted);margin-top:10px}
+
+  table{border-collapse:collapse;width:100%;font-size:14px;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}
+  thead th{background:var(--accent-soft);color:var(--accent-dark);font-weight:800;font-size:12.5px}
+  tbody th{background:#f6f9fa;text-align:left;font-weight:700}
+  .rowgroup{background:#eef4f5;font-weight:800;text-align:left;color:var(--accent-dark);font-size:12.5px;letter-spacing:.5px;text-transform:uppercase}
+  td.blank{color:var(--muted)}
+
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0}
+  @media(max-width:600px){.summary-grid{grid-template-columns:1fr}}
+  .sumbox{border:1px solid var(--line);border-radius:10px;padding:16px;text-align:center;background:#fff}
+  .sumbox.hl{border-top:3px solid var(--gold)}
+  .sumbox .v{font-size:30px;font-weight:800;color:var(--accent-dark)}
+  .sumbox .l{font-size:12.5px;font-weight:700;color:var(--muted);margin-top:6px}
+
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="crumb">HLSC 4025 &nbsp;·&nbsp; Lab 3 &nbsp;·&nbsp; <b>Bilateral Transfer Tracing Task</b></span>
+  <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+</div>
+
+<div class="inner">
+
+  <!-- ============ INTRO SCREEN ============ -->
+  <section id="scr-intro">
+    <div class="eyebrow">Data Collection App</div>
+    <h1>Bilateral Transfer Tracing Task</h1>
+    <p>In this task you will trace a winding channel on screen <strong>as quickly as you can while staying inside the walls</strong>. You will do it with <strong>both hands</strong> — before and after a block of practice with your <strong>dominant hand only</strong>.</p>
+    <p>Your score for each trace is the <strong>time</strong> it takes to get from START to END — a faster time means better performance. To keep it fair, accuracy is enforced: if your line <strong>leaves the channel at any point, the trace does not count</strong> and you redo it. So only clean, in-channel traces are recorded, and a fast time can never come from rushing sloppily. Follow the steps in order; the app tells you which hand to use each time.</p>
+
+    <div class="callout">
+      <span class="clabel">How to trace</span>
+      <p>Go as <strong>fast as you can while staying inside the walls</strong>. Touching or crossing a wall voids the trace — you’ll simply redo it until you get a clean run. Early traces with your non-dominant hand may take a few tries; that’s expected.</p>
+    </div>
+
+    <div class="callout why">
+      <span class="clabel">Before you start</span>
+      <p>Use a <strong>mouse, trackpad, or touchscreen</strong> — whatever you would normally use. Use the <em>same</em> input device for the whole session. Find a quiet spot; you will do about 16 short traces. It takes 10–15 minutes.</p>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3 style="margin-top:0">First, tell the app your dominant hand</h3>
+      <p style="margin-bottom:10px">This is the hand you write with. The app uses it to label your trials correctly.</p>
+      <div class="btn-row">
+        <button class="btn ghost" id="dom-left">I am left-handed</button>
+        <button class="btn ghost" id="dom-right">I am right-handed</button>
+      </div>
+      <p class="hint" id="dom-echo"></p>
+    </div>
+
+    <button class="btn" id="begin" disabled>Begin the task &rarr;</button>
+  </section>
+
+  <!-- ============ TASK SCREEN ============ -->
+  <section id="scr-task" class="hidden">
+    <div class="steps" id="steps"></div>
+
+    <div class="hand-banner" id="hand-banner">
+      <div class="icon" id="banner-icon" aria-hidden="true">✋</div>
+      <div>
+        <div class="big" id="banner-hand">—</div>
+        <div class="sub" id="banner-sub">—</div>
+      </div>
+      <div class="phase" id="banner-phase">—</div>
+    </div>
+
+    <div class="stage-wrap" id="stage">
+      <!-- svg injected here -->
+    </div>
+
+    <div class="readout">
+      <div class="stat"><div class="v" id="live-time">0.0s</div><div class="l">Time (your score)</div></div>
+      <div class="stat"><div class="v" id="live-cross">0</div><div class="l">Crossings (0 = valid)</div></div>
+      <div class="stat"><div class="v" id="live-status">Ready</div><div class="l">Status</div></div>
+    </div>
+    <p class="hint" id="task-hint">Press and hold inside the green <strong>START</strong> box, trace to the gold <strong>END</strong> box without crossing the walls, then release. If your line leaves the channel, the trace won’t count and you’ll redo it.</p>
+
+    <div class="btn-row">
+      <button class="btn ghost" id="redo" disabled>Redo this trace</button>
+      <button class="btn" id="next-trial" disabled>Record &amp; continue &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS SCREEN ============ -->
+  <section id="scr-results" class="hidden">
+    <div class="eyebrow">Your Data</div>
+    <h2>Results — copy this into your lab document</h2>
+    <p>Every trace you completed is listed below. The three boxes are the numbers your Discussion questions ask about. <strong>Transcribe this table and the three summary values into the Data section of the lab document.</strong></p>
+
+    <div class="summary-grid">
+      <div class="sumbox"><div class="v" id="sum-dom">–</div><div class="l">Dominant-hand improvement (pre&rarr;post, faster time)</div></div>
+      <div class="sumbox hl"><div class="v" id="sum-non">–</div><div class="l">Non-dominant improvement<br>(the transfer effect, in time)</div></div>
+      <div class="sumbox"><div class="v" id="sum-ratio">–</div><div class="l">Transfer as % of dominant gain</div></div>
+    </div>
+
+    <div class="card">
+      <table id="results-table">
+        <thead><tr><th>Phase</th><th>Hand</th><th>Trial</th><th>Time (s)</th><th>Attempts</th></tr></thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <span class="clabel">Averages used in the boxes</span>
+      <p id="avg-line">—</p>
+    </div>
+
+    <div class="callout why">
+      <span class="clabel">One thing to notice for your Discussion</span>
+      <p>Your non-dominant hand improved even though it <strong>never practiced</strong> — it only did the pretest and posttest traces. Your Discussion questions ask you to reason about where that improvement came from, and whether some of it is just familiarity with the task rather than true transfer.</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn ghost" id="restart">Start over</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---------- protocol definition ---------- */
+const PRACTICE_TRIALS = 8;
+function buildProtocol(){
+  const seq = [];
+  const add = (phase,hand,n)=>{ for(let i=1;i<=n;i++) seq.push({phase,hand,trial:i,totalInStep:n}); };
+  // pretest: non-dominant first, then dominant (2 each)
+  add('Pretest','Non-dominant',2);
+  add('Pretest','Dominant',2);
+  // practice: dominant only
+  add('Practice','Dominant',PRACTICE_TRIALS);
+  // posttest: non-dominant first, then dominant (2 each)
+  add('Posttest','Non-dominant',2);
+  add('Posttest','Dominant',2);
+  return seq;
+}
+const PHASES_FOR_PILLS = [
+  {key:'Pretest', label:'Pretest'},
+  {key:'Practice',label:'Practice (dom.)'},
+  {key:'Posttest',label:'Posttest'}
+];
+
+/* ---------- channel geometry (a smooth winding band) ---------- */
+const W=760, H=380, MID=190, AMP=95, MARGIN=70, HALF=26; // HALF = half channel width
+function centerY(x){
+  const t=(x-MARGIN)/(W-2*MARGIN);
+  return MID + AMP*Math.sin(t*Math.PI*2.15) * (0.55+0.45*Math.cos(t*Math.PI));
+}
+function buildChannel(){
+  const step=4, top=[], bot=[], mids=[];
+  for(let x=MARGIN;x<=W-MARGIN;x+=step){
+    const cy=centerY(x); mids.push([x,cy]);
+    // normal offset for constant-width band
+    const cyp=centerY(Math.min(W-MARGIN,x+step)), cym=centerY(Math.max(MARGIN,x-step));
+    const dx=(Math.min(W-MARGIN,x+step)-Math.max(MARGIN,x-step))||1, dy=cyp-cym;
+    const len=Math.hypot(dx,dy)||1, nx=-dy/len, ny=dx/len;
+    top.push([x+nx*HALF, cy+ny*HALF]);
+    bot.push([x-nx*HALF, cy-ny*HALF]);
+  }
+  return {top,bot,mids};
+}
+const CH=buildChannel();
+function ptsToPath(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');}
+function fillPath(){ // closed band
+  const b=[...CH.bot].reverse();
+  return ptsToPath(CH.top)+' '+b.map(p=>'L'+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+' Z';
+}
+/* distance from point to the center polyline; inside channel if <= HALF */
+function distToChannel(px,py){
+  let best=1e9;
+  for(let i=0;i<CH.mids.length-1;i++){
+    const [x1,y1]=CH.mids[i],[x2,y2]=CH.mids[i+1];
+    const dx=x2-x1,dy=y2-y1, L2=dx*dx+dy*dy||1;
+    let t=((px-x1)*dx+(py-y1)*dy)/L2; t=Math.max(0,Math.min(1,t));
+    const cx=x1+t*dx, cy=y1+t*dy;
+    const d=Math.hypot(px-cx,py-cy); if(d<best)best=d;
+  }
+  return best;
+}
+const START={x:MARGIN, y:centerY(MARGIN)}, END={x:W-MARGIN, y:centerY(W-MARGIN)};
+
+/* ---------- state ---------- */
+let dominant=null;         // 'Left' or 'Right'
+let protocol=[], idx=0;    // current trial index
+let records=[];            // {phase,hand,trial,time,attempts}
+let tracing=false, started=false, wasInside=true, crossings=0, t0=0, curPath=[], segEls=[];
+let invalidated=false, attempts=0;   // attempts = redo count for the current trial (clean run is the last attempt)
+
+/* ---------- DOM ---------- */
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+
+$('dom-left').onclick=()=>setDom('Left');
+$('dom-right').onclick=()=>setDom('Right');
+function setDom(h){
+  dominant=h;
+  $('dom-echo').textContent='Dominant hand set to: '+h.toLowerCase()+'-handed. You can change this before beginning.';
+  $('dom-left').style.background = h==='Left'?'var(--accent-soft)':'#fff';
+  $('dom-right').style.background = h==='Right'?'var(--accent-soft)':'#fff';
+  $('begin').disabled=false;
+}
+
+$('begin').onclick=()=>{
+  protocol=buildProtocol(); idx=0; records=[];
+  $('scr-intro').classList.add('hidden');
+  $('scr-task').classList.remove('hidden');
+  renderSVG();
+  loadTrial();
+};
+
+$('restart').onclick=()=>location.reload();
+$('redo').onclick=()=>resetTrace();
+$('next-trial').onclick=recordAndAdvance;
+
+/* map a real hand label to the physical hand instruction */
+function physicalHand(role){ // role = 'Dominant' | 'Non-dominant'
+  if(role==='Dominant') return dominant;
+  return dominant==='Left'?'Right':'Left';
+}
+
+function renderSVG(){
+  stage.innerHTML=`
+  <svg viewBox="0 0 ${W} ${H}" id="svg" aria-label="Tracing channel">
+    <path class="channel-fill" d="${fillPath()}"></path>
+    <path class="channel-wall" d="${ptsToPath(CH.top)}"></path>
+    <path class="channel-wall" d="${ptsToPath(CH.bot)}"></path>
+    <circle class="startzone" cx="${START.x}" cy="${START.y}" r="22"></circle>
+    <text class="zonelabel" x="${START.x}" y="${START.y-30}">START</text>
+    <rect class="endzone" x="${END.x-20}" y="${END.y-20}" width="40" height="40" rx="6"></rect>
+    <text class="zonelabel" x="${END.x}" y="${END.y-30}">END</text>
+    <g id="tracelayer"></g>
+    <circle id="cursor" r="5" fill="var(--accent-dark)" style="display:none"></circle>
+  </svg>`;
+  const svg=$('svg');
+  svg.addEventListener('pointerdown',onDown);
+  svg.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+}
+
+function svgPt(e){
+  const svg=$('svg'), r=svg.getBoundingClientRect();
+  return {x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H};
+}
+
+function loadTrial(){
+  const cur=protocol[idx];
+  const phys=physicalHand(cur.hand);
+  const isDom = cur.hand==='Dominant';
+  $('banner-hand').textContent=cur.hand+' hand';
+  $('banner-sub').textContent='Use your physical '+phys.toLowerCase()+' hand · trial '+cur.trial+' of '+cur.totalInStep+' in this block';
+  $('banner-phase').textContent=cur.phase;
+  // color-code the banner by which hand to use
+  const banner=$('hand-banner');
+  banner.classList.toggle('dom', isDom);
+  banner.classList.toggle('non', !isDom);
+  $('banner-icon').textContent = isDom ? '👉' : '👈';
+  // step pills
+  $('steps').innerHTML=PHASES_FOR_PILLS.map(p=>{
+    const done = phaseOrder(p.key) < phaseOrder(cur.phase);
+    const now  = p.key===cur.phase;
+    return `<span class="step-pill ${done?'done':''} ${now?'current':''}">${p.label}</span>`;
+  }).join('');
+  attempts=0;
+  resetTrace();
+  updateProgress();
+}
+function phaseOrder(p){return {'Pretest':0,'Practice':1,'Posttest':2}[p];}
+
+function resetTrace(){
+  tracing=false; started=false; wasInside=true; crossings=0; curPath=[]; segEls=[]; invalidated=false;
+  const layer=$('tracelayer'); if(layer) layer.innerHTML='';
+  $('cursor').style.display='none';
+  $('live-cross').textContent='0';
+  $('live-time').textContent='0.0s';
+  $('live-status').textContent='Ready';
+  $('live-status').style.color='var(--muted)';
+  $('next-trial').disabled=true;
+  $('redo').disabled=true;
+}
+
+function onDown(e){
+  const p=svgPt(e);
+  // must start inside the start zone
+  if(Math.hypot(p.x-START.x,p.y-START.y)>26){
+    $('live-status').textContent='Start in green'; $('live-status').style.color='var(--red)';
+    return;
+  }
+  e.preventDefault();
+  tracing=true; started=true; crossings=0; wasInside=true; invalidated=false; curPath=[[p.x,p.y]]; t0=performance.now();
+  $('live-status').textContent='Tracing…'; $('live-status').style.color='var(--accent-dark)';
+  $('redo').disabled=false;
+  newSeg(true);
+  const c=$('cursor'); c.style.display=''; c.setAttribute('cx',p.x); c.setAttribute('cy',p.y);
+}
+
+let curSeg=null, curSegInside=true;
+function newSeg(inside){
+  const layer=$('tracelayer');
+  curSeg=document.createElementNS('http://www.w3.org/2000/svg','path');
+  curSeg.setAttribute('class','trace-path '+(inside?'trace-in':'trace-out'));
+  curSegInside=inside; layer.appendChild(curSeg); segEls.push(curSeg); curSeg._pts=[];
+}
+function extendSeg(x,y){ curSeg._pts.push([x,y]); curSeg.setAttribute('d',ptsToPath(curSeg._pts)); }
+
+function onMove(e){
+  if(!tracing) return;
+  const p=svgPt(e); e.preventDefault();
+  curPath.push([p.x,p.y]);
+  const inside = distToChannel(p.x,p.y) <= HALF;
+  const c=$('cursor'); c.setAttribute('cx',p.x); c.setAttribute('cy',p.y);
+  $('live-time').textContent=((performance.now()-t0)/1000).toFixed(1)+'s';
+  if(!inside){
+    // STRICT ENFORCEMENT: leaving the channel invalidates the whole trace
+    if(wasInside){ crossings++; newSeg(false); const last=curPath[curPath.length-2]; if(last) extendSeg(last[0],last[1]); }
+    extendSeg(p.x,p.y);
+    wasInside=false;
+    invalidateTrace();
+    return;
+  }
+  extendSeg(p.x,p.y);
+  $('live-cross').textContent=crossings;
+}
+
+function invalidateTrace(){
+  tracing=false; invalidated=true; attempts++;
+  $('live-status').textContent='Off track ✗'; $('live-status').style.color='var(--red)';
+  $('live-cross').textContent=crossings;
+  $('next-trial').disabled=true;   // a crossed trace can never be recorded
+  $('redo').disabled=false;
+  $('task-hint').innerHTML='Your line left the channel, so this trace <strong>doesn\u2019t count</strong>. Press <strong>Redo this trace</strong> and complete it without crossing the walls.';
+}
+
+function onUp(e){
+  if(!tracing) return;   // ignores pointerup after an invalidated trace
+  tracing=false;
+  const p=svgPt(e);
+  const time=((performance.now()-t0)/1000);
+  const atEnd = Math.hypot(p.x-END.x,p.y-END.y)<=30;
+  if(!atEnd){
+    $('live-status').textContent='End in gold'; $('live-status').style.color='var(--red)';
+    $('task-hint').innerHTML='Your trace didn\u2019t finish in the gold <strong>END</strong> box. Press <strong>Redo this trace</strong> and complete the full channel.';
+    return;
+  }
+  // clean, complete run — this is the successful attempt
+  attempts++;
+  $('live-status').textContent='Clean ✓'; $('live-status').style.color='var(--green)';
+  $('live-time').textContent=time.toFixed(1)+'s';
+  $('next-trial').disabled=false;
+  $('next-trial')._pending={time:+time.toFixed(1), attempts};
+  const tries = attempts>1 ? ` (took ${attempts} attempts)` : '';
+  $('task-hint').innerHTML='Clean trace'+tries+'. Press <strong>Record &amp; continue</strong> to save it.';
+}
+
+function recordAndAdvance(){
+  const cur=protocol[idx];
+  const pend=$('next-trial')._pending || {time:+((performance.now()-t0)/1000).toFixed(1), attempts:Math.max(1,attempts)};
+  records.push({phase:cur.phase, hand:cur.hand, trial:cur.trial, time:pend.time, attempts:pend.attempts});
+  $('next-trial')._pending=null;
+  idx++;
+  $('task-hint').innerHTML='Press and hold inside the green <strong>START</strong> box, trace to the gold <strong>END</strong> box, then release.';
+  if(idx>=protocol.length){ showResults(); return; }
+  loadTrial();
+}
+
+function updateProgress(){ $('prog').style.width=(idx/protocol.length*100)+'%'; }
+
+/* ---------- results ---------- */
+function mean(arr){return arr.length? arr.reduce((a,b)=>a+b,0)/arr.length : null;}
+function fmt(n){return n==null?'–':(Math.round(n*100)/100).toFixed(2);}
+
+function showResults(){
+  $('prog').style.width='100%';
+  $('scr-task').classList.add('hidden');
+  $('scr-results').classList.remove('hidden');
+
+  // table
+  const body=$('results-body'); body.innerHTML='';
+  let lastPhase=null;
+  records.forEach(r=>{
+    if(r.phase!==lastPhase){
+      const gr=document.createElement('tr');
+      gr.innerHTML=`<td class="rowgroup" colspan="5">${r.phase}</td>`;
+      body.appendChild(gr); lastPhase=r.phase;
+    }
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.phase}</td><td>${r.hand}</td><td>${r.trial}</td><td>${r.time.toFixed(1)}</td><td>${r.attempts}</td>`;
+    body.appendChild(tr);
+  });
+
+  // averages — transfer measured on TIME (all recorded traces are clean); attempts reported as effort/accuracy
+  const sel=(phase,hand,key)=>records.filter(r=>r.phase===phase&&r.hand===hand).map(r=>r[key]);
+  const domPreT =mean(sel('Pretest','Dominant','time'));
+  const domPostT=mean(sel('Posttest','Dominant','time'));
+  const nonPreT =mean(sel('Pretest','Non-dominant','time'));
+  const nonPostT=mean(sel('Posttest','Non-dominant','time'));
+  const domPreA =mean(sel('Pretest','Dominant','attempts'));
+  const domPostA=mean(sel('Posttest','Dominant','attempts'));
+  const nonPreA =mean(sel('Pretest','Non-dominant','attempts'));
+  const nonPostA=mean(sel('Posttest','Non-dominant','attempts'));
+
+  const domGain = (domPreT!=null&&domPostT!=null)? (domPreT-domPostT) : null; // positive = faster after practice
+  const nonGain = (nonPreT!=null&&nonPostT!=null)? (nonPreT-nonPostT) : null;
+  const ratio = (domGain && domGain>0 && nonGain!=null)? (nonGain/domGain*100) : null;
+
+  $('sum-dom').textContent = domGain==null?'–':(domGain>=0?'−':'+')+Math.abs(domGain).toFixed(1)+' s';
+  $('sum-non').textContent = nonGain==null?'–':(nonGain>=0?'−':'+')+Math.abs(nonGain).toFixed(1)+' s';
+  $('sum-ratio').textContent = ratio==null?'–':Math.round(ratio)+'%';
+
+  $('avg-line').innerHTML =
+    `<strong>Time (the transfer measure).</strong> Dominant: pretest <strong>${fmt(domPreT)} s</strong> &rarr; posttest <strong>${fmt(domPostT)} s</strong>. `+
+    `Non-dominant: pretest <strong>${fmt(nonPreT)} s</strong> &rarr; posttest <strong>${fmt(nonPostT)} s</strong>. `+
+    `(&ldquo;−&rdquo; improvement means a faster time after practice.)<br>`+
+    `<strong>Attempts (tries needed for a clean trace).</strong> Dominant: <strong>${fmt(domPreA)}</strong> &rarr; <strong>${fmt(domPostA)}</strong>. `+
+    `Non-dominant: <strong>${fmt(nonPreA)}</strong> &rarr; <strong>${fmt(nonPostA)}</strong>.`;
+}
+</script>
+</body>
+</html>
