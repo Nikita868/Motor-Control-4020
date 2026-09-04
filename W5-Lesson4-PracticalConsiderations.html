@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 5 / Lesson 4 - Practical Considerations
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 · Lesson 4 — Practical Considerations</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  a.cite-link{color:var(--accent-dark);font-weight:700;text-decoration:none;white-space:nowrap}
+  a.cite-link:hover{text-decoration:underline}
+  .refblock{font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line);line-height:1.65}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* ===== Lesson 2 additions ===== */
+  /* schedule visualizer */
+  .sv-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  @media(max-width:560px){.sv-controls{grid-template-columns:1fr}}
+  .svbtn{border:2px solid var(--line);border-radius:9px;padding:13px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;text-align:center;transition:.15s}
+  .svbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .svbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .svbtn .svb-t{font-size:15px;font-weight:800;display:block}
+  .svbtn .svb-s{font-size:11.5px;opacity:.8;display:block;margin-top:2px}
+  .sv-stage{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:20px}
+  .sv-track{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:44px;align-items:center}
+  .sv-cell{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .sv-cell.show{opacity:1;transform:none}
+  .sv-c1{background:#1a7f8e}.sv-c2{background:#e0a458}.sv-c3{background:#6a8caf}.sv-c4{background:#c46b6b}
+  .sv-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:12.5px;color:#3d4d5c}
+  .sv-legend span{display:inline-flex;align-items:center;gap:6px}
+  .sv-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sv-readout{margin-top:16px;padding:16px 18px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:70px}
+  .sv-readout .svr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sv-readout h4{font-size:16px;margin:5px 0 6px}
+  .sv-readout p{font-size:14px;color:#3d4d5c;margin:0}
+  .sv-ci{display:inline-block;margin-top:9px;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px}
+  .sv-ci.low{background:#eafaf1;color:#1d6b47}
+  .sv-ci.med{background:#fff6e6;color:#b5822f}
+  .sv-ci.high{background:#fdeeee;color:#a3403c}
+
+  /* CI continuum */
+  .ci-bar{position:relative;height:54px;margin:24px 0 10px;border-radius:27px;
+    background:linear-gradient(90deg,#eafaf1,#fff6e6,#fdeeee);border:1px solid var(--line)}
+  .ci-bar .ci-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .ci-bar .ci-end.l{left:20px;color:#1d6b47}
+  .ci-bar .ci-end.r{right:20px;color:#a3403c}
+  .ci-marks{display:flex;justify-content:space-between;margin-top:14px;gap:8px}
+  .ci-mark{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .ci-mark h4{font-size:14px;margin:0 0 3px}
+  .ci-mark .cim-seq{font-family:monospace;font-size:12px;color:var(--accent-dark);letter-spacing:1px;margin:4px 0}
+  .ci-mark p{font-size:12px;color:#556;margin:4px 0 0;line-height:1.4}
+
+  /* factors accordion (block-safe reveal, from limc pattern) */
+  .fac-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .fac{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;width:100%;transition:.16s;display:block}
+  .fac:hover{border-color:var(--accent);background:#fafdfe}
+  .fac[aria-expanded="true"]{border-color:var(--accent)}
+  .fac-head{display:flex;align-items:center;gap:12px;padding:15px 17px}
+  .fac-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .fac-t{font-size:15px;font-weight:700;color:var(--ink)}
+  .fac-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .fac[aria-expanded="true"] .fac-plus{transform:rotate(45deg)}
+  .fac-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;
+    padding:0 17px;font-size:14px;color:#3d4d5c;line-height:1.55}
+  .fac[aria-expanded="true"] .fac-body{max-height:320px;padding:0 17px 16px}
+
+
+  /* ===== AFB Lesson 1 additions ===== */
+  /* video embed / placeholder */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+  /* KR/KP sorter */
+  .krkp-intro{display:flex;gap:12px;margin:16px 0}
+  .krkp-key{flex:1;border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fff}
+  .krkp-key.kr{border-top:3px solid var(--accent)}
+  .krkp-key.kp{border-top:3px solid var(--gold)}
+  .krkp-key h4{margin:0 0 4px;font-size:14px}
+  .krkp-key.kr h4{color:var(--accent-dark)}
+  .krkp-key.kp h4{color:#b5822f}
+  .krkp-key p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  .sortq{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fff;margin-bottom:12px}
+  .sortq .sq-txt{font-size:14.5px;color:var(--ink);margin-bottom:11px;line-height:1.5}
+  .sortq .sq-txt .ctx{font-weight:700;color:var(--accent-dark)}
+  .sq-btns{display:flex;gap:9px}
+  .sq-btns button{flex:1;border:2px solid var(--line);border-radius:8px;padding:9px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .sq-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .sq-btns button:disabled{cursor:default}
+  .sq-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .sq-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .sq-fb{font-size:12.5px;margin-top:9px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .sq-fb[hidden]{display:none}
+
+  /* two-axis classify (KR/KP x during/after) */
+  .classify-item{border:1px solid var(--line);border-radius:10px;padding:15px 17px;background:#fff;margin-bottom:14px}
+  .ci-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:13px}
+  .ci-scenario b{color:var(--accent-dark)}
+  .ci-axes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.ci-axes{grid-template-columns:1fr}}
+  .ci-axis .ax-label{font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .ci-axis .ax-btns{display:flex;gap:7px}
+  .ci-axis .ax-btns button{flex:1;border:2px solid var(--line);border-radius:7px;padding:8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s}
+  .ci-axis .ax-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .ci-axis .ax-btns button:disabled{cursor:default}
+  .ci-axis .ax-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .ci-axis .ax-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .ci-fb{font-size:12.5px;margin-top:11px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .ci-fb[hidden]{display:none}
+  .ci-img{margin:4px 0 12px}
+  .ci-img img{max-width:220px;width:100%;height:auto;border-radius:8px;border:1px solid var(--line)}
+  .ci-img svg{border-radius:8px;border:1px solid var(--line)}
+
+
+  /* ===== AFB Lesson 2 additions ===== */
+  /* four-roles overview grid */
+  .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.roles-grid{grid-template-columns:1fr}}
+  .role-card{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fff;position:relative}
+  .role-card .rc-tag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:9px}
+  .role-card.good .rc-tag{background:#eafaf1;color:#1d6b47}
+  .role-card.risk .rc-tag{background:#fdeeee;color:#a3403c}
+  .role-card h4{margin:0 0 5px;font-size:15.5px;color:var(--ink)}
+  .role-card p{margin:0;font-size:13px;color:#556;line-height:1.5}
+
+  /* error-loop svg holder */
+  .loopfig{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .loopfig svg{width:100%;max-width:560px;height:auto}
+  .loopfig .lf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic}
+
+  /* role sorter */
+  .rolesort-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .rsi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .rsi-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.rsi-btns{grid-template-columns:1fr}}
+  .rsi-btns button{border:2px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s;text-align:left}
+  .rsi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .rsi-btns button:disabled{cursor:default}
+  .rsi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .rsi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .rsi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .rsi-fb[hidden]{display:none}
+
+
+  /* ===== AFB Lesson 3 additions ===== */
+  /* group badge pill (wider than obj-num, for percentages) */
+  .grp-badge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:26px;padding:0 10px;
+    border-radius:14px;color:#fff;font-weight:800;font-size:13px;flex:none;margin-right:2px;letter-spacing:.3px}
+  /* study chart holder */
+  .chartfig{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .chartfig svg{width:100%;max-width:520px;height:auto}
+  .chartfig .cf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic;text-align:left}
+
+  /* bandwidth interactive */
+  .bw-tool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .bw-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .bw-controls label{font-size:14px;font-weight:700;color:var(--ink)}
+  .bw-controls input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+  .bw-val{font-size:15px;font-weight:800;color:var(--accent-dark);min-width:56px;text-align:right}
+  .bw-stage{margin-top:6px}
+  .bw-readout{margin-top:12px;display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px}
+  .bw-readout .ro{padding:8px 14px;border-radius:8px;background:var(--accent-soft);font-weight:700;color:#245a63}
+  .bw-readout .ro b{color:var(--accent-dark)}
+  .bw-hint{font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* full-width flip result box */
+  .flipresult{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;width:100%;margin:6px 0;display:block}
+  .flipresult .fr-inner{position:relative;display:block;width:100%;min-height:148px;transition:transform .55s;transform-style:preserve-3d}
+  .flipresult.flipped .fr-inner{transform:rotateY(180deg)}
+  .fr-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px 22px;box-sizing:border-box}
+  .fr-front{background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff}
+  .fr-front .fr-q{font-size:14.5px;font-weight:700;line-height:1.4}
+  .fr-front .fr-hint{font-size:12px;opacity:.85;margin-top:7px}
+  .fr-front .fr-hint::before{content:"\21BB  "}
+  .fr-back{background:#fdf3e0;border:1px solid #e0a458;transform:rotateY(180deg);color:#5a3d12;font-size:15px;line-height:1.55}
+  .fr-back strong{color:#b5822f}
+
+  /* flippable cards */
+  .flip-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.flip-grid{grid-template-columns:1fr}}
+  .flipcard{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1000px;height:130px;width:100%;display:block}
+  .flipcard .fc-inner{position:relative;display:block;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+  .fc-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px 16px;box-sizing:border-box}
+  .fc-front{background:#fff}
+  .fc-front .tm-n{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .fc-front .fc-title{font-size:16px;font-weight:800;color:var(--ink)}
+  .fc-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:8px}
+  .fc-back{background:var(--accent-soft);transform:rotateY(180deg);font-size:14px;color:#245a63;line-height:1.5}
+  .flipcard.flipped .fc-front{border-color:#2e9e6b}
+  /* taller flip cards for comparison content (heading + sentences) */
+  .flip2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.flip2{grid-template-columns:1fr}}
+  .flip2 .flipcard{height:210px}
+  .flip2 .fc-face{align-items:stretch;justify-content:flex-start;text-align:left;padding:16px 18px}
+  .flip2 .fc-front{background:#fff}
+  .flip2 .fc-front .fc-eyebrow{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--accent-dark)}
+  .flip2 .fc-front.risk .fc-eyebrow{color:#d9534f}
+  .flip2 .fc-front .fc-prompt{font-size:15px;font-weight:700;color:var(--ink);margin-top:8px;line-height:1.4}
+  .flip2 .fc-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:auto}
+  .flip2 .fc-front .fc-hint::before{content:"\21BB  "}
+  .flip2 .fc-back{background:var(--accent-soft);color:#245a63;font-size:13.5px;line-height:1.5}
+  .flip2 .fc-back.risk{background:#fdeeee;color:#a3403c}
+  .flip2 .fc-back h4{margin:0 0 6px;font-size:15px;color:var(--accent-dark)}
+  .flip2 .fc-back.risk h4{color:#a3403c}
+
+  /* technique overview list */
+  .tech-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:600px){.tech-list{grid-template-columns:1fr}}
+  .tech-mini{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff}
+  .tech-mini .tm-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .tech-mini h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+  .tech-mini p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+
+
+  /* ===== AFB Lesson 4 additions ===== */
+  /* KP case number badge in headings */
+  .kp-num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
+    background:var(--accent);color:#fff;font-size:18px;font-weight:800;margin-right:12px;vertical-align:middle;flex:none}
+  /* match/sort item (reuse rolesort look) */
+  .match-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .mi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .mi-scenario .q{font-weight:700;color:var(--accent-dark)}
+  .mi-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  @media(max-width:520px){.mi-btns{grid-template-columns:1fr}}
+  .mi-btns button{border:2px solid var(--line);border-radius:8px;padding:10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s;text-align:left}
+  .mi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .mi-btns button:disabled{cursor:default}
+  .mi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .mi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .mi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .mi-fb[hidden]{display:none}
+  /* video placeholder (reuse from L1 pattern) */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 5 &nbsp;&rsaquo;&nbsp; <b>Lesson 4: Practical Considerations</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">15</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 5 &middot; Lesson 4</div>
+        <h1>Practical Considerations</h1>
+        <p>You know the types, the roles, and how much to give. The last questions are the everyday ones: what to say, how precisely, and in what form.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~24 min</span>
+          <span><span class="dot"></span> Augmented feedback &middot; 4 of 4</span>
+          <span><span class="dot"></span> Schmidt &amp; Lee; Magill &amp; Anderson</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Decide whether to emphasize <strong>errors</strong> or <strong>correct</strong> aspects of performance.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Choose between <strong>KP and KR</strong> based on skill and expertise &mdash; and know when to combine them.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Distinguish <strong>descriptive</strong> vs. <strong>prescriptive</strong> KP.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Match feedback <strong>precision</strong> to skill level, and use <strong>video feedback</strong> effectively.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 ERRORS VS CORRECT -->
+  <section class="screen" data-screen data-gate="errcor">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Consideration 1</div>
+        <h2>Errors or correct aspects?</h2>
+        <p>When you give feedback, should you point out the <strong>mistakes</strong> the learner made, or the parts they did <strong>correctly</strong>?</p>
+        <p style="margin-top:12px"><strong>What&rsquo;s your instinct?</strong></p>
+        <div class="predict" id="errcorPredict">
+          <button class="pchip" data-v="errors">Emphasize errors</button>
+          <button class="pchip" data-v="correct">Emphasize what&rsquo;s correct</button>
+        </div>
+        <div class="kc-fb" id="errcorfb" role="status" hidden></div>
+        <p class="gate-note" id="errcornote">Make a choice to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 KP VS KR -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Consideration 2</div>
+        <h2>Should you give KP or KR?</h2>
+        <p>Recall from Lesson 1: <strong>KR</strong> is about the <em>result</em>; <strong>KP</strong> is about the <em>movement</em>. Which should you use? It <strong>depends on the skill and the learner&rsquo;s expertise</strong> &mdash; there&rsquo;s no single winner.</p>
+        <div class="callout">
+          <span class="clabel">A useful starting fact</span>
+          <p><strong>KP gives more precise information about how to change a movement</strong> than KR does &mdash; and in applied coaching and clinical settings, KP is actually the <em>more common</em> of the two (Fishman &amp; Tobey, 1978).</p>
+        </div>
+        <p>Let&rsquo;s work through when each one shines &mdash; starting with KP.</p>
+        <p class="refblock">Oppici, L., Dix, A., &amp; Narciss, S. (2024). When is knowledge of performance (KP) superior to knowledge of results (KR) in promoting motor skill learning? A systematic review. <em>International Review of Sport and Exercise Psychology, 17</em>(1), 182&ndash;207. &nbsp;<a class="cite-link" href="https://doi.org/10.1080/1750984X.2021.1986849" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 WHEN KP #1 MOVEMENT-SPECIFIC -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">When is KP beneficial? &nbsp;&middot;&nbsp; Case 1 of 2</div>
+        <h2><span class="kp-num">1</span>Skills with a specific movement requirement</h2>
+        <p>Some skills are <em>defined</em> by how the body moves &mdash; gymnastics, ballet, diving. The goal isn&rsquo;t just an outcome; it&rsquo;s a <strong>particular movement form</strong>. Here KP is essential: KR (&ldquo;you landed the cartwheel&rdquo;) can&rsquo;t tell the learner their legs weren&rsquo;t straight.</p>
+        <figure class="study-fig"><img src="images/afb-cartwheel.jpg" alt="A step-by-step instructional diagram of a cartwheel, breaking the movement into six labeled positions with descriptions of correct form at each stage."><figcaption>For a movement-defined skill like a cartwheel, feedback has to target <em>form</em> at each stage &mdash; that&rsquo;s KP.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 DESCRIPTIVE VS PRESCRIPTIVE -->
+  <section class="screen" data-screen data-gate="dpsort">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Two flavors of KP</div>
+        <h2>Descriptive vs. prescriptive KP</h2>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Descriptive KP</div>
+            <h4>Names the error</h4>
+            <p>Describes <em>what</em> went wrong. <em>&ldquo;Your knees weren&rsquo;t bent.&rdquo;</em> Better for <strong>more skilled</strong> learners &mdash; they can figure out the fix themselves.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:var(--gold)">
+            <div class="pnh" style="color:#b5822f">Prescriptive KP</div>
+            <h4>Names the error <em>and</em> the fix</h4>
+            <p>Describes what went wrong <em>and how to correct it</em>. <em>&ldquo;Bend your knees more!&rdquo;</em> Better for <strong>beginners</strong> &mdash; they may not know the fix yet.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px">Classify each cue below. Answer all three to continue.</p>
+        <div id="dpStage"></div>
+        <p class="sort-progress" id="dpProg">0 of 3 classified</p>
+        <p class="gate-note" id="dpnote">Classify all three to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 WHEN KP #2 COMPLEX COORDINATION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">When is KP beneficial? &nbsp;&middot;&nbsp; Case 2 of 2</div>
+        <h2><span class="kp-num">2</span>Training one component of a complex skill</h2>
+        <p>KP also shines when you need to isolate and train a <strong>specific component</strong> of a skill that requires complex coordination &mdash; skateboarding, a volleyball serve (Zubiaur, O&ntilde;a, &amp; Delgado, 1999).</p>
+        <figure class="study-fig"><img src="images/afb-skateboard.jpg" alt="A young person balancing on a skateboard while riding along a path."><figcaption>To fix one element of a coordinated skill, you target it directly with KP.</figcaption></figure>
+        <p class="refblock">Zubiaur, M., O&ntilde;a, A., &amp; Delgado, J. (1999). Learning volleyball serves: A preliminary study of the effects of knowledge of performance and results. <em>Perceptual and Motor Skills, 89</em>, 223&ndash;232. &nbsp;<a class="cite-link" href="https://doi.org/10.2466/pms.1999.89.1.223" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 CHALLENGES OF KP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The trade-offs</div>
+        <h2>Some challenges of KP</h2>
+        <p>KP is powerful &mdash; but it comes with two catches. <strong>Flip each card</strong> to reveal them.</p>
+        <div class="flip2" id="kpchal">
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front risk"><span class="fc-eyebrow">Challenge 1</span><span class="fc-prompt">KP is about how your body moves. What attention risk might that create?</span><span class="fc-hint">Flip to reveal</span></span>
+              <span class="fc-face fc-back risk"><h4>Internal focus risk</h4>Because KP is about how your body moves, it can push the learner into an <strong>internal focus of attention</strong> &mdash; which (as you saw in Lesson 2) can hurt performance.</span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front risk"><span class="fc-eyebrow">Challenge 2</span><span class="fc-prompt">Who or what do you need before you can give good KP?</span><span class="fc-hint">Flip to reveal</span></span>
+              <span class="fc-face fc-back risk"><h4>Requires expertise</h4>Giving good KP requires an <strong>expert</strong> who can build a checklist of the skill&rsquo;s key performance characteristics &mdash; and cue against it.</span>
+            </span>
+          </button>
+        </div>
+        <div class="callout">
+          <span class="clabel">On Canvas</span>
+          <p>Some suggestions for how to develop a <strong>KP checklist</strong> for a skill are posted on Canvas &mdash; you&rsquo;ll use this idea in this week&rsquo;s homework.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 CONSIDERATIONS FOR KR -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The case for KR</div>
+        <h2>What KR does well</h2>
+        <p>KR has a hidden strength: because it reports only the <em>outcome</em> &mdash; not what to do &mdash; it forces the learner to <strong>engage problem-solving</strong>. They have to discover the fix themselves.</p>
+        <div class="callout why">
+          <span class="clabel">Who it suits</span>
+          <p>That discovery process works best for learners with <strong>more experience</strong> on a skill. It&rsquo;s <em>not</em> ideal for novices on complex skills &mdash; they may not have the foundation to solve the problem on their own, and can flounder.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">KR also fits simple, single-criterion tasks</span>
+          <p>When a skill has one clear goal criterion &mdash; hitting a dartboard, a beanbag toss to a target, or a positioning task like moving a lever to a precise location &mdash; the outcome <em>is</em> the whole point. KR (&ldquo;you were 3 cm short&rdquo;) tells the learner exactly what they need, and there&rsquo;s little movement form to describe.</p>
+        </div>
+        <p style="margin-top:14px;font-size:13px;color:var(--muted)">Historically, in fact, <strong>most motor learning research focused on KR</strong> rather than KP &mdash; only more recently has KP&rsquo;s role been reviewed systematically (Oppici et al., 2024).</p>
+        <p class="refblock">Oppici, L., Dix, A., &amp; Narciss, S. (2024). When is knowledge of performance (KP) superior to knowledge of results (KR) in promoting motor skill learning? A systematic review. <em>International Review of Sport and Exercise Psychology, 17</em>(1), 182&ndash;207. &nbsp;<a class="cite-link" href="https://doi.org/10.1080/1750984X.2021.1986849" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 BOTTOM LINE COMBINE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The resolution</div>
+        <h2>Often, use both</h2>
+        <p>KP vs. KR isn&rsquo;t really a competition. The research points to a practical answer:</p>
+        <div class="statement gold" style="margin:6px 0"><p>Combined <strong>prescriptive KP + KR</strong> is more effective than providing either one alone (Oppici et al., 2021).</p></div>
+        <div class="callout">
+          <span class="clabel">Bottom line</span>
+          <p>Both KP and KR can be valuable for motor learning. The skill is matching them to the <em>task</em> and the <em>learner&rsquo;s stage</em> &mdash; and often, giving the movement fix (KP) alongside the outcome (KR).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 PRECISION DEFINITIONS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Consideration 3</div>
+        <h2>How precise should feedback be?</h2>
+        <p>Feedback can be delivered at different levels of <strong>precision</strong>:</p>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Quantitative</div>
+            <h4>Exact numbers</h4>
+            <p>&ldquo;You overshot by 3 cm.&rdquo; &middot; &ldquo;You walked 3 s faster.&rdquo; &middot; &ldquo;Bend your knee 5&deg; more.&rdquo;</p>
+          </div>
+          <div class="pn pos" style="border-top-color:var(--gold)">
+            <div class="pnh" style="color:#b5822f">Qualitative</div>
+            <h4>General direction</h4>
+            <p>&ldquo;You overshot a bit.&rdquo; &middot; &ldquo;That was much faster.&rdquo; &middot; &ldquo;Bend your knee a bit more.&rdquo;</p>
+          </div>
+        </div>
+        <p style="margin-top:14px">Which is better? As with everything in this module &mdash; <em>it depends on the learner</em>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 PRECISION BY SKILL -->
+  <section class="screen" data-screen data-gate="precmatch">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Matching precision to skill</div>
+        <h2>Early = qualitative, skilled = quantitative</h2>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Early in practice</div>
+            <h4>Qualitative is better</h4>
+            <p>Errors are large, so exact precision wouldn&rsquo;t be used effectively anyway &mdash; and beginners attend to general, qualitative information.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:var(--gold)">
+            <div class="pnh" style="color:#b5822f">Skilled performers</div>
+            <h4>Quantitative can help</h4>
+            <p>Precise feedback becomes useful because skilled performers have the fine movement control to actually <em>act</em> on exact numbers.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px">For each learner, pick the better precision. Answer both to continue.</p>
+        <div id="precStage"></div>
+        <p class="gate-note" id="precnote">Answer both to continue.</p>
+        <p class="refblock">Magill, R. A., &amp; Wood, C. A. (1986). Knowledge of results precision as a learning variable in motor skill acquisition. <em>Research Quarterly for Exercise and Sport, 57</em>(2), 170&ndash;173. &nbsp;<a class="cite-link" href="https://doi.org/10.1080/02701367.1986.10762195" target="_blank" rel="noopener">View study &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 VIDEO FEEDBACK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Consideration 4</div>
+        <h2>Video feedback</h2>
+        <p>Video seems ideal &mdash; it shows everything. But that&rsquo;s exactly the problem: because it provides <strong>so much information</strong>, a learner may not know what to look at. <strong>Flip each card:</strong> how does that play out for a skilled learner vs. a novice?</p>
+        <div class="flip2" id="videocards">
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="fc-eyebrow">Skilled learners</span><span class="fc-prompt">Does rich video feedback help or overwhelm an expert?</span><span class="fc-hint">Flip to reveal</span></span>
+              <span class="fc-face fc-back"><h4>More effective</h4>They know what matters, so they can extract the useful information from the video on their own.</span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front risk"><span class="fc-eyebrow">Novices</span><span class="fc-prompt">What does a beginner need before video feedback is useful?</span><span class="fc-hint">Flip to reveal</span></span>
+              <span class="fc-face fc-back risk"><h4>Need cueing</h4>Without guidance they&rsquo;re overwhelmed. The instructor must <strong>cue</strong> &mdash; direct attention to specific aspects of the performance.</span>
+            </span>
+          </button>
+        </div>
+        <div class="videobox">
+          <div class="frame">
+            <iframe src="https://www.youtube.com/embed/C9pkJrIL64Q" title="Shooting correction with video-analysis feedback and cueing" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <div class="video-cap">A coach uses on-screen angle overlays to <em>cue</em> a young shooter &mdash; video plus direction, not video alone.<br><span class="vlink">Video not loading? Open it here: <a href="https://youtu.be/C9pkJrIL64Q" target="_blank" rel="noopener">youtu.be/C9pkJrIL64Q</a></span></div>
+        </div>
+        <p class="refblock">Guadagnoli, M., Holcomb, W., &amp; Davis, M. (2012). The efficacy of video feedback for learning the golf swing. In <em>Science and Golf IV</em> (pp. 178&ndash;191). Routledge. &nbsp;<a class="cite-link" href="https://doi.org/10.4324/9780203026694" target="_blank" rel="noopener">View source &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 KNOWLEDGE CHECK -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">A PT is working with a patient in the <em>very first</em> session of relearning a complex reaching movement. Which feedback approach best fits this learner&rsquo;s stage?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="1"><strong>Prescriptive KP, qualitative</strong> &mdash; tell them the movement error <em>and</em> how to fix it, in general terms.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>KR only, quantitative</strong> &mdash; report the exact outcome error and let them problem-solve the fix.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0"><strong>Unguided video feedback</strong> &mdash; show them the recording and let them find the errors.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 KEY TAKEAWAYS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Module wrap-up</div>
+        <h2>Key takeaways: effective augmented feedback</h2>
+        <p>Across all four lessons, augmented feedback best supports learning when it&hellip;</p>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Provides <strong>informational value</strong> without creating over-dependence.</span></li>
+          <li><span class="n">2</span><span class="t">Encourages <strong>autonomy and motivation</strong>.</span></li>
+          <li><span class="n">3</span><span class="t">Matches the <strong>learner&rsquo;s stage</strong> and the skill&rsquo;s complexity.</span></li>
+          <li><span class="n">4</span><span class="t">Balances <strong>KR and KP</strong> &mdash; and often combines them.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">That completes the augmented feedback module</span>
+          <p>You can now classify feedback, explain what it does, decide how much to give, and choose its content, precision, and form for a specific learner. That&rsquo;s the full toolkit for using feedback as a clinician or coach.</p>
+        </div>
+        <p style="margin-top:18px;font-size:15px;color:var(--muted)">Return to Canvas for this week&rsquo;s homework and discussion.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={errcor:"Make a choice to continue",dpsort:"Classify all three to continue",
+    precmatch:"Answer both to continue",kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next \u2192";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  function makePredict(wrapId,fbId,noteId,gate,correctVal,okMsg,noMsg){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".pchip").forEach(function(chip){
+      chip.addEventListener("click",function(){
+        wrap.querySelectorAll(".pchip").forEach(function(c){c.disabled=true; if(c.dataset.v!==correctVal)c.classList.add("dim");});
+        wrap.querySelectorAll(".pchip").forEach(function(c){if(c.dataset.v===correctVal){c.classList.add("right");c.classList.remove("dim");}});
+        var fb=document.getElementById(fbId), right=chip.dataset.v===correctVal;
+        fb.className="kc-fb "+(right?"ok":"no"); fb.innerHTML=right?okMsg:noMsg; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  makePredict("errcorPredict","errcorfb","errcornote","errcor","errors",
+    "<strong>Right.</strong> Research suggests <strong>error information</strong> is more effective for skill learning than telling the learner what was correct (Magill &amp; Anderson, 2024). Errors give the learner something specific to change.",
+    "<strong>Actually, the other way.</strong> While encouragement has its place, research suggests <strong>error information</strong> facilitates skill learning more than information about what&rsquo;s correct (Magill &amp; Anderson, 2024) &mdash; errors point to what to change.");
+
+  function makeSingle(wrapId,fbId,noteId,gate,FBok,FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true;});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="\u2713";}
+        else{opt.classList.add("wrong");opt.querySelector(".mark").textContent="\u2715";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="\u2713";}});}
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        answered[gate]=true;
+        document.getElementById(noteId).textContent="You can continue.";
+        document.getElementById("btnNext").disabled=false;
+        document.getElementById("lockmsg").hidden=true;
+      });
+    });
+  }
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> A first-session learner on a complex skill is a novice: they need the fix spelled out (<strong>prescriptive KP</strong>), and precision should be <strong>qualitative</strong> since their errors are large. KR-only problem-solving and unguided video both assume more expertise than they have.",
+    "<strong>Reconsider.</strong> This is a novice on a complex skill. KR-only demands problem-solving they can&rsquo;t yet do, and unguided video overwhelms them. They need the error <em>and</em> the fix, in general terms &mdash; prescriptive, qualitative KP.");
+
+  // Generic sorter builder
+  function buildSorter(stageId, progId, noteId, gate, total, items, optA, optB){
+    var stage=document.getElementById(stageId), done=0;
+    items.forEach(function(it){
+      var d=document.createElement("div");
+      d.className="match-item";
+      d.innerHTML='<div class="mi-scenario">'+it.scenario+'</div>'+
+        '<div class="mi-btns"><button data-v="'+optA.v+'">'+optA.label+'</button><button data-v="'+optB.v+'">'+optB.label+'</button></div>'+
+        '<div class="mi-fb" hidden></div>';
+      stage.appendChild(d);
+      d.querySelectorAll(".mi-btns button").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          d.querySelectorAll(".mi-btns button").forEach(function(b){b.disabled=true;});
+          var ok=btn.dataset.v===it.ans;
+          if(ok)btn.classList.add("correct");
+          else{btn.classList.add("wrong");d.querySelectorAll(".mi-btns button").forEach(function(b){if(b.dataset.v===it.ans)b.classList.add("correct");});}
+          var fb=d.querySelector(".mi-fb");
+          fb.innerHTML=(ok?"<strong>Correct.</strong> ":"<strong>Not quite.</strong> ")+it.why; fb.hidden=false;
+          done++;
+          if(progId){var pe=document.getElementById(progId); if(pe) pe.textContent=done+" of "+total+" classified";}
+          if(done===total){answered[gate]=true;
+            document.getElementById(noteId).textContent="All done \u2014 you can continue.";
+            document.getElementById("btnNext").disabled=false;document.getElementById("lockmsg").hidden=true;}
+        });
+      });
+    });
+  }
+
+  // Descriptive vs prescriptive sorter
+  buildSorter("dpStage","dpProg","dpnote","dpsort",3,[
+    {scenario:"&ldquo;Your elbow dropped on that serve.&rdquo;",ans:"desc",why:"Names the error only &mdash; descriptive KP."},
+    {scenario:"&ldquo;Keep your elbow high through the whole serve.&rdquo;",ans:"pres",why:"Names the error and the fix &mdash; prescriptive KP."},
+    {scenario:"&ldquo;Push through your heels next rep to stand taller.&rdquo;",ans:"pres",why:"Tells the learner exactly what to do &mdash; prescriptive KP."}
+  ], {v:"desc",label:"Descriptive"}, {v:"pres",label:"Prescriptive"});
+
+  // Precision match
+  buildSorter("precStage",null,"precnote","precmatch",2,[
+    {scenario:"A patient on <span class=\"q\">day one</span> of learning a new transfer, making large, inconsistent errors.",ans:"qual",why:"Early learner, large errors &mdash; qualitative (&ldquo;a bit more&rdquo;) is better."},
+    {scenario:"A <span class=\"q\">highly skilled</span> athlete refining the last few degrees of a movement.",ans:"quant",why:"Skilled performer with fine control &mdash; quantitative (&ldquo;5&deg; more&rdquo;) is useful."}
+  ], {v:"qual",label:"Qualitative"}, {v:"quant",label:"Quantitative"});
+
+  show(0);
+})();
+</script>
+</body>
+</html>
