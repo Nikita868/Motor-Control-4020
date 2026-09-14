@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025 | Lab 4 - Contextual Interference (Blocked vs. Random Practice)
+  Sequence-production task. Two participants: one practices three 6-key
+  sequences BLOCKED, the other RANDOM. Baseline -> Acquisition -> delay ->
+  Retention. Time (movement time) is the primary measure; errors reported
+  alongside. Builds live results tables for the companion lab document.
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 4 — Blocked vs. Random Practice</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px; --green:#2e9e6b; --red:#d9534f; --blocked:#1a7f8e; --random:#b0552a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600}
+  .crumb b{color:var(--ink)}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .inner{max-width:820px;margin:0 auto;width:100%;padding:30px 24px 60px}
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  h1{font-size:30px;line-height:1.15;font-weight:800;letter-spacing:-.5px;margin-bottom:12px}
+  h2{font-size:23px;line-height:1.2;font-weight:800;margin-bottom:12px}
+  h3{font-size:17px;font-weight:750;margin:16px 0 8px}
+  p{font-size:16px;color:#3d4d5c;margin-bottom:12px}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:18px}
+  @media(max-width:640px){.card{padding:18px 16px}.inner{padding:22px 14px 48px}h1{font-size:24px}h2{font-size:20px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0}
+  .callout p{margin:0;font-size:14.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;
+    font-size:15px;font-weight:700;padding:12px 24px;border-radius:8px;cursor:pointer;transition:background .2s,transform .1s}
+  .btn:hover{background:var(--accent-dark)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{background:#b9c6cd;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--accent-dark);border:1.5px solid var(--accent)}
+  .btn.ghost:hover{background:var(--accent-soft)}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+
+  .field{margin:14px 0}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px}
+  .field input{width:100%;max-width:320px;font-size:15px;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit}
+  .field input:focus{border-color:var(--accent);outline:none}
+
+  .assign-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+  .assign-card{flex:1;min-width:220px;border:2px solid var(--line);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .15s,background .15s}
+  .assign-card:hover{border-color:var(--accent)}
+  .assign-card.sel-blocked{border-color:var(--blocked);background:var(--accent-soft)}
+  .assign-card.sel-random{border-color:var(--random);background:#f9ede3}
+  .assign-card .who{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .assign-card .cond{font-size:20px;font-weight:800;margin-top:4px}
+  .assign-card .cond.b{color:var(--blocked)} .assign-card .cond.r{color:var(--random)}
+
+  .hand-banner{display:flex;align-items:center;gap:16px;color:#fff;padding:15px 22px;border-radius:10px;margin-bottom:16px;transition:background .25s}
+  .hand-banner.blocked{background:linear-gradient(135deg,var(--blocked),var(--accent-dark))}
+  .hand-banner.random{background:linear-gradient(135deg,#c8862f,#a5641a)}
+  .hand-banner .who{font-size:12px;font-weight:700;opacity:.9;letter-spacing:.5px}
+  .hand-banner .big{font-size:21px;font-weight:800}
+  .hand-banner .phase{margin-left:auto;font-size:12px;font-weight:700;background:rgba(255,255,255,.20);padding:5px 12px;border-radius:20px;text-align:right}
+
+  .seqdisplay{display:flex;gap:10px;justify-content:center;margin:26px 0 10px;flex-wrap:wrap}
+  .key{width:58px;height:64px;border-radius:10px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:26px;font-weight:800;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.05);transition:all .12s}
+  .key.target{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .key.next{border-color:var(--gold);background:#fdf4e6;transform:translateY(-3px);box-shadow:0 4px 10px rgba(224,164,88,.3)}
+  .key.hit{border-color:var(--green);background:#e6f6ee;color:var(--green)}
+  .key.miss{border-color:var(--red);background:#fbeaea;color:var(--red)}
+  .key.masked{color:transparent;background:#eef2f4;border-color:var(--line)}
+
+  .prompt{text-align:center;font-size:15px;color:var(--muted);margin:6px 0 2px;min-height:22px}
+  .seqbadge{display:flex;justify-content:center;margin:4px 0 2px}
+  .seqbadge .pill{display:inline-flex;align-items:center;gap:10px;background:var(--accent-soft);color:var(--accent-dark);
+    border:2px solid var(--accent);border-radius:30px;padding:8px 22px;font-weight:800;letter-spacing:1px}
+  .seqbadge .pill .lbl{font-size:12px;text-transform:uppercase;letter-spacing:2px;opacity:.8}
+  .seqbadge .pill .id{font-size:30px;line-height:1}
+  .seqbadge.retention .pill{background:#fdf4e6;color:#a5641a;border-color:var(--gold)}
+  .typed{text-align:center;font-size:22px;font-weight:800;letter-spacing:6px;color:var(--ink);min-height:32px;margin-bottom:6px}
+
+  .readout{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+  .stat{flex:0 0 auto;min-width:120px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 18px;text-align:center}
+  .stat .v{font-size:24px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .stat .l{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  .hint{font-size:13.5px;color:var(--muted);margin-top:12px;text-align:center}
+  .bigcount{font-size:13px;color:var(--muted);text-align:center;margin-top:4px}
+
+  table{border-collapse:collapse;width:100%;font-size:14px;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:center}
+  thead th{background:var(--accent-soft);color:var(--accent-dark);font-weight:800;font-size:12.5px}
+  tbody th{background:#f6f9fa;text-align:left;font-weight:700}
+  .rowgroup{background:#eef4f5;font-weight:800;text-align:left;color:var(--accent-dark);font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+
+  .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  @media(max-width:600px){.cmp-grid{grid-template-columns:1fr}}
+  .cmp{border:1px solid var(--line);border-radius:10px;padding:16px;background:#fff}
+  .cmp.b{border-top:3px solid var(--blocked)} .cmp.r{border-top:3px solid var(--random)}
+  .cmp .h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .cmp .h b.b{color:var(--blocked)} .cmp .h b.r{color:var(--random)}
+  .cmp .pair{display:flex;justify-content:space-between;margin-top:8px;font-size:14px}
+  .cmp .pair .lab{color:var(--muted)} .cmp .pair .val{font-weight:800;color:var(--ink)}
+
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="crumb">HLSC 4025 &nbsp;·&nbsp; Lab 4 &nbsp;·&nbsp; <b>Blocked vs. Random Practice</b></span>
+  <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+</div>
+
+<div class="inner">
+
+  <!-- ============ INTRO / SETUP ============ -->
+  <section id="scr-intro">
+    <div class="eyebrow">Data Collection App · In-class version</div>
+    <h1>Blocked vs. Random Practice</h1>
+    <p>You will learn <strong>three 6-key sequences</strong> under one practice schedule — either <strong>blocked</strong> (one sequence at a time) or <strong>random</strong> (the three interleaved) — as assigned at your station. After a short delay you’ll take a retention test, and your results get added to the class dataset so we can compare the two schedules across everyone.</p>
+
+    <div class="callout">
+      <span class="clabel">Your goal</span>
+      <p>Learn the three sequences <strong>by heart</strong>. During practice the sequence is shown, but in the <strong>retention test at the end it will be hidden</strong> and you’ll type each one <strong>from memory</strong>. Practice as if you’re trying to memorize them — that’s what’s being measured.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Set up your run</h3>
+      <div class="field">
+        <label for="section">Section</label>
+        <input id="section" type="text" placeholder="e.g. your section number or time" maxlength="40" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="pname">Your name or initials</label>
+        <input id="pname" type="text" placeholder="e.g. NK" maxlength="24" autocomplete="off">
+      </div>
+      <p style="font-size:13.5px;margin-bottom:6px"><strong>Which schedule is your station running?</strong> Pick the one your instructor assigned.</p>
+      <div class="assign-row" id="mode-row">
+        <div class="assign-card" id="mode-blocked"><div class="who">This station is</div><div class="cond b">BLOCKED</div></div>
+        <div class="assign-card" id="mode-random"><div class="who">This station is</div><div class="cond r">RANDOM</div></div>
+      </div>
+    </div>
+
+    <button class="btn" id="begin" disabled>Begin &rarr;</button>
+  </section>
+
+  <!-- ============ PARTICIPANT INTRO ============ -->
+  <section id="scr-handoff" class="hidden">
+    <div class="eyebrow" id="handoff-eyebrow">Your run</div>
+    <h2 id="handoff-title">—</h2>
+    <p id="handoff-body">—</p>
+    <div class="callout"><span class="clabel">How a trial works</span>
+      <p>A sequence of keys appears. Study it <strong>with your eyes only — don’t press the keys while studying</strong>. When ready, press <strong>Spacebar</strong> and type it <strong>from memory as fast as you can</strong> using the <strong>D, F, J, and K</strong> keys. The app times you from your first keypress to your last and notes any wrong keys. <strong>Try to memorize the sequences as you go</strong> — at the end you’ll be tested on them with the keys hidden. On a phone or tablet, on-screen keys appear.</p>
+    </div>
+    <button class="btn" id="handoff-go">Begin &rarr;</button>
+  </section>
+
+  <!-- ============ TASK ============ -->
+  <section id="scr-task" class="hidden">
+    <div class="hand-banner" id="task-banner">
+      <div>
+        <div class="who" id="tb-who">—</div>
+        <div class="big" id="tb-cond">—</div>
+      </div>
+      <div class="phase" id="tb-phase">—</div>
+    </div>
+
+    <div class="card">
+      <div class="seqbadge" id="seqbadge"><div class="pill"><span class="lbl">Sequence</span><span class="id" id="seqbadge-id">A</span></div></div>
+      <div class="prompt" id="prompt">Study the sequence</div>
+      <div class="seqdisplay" id="seqdisplay"></div>
+      <div class="typed" id="typed"></div>
+      <div style="text-align:center">
+        <button class="btn" id="start-trial">To start typing, press spacebar</button>
+      </div>
+      <div class="readout hidden" id="readout">
+        <div class="stat"><div class="v" id="live-time">0.0s</div><div class="l">Time</div></div>
+        <div class="stat"><div class="v" id="live-err">0</div><div class="l">Errors</div></div>
+      </div>
+      <p class="hint" id="task-hint">When you’re ready, press <strong>Start typing</strong> — the sequence stays visible on baseline and practice, and is hidden on the retention test.</p>
+      <div class="bigcount" id="bigcount"></div>
+    </div>
+
+    <!-- on-screen keys for touch devices -->
+    <div class="seqdisplay" id="touchkeys" style="margin-top:0"></div>
+  </section>
+
+  <!-- ============ DELAY ============ -->
+  <section id="scr-delay" class="hidden">
+    <div class="eyebrow">Short delay</div>
+    <h2 id="delay-title">Take a short break before the retention test</h2>
+    <p id="delay-body">The retention test needs to come after a brief rest, so it measures what was <em>learned</em> rather than momentary performance. The button unlocks after the timer.</p>
+    <div class="card" style="text-align:center">
+      <div style="font-size:44px;font-weight:800;color:var(--accent-dark)" id="delay-clock">2:00</div>
+      <p class="hint">Stay on this page. Don’t practice the sequences during the break.</p>
+    </div>
+    <button class="btn" id="delay-go" disabled>Start the retention test &rarr;</button>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="scr-results" class="hidden">
+    <div class="eyebrow">Your Data</div>
+    <h2>You’re done — add your row to the class spreadsheet</h2>
+    <p>First, copy the row below into the shared class Excel file. Then transcribe your tables into your own lab worksheet.</p>
+
+    <div class="card" style="border-top:3px solid var(--gold)">
+      <h3 style="margin-top:0">Your row for the class spreadsheet</h3>
+      <p style="font-size:13.5px">Enter these six values as one row, in this order. They’re also shown as a single line you can copy.</p>
+      <table id="row-table"><thead><tr>
+        <th>Section</th><th>Participant</th><th>Schedule</th>
+        <th>Acquisition mean time</th><th>Retention mean time</th><th>Retention errors</th>
+      </tr></thead><tbody><tr id="row-body"></tr></tbody></table>
+      <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <code id="row-line" style="background:#f2f6f7;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:14px;color:var(--ink)">—</code>
+        <button class="btn ghost" id="copy-row">Copy row</button>
+        <span id="copy-status" style="font-size:13px;color:var(--green);font-weight:700"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Your results</h3>
+      <div class="cmp-grid">
+        <div class="cmp" id="cmp-self" style="border-top:3px solid var(--accent)">
+          <div class="h" id="cmp-self-head">Your run</div>
+          <div class="pair"><span class="lab">Acquisition mean time</span><span class="val" id="cs-acq">–</span></div>
+          <div class="pair"><span class="lab">Retention mean time</span><span class="val" id="cs-ret">–</span></div>
+          <div class="pair"><span class="lab">Retention errors (mean)</span><span class="val" id="cs-err">–</span></div>
+        </div>
+        <div class="cmp">
+          <div class="h">Change, practice → retention</div>
+          <div class="pair"><span class="lab">Time change</span><span class="val" id="cs-delta">–</span></div>
+          <div class="pair" style="margin-top:8px"><span class="lab" style="font-size:13px">A schedule effect shows up when the class pools everyone’s rows — a single run can’t show it alone.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">How you changed during practice</h3>
+      <p style="font-size:13.5px">Mean sequence time from the start of practice to your retention test. Lower is faster.</p>
+      <div id="chart-wrap"></div>
+      <div id="chart-legend" style="display:flex;gap:18px;justify-content:center;margin-top:10px;font-size:12.5px;font-weight:700"></div>
+    </div>
+
+    <div class="callout why">
+      <span class="clabel">What the class data should show</span>
+      <p>On its own, one run can’t reveal the effect. But once every station’s rows are pooled, the classic <strong>contextual interference</strong> pattern should appear: the <strong>blocked</strong> group tends to be <strong>faster during practice</strong>, yet the <strong>random</strong> group tends to be <strong>faster on the retention test</strong>. The schedule that felt harder produces better learning, because interleaving forces you to reconstruct each sequence from memory on nearly every trial. Your lab worksheet asks you to look for this reversal in the pooled dataset.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Retention test — every trial</h3>
+      <table id="ret-table"><thead><tr><th>Schedule</th><th>Sequence</th><th>Trial</th><th>Time (s)</th><th>Errors</th></tr></thead><tbody id="ret-body"></tbody></table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Acquisition summary — mean time per third of practice</h3>
+      <p style="font-size:13.5px">This shows how you improved <em>during</em> practice, across your 36 practice trials.</p>
+      <table id="acq-table"><thead><tr><th>Schedule</th><th>Practice third</th><th>Mean time (s)</th><th>Mean errors</th></tr></thead><tbody id="acq-body"></tbody></table>
+    </div>
+
+    <div class="btn-row"><button class="btn ghost" id="restart">Start a new run</button></div>
+  </section>
+</div>
+
+<script>
+/* ---------------- config ---------------- */
+const SEQS = { A:['F','D','K','J','F','K'], B:['K','F','J','D','K','D'], C:['D','J','F','K','J','F'] };
+const SEQ_IDS = ['A','B','C'];
+const KEYS = ['D','F','J','K'];
+const TRIALS_PER_SEQ = 12;        // acquisition
+const BASELINE_PER_SEQ = 1;
+const RETENTION_PER_SEQ = 2;
+const DELAY_SECONDS = 120;
+
+/* ---------------- state ---------------- */
+let SECTION='', PNAME='', COND=null;     // single-run setup
+let queue = [];               // ordered list of trials for current phase
+let qi = 0;                   // index into queue
+let phase = 'baseline';
+let records = [];             // {phase, seq, trial, time, errors}
+let acqCounter = {};          // per-seq trial counter during acquisition
+
+/* trial runtime */
+let awaiting=false, typed=[], target=[], tStart=0, errCount=0, masked=false, tPos=0;
+
+const $=id=>document.getElementById(id);
+
+/* ---------------- setup screen ---------------- */
+function refreshSetup(){
+  $('mode-blocked').className = 'assign-card '+(COND==='blocked'?'sel-blocked':'');
+  $('mode-random').className  = 'assign-card '+(COND==='random'?'sel-random':'');
+  const ready = SECTION && PNAME && COND;
+  $('begin').disabled = !ready;
+  $('begin').textContent = ready ? `Begin ${COND} practice →` : 'Begin →';
+}
+$('section').oninput = e=>{ SECTION=e.target.value.trim(); refreshSetup(); };
+$('pname').oninput   = e=>{ PNAME=e.target.value.trim(); refreshSetup(); };
+$('mode-blocked').onclick=()=>{ COND='blocked'; refreshSetup(); };
+$('mode-random').onclick =()=>{ COND='random';  refreshSetup(); };
+
+$('begin').onclick=()=>{ startRun(); };
+$('restart').onclick=()=>location.reload();
+
+/* ---------------- run flow ---------------- */
+function startRun(){
+  phase='baseline';
+  $('scr-intro').classList.add('hidden');
+  $('scr-results').classList.add('hidden');
+  $('scr-task').classList.add('hidden');
+  $('scr-delay').classList.add('hidden');
+  $('handoff-eyebrow').textContent = `${COND==='blocked'?'Blocked':'Random'} practice`;
+  $('handoff-title').textContent = `${PNAME} — ${COND} practice`;
+  $('handoff-body').innerHTML = `You’ll do a few baseline attempts, then <strong>${COND}</strong> practice of the three sequences, then a short break and a retention test. Your results get added to the class dataset at the end.`;
+  $('scr-handoff').classList.remove('hidden');
+}
+$('handoff-go').onclick=()=>{ $('scr-handoff').classList.add('hidden'); beginBaseline(); };
+
+/* ----- build trial queues ----- */
+function beginBaseline(){
+  phase='baseline';
+  queue=[];
+  SEQ_IDS.forEach(s=>{ for(let k=0;k<BASELINE_PER_SEQ;k++) queue.push({seq:s}); });
+  qi=0; startTaskScreen(); loadTrial();
+}
+function beginAcquisition(){
+  phase='acquisition';
+  acqCounter={A:0,B:0,C:0};
+  queue=[];
+  if(COND==='blocked'){
+    SEQ_IDS.forEach(s=>{ for(let k=0;k<TRIALS_PER_SEQ;k++) queue.push({seq:s}); });
+  } else {
+    let pool=[]; SEQ_IDS.forEach(s=>{ for(let k=0;k<TRIALS_PER_SEQ;k++) pool.push(s); });
+    pool = shuffleNoTriples(pool);
+    queue = pool.map(s=>({seq:s}));
+  }
+  qi=0; loadTrial();
+}
+function beginRetention(){
+  phase='retention';
+  queue=[];
+  let pool=[]; SEQ_IDS.forEach(s=>{ for(let k=0;k<RETENTION_PER_SEQ;k++) pool.push(s); });
+  pool = shuffleNoTriples(pool);
+  queue = pool.map(s=>({seq:s}));
+  qi=0; startTaskScreen(); loadTrial();
+}
+function shuffleNoTriples(arr){
+  for(let attempt=0;attempt<200;attempt++){
+    const a=arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    let ok=true;
+    for(let i=2;i<a.length;i++){ if(a[i]===a[i-1] && a[i]===a[i-2]){ ok=false; break; } }
+    if(ok) return a;
+  }
+  return arr;
+}
+
+/* ---------------- task screen ---------------- */
+function startTaskScreen(){
+  $('scr-task').classList.remove('hidden');
+  $('task-banner').className = 'hand-banner '+COND;
+  $('tb-who').textContent = `${PNAME} · ${SECTION}`;
+  $('tb-cond').textContent = COND==='blocked' ? 'Blocked practice' : 'Random practice';
+  buildTouchKeys();
+}
+function buildTouchKeys(){
+  const wrap=$('touchkeys'); wrap.innerHTML='';
+  KEYS.forEach(k=>{
+    const el=document.createElement('div'); el.className='key'; el.textContent=k;
+    el.style.cursor='pointer'; el.dataset.key=k;
+    el.onclick=()=>{
+      if(!awaiting && !$('start-trial').classList.contains('hidden')){
+        $('task-hint').innerHTML = '<span style="color:var(--red);font-weight:700">Study with your eyes only</span> — don’t tap keys until you start the trial. Press <strong>Spacebar</strong> or the button when you’re ready.';
+        return;
+      }
+      handleKey(k);
+    };
+    wrap.appendChild(el);
+  });
+}
+
+function phaseLabel(){
+  if(phase==='baseline') return 'Baseline';
+  if(phase==='acquisition') return 'Practice';
+  return 'Retention test';
+}
+
+function loadTrial(){
+  const cur=queue[qi];
+  target = SEQS[cur.seq].slice();
+  masked = (phase==='retention');   // hide the sequence on retention
+  typed=[]; errCount=0; tPos=0; awaiting=false;
+  $('tb-phase').textContent = `${phaseLabel()} · ${qi+1} of ${queue.length}`;
+  $('typed').textContent='';
+  $('readout').classList.add('hidden');
+  $('live-time').textContent='0.0s'; $('live-err').textContent='0';
+  $('start-trial').classList.remove('hidden');
+  $('start-trial').disabled=false;
+  renderSeq('idle');
+  // prominent sequence-identity badge
+  $('seqbadge-id').textContent = cur.seq;
+  $('seqbadge').className = 'seqbadge' + (phase==='retention' ? ' retention' : '');
+  if(phase==='retention'){
+    $('prompt').innerHTML = `Type this sequence <strong>from memory</strong>`;
+    $('task-hint').innerHTML = 'The keys are hidden. Recall <strong>sequence ' + cur.seq + '</strong>, press <strong>Spacebar</strong>, and enter it from memory.';
+  }else{
+    $('prompt').innerHTML = `Study the keys`;
+    $('task-hint').innerHTML = 'Study the keys with your eyes (mentally rehearse if you like, but <strong>don’t press any keys yet</strong>), then press <strong>Spacebar</strong> and type them as fast as you can.';
+  }
+  updateProgress();
+}
+
+function renderSeq(mode){
+  const wrap=$('seqdisplay'); wrap.innerHTML='';
+  target.forEach((k,i)=>{
+    const el=document.createElement('div'); el.className='key';
+    if(masked && mode!=='reveal'){ el.classList.add('masked'); el.textContent=k; }
+    else el.textContent=k;
+    if(mode==='typing'){
+      if(i<typed.length){ el.classList.add(typed[i]===target[i]?'hit':'miss'); if(masked) el.textContent=typed[i]; el.classList.remove('masked'); }
+      else if(i===tPos && !masked){ el.classList.add('next'); }
+      else if(masked){ el.classList.add('masked'); }
+    } else if(mode==='target'){ el.classList.add('target'); }
+    wrap.appendChild(el);
+  });
+}
+
+function beginTyping(){
+  if(awaiting) return;                       // already typing
+  if($('start-trial').classList.contains('hidden')) return; // not armed
+  awaiting=true; typed=[]; errCount=0; tPos=0; tStart=0;
+  $('start-trial').classList.add('hidden');
+  $('readout').classList.remove('hidden');
+  $('prompt').innerHTML = masked ? 'Type it from memory' : 'Type the sequence';
+  $('task-hint').innerHTML = 'Press <strong>D F J K</strong> to enter the sequence.';
+  renderSeq('typing');
+}
+$('start-trial').onclick=beginTyping;
+
+function handleKey(k){
+  if(!awaiting) return;
+  k=k.toUpperCase();
+  if(!KEYS.includes(k)) return;
+  if(typed.length===0){ tStart=performance.now(); }  // clock starts on first keypress
+  typed.push(k);
+  if(k!==target[typed.length-1]) errCount++;
+  tPos=typed.length;
+  $('typed').textContent = typed.join(' ');
+  $('live-err').textContent=errCount;
+  $('live-time').textContent=((performance.now()-tStart)/1000).toFixed(1)+'s';
+  renderSeq('typing');
+  if(typed.length>=target.length){ finishTrial(); }
+}
+document.addEventListener('keydown',e=>{
+  // spacebar starts an armed trial (so the hand can stay on the keyboard)
+  if(e.code==='Space' && !awaiting && !$('start-trial').classList.contains('hidden')
+     && !$('scr-task').classList.contains('hidden')){
+    e.preventDefault(); beginTyping(); return;
+  }
+  const k=e.key.toUpperCase();
+  // soft warning: task key pressed during the STUDY phase (armed, not yet typing)
+  if(!awaiting && KEYS.includes(k) && !$('start-trial').classList.contains('hidden')
+     && !$('scr-task').classList.contains('hidden')){
+    e.preventDefault();
+    $('task-hint').innerHTML = '<span style="color:var(--red);font-weight:700">Study with your eyes only</span> — don’t press keys until you start the trial. Press <strong>Spacebar</strong> when you’re ready.';
+    return;
+  }
+  if(awaiting && KEYS.includes(k)){ e.preventDefault(); handleKey(k); }
+});
+
+function finishTrial(){
+  awaiting=false;
+  const time=(performance.now()-tStart)/1000;
+  const cur=queue[qi];
+  let trialNum;
+  if(phase==='acquisition'){ acqCounter[cur.seq]++; trialNum=acqCounter[cur.seq]; }
+  else trialNum=qi+1;
+  records.push({phase, seq:cur.seq, trial:trialNum, time:+time.toFixed(2), errors:errCount});
+  $('live-time').textContent=time.toFixed(1)+'s';
+  masked=false; renderSeq('typing');   // reveal what they typed vs target
+  const acc = errCount===0 ? 'clean' : errCount+' error'+(errCount>1?'s':'');
+  $('prompt').innerHTML = `Done — ${time.toFixed(1)}s, ${acc}`;
+  $('task-hint').innerHTML = '';
+  setTimeout(()=>{
+    qi++;
+    if(qi>=queue.length){ endPhase(); }
+    else loadTrial();
+  }, 650);
+}
+
+function endPhase(){
+  if(phase==='baseline'){ beginAcquisition(); return; }
+  if(phase==='acquisition'){ $('scr-task').classList.add('hidden'); startDelay(); return; }
+  if(phase==='retention'){ showResults(); }
+}
+
+/* ---------------- delay ---------------- */
+let delayTimer=null;
+function startDelay(){
+  $('scr-delay').classList.remove('hidden');
+  let left=DELAY_SECONDS;
+  $('delay-go').disabled=true;
+  $('delay-title').textContent = `${PNAME}: take a short break before the retention test`;
+  const tick=()=>{
+    const m=Math.floor(left/60), s=left%60;
+    $('delay-clock').textContent = `${m}:${String(s).padStart(2,'0')}`;
+    if(left<=0){ clearInterval(delayTimer); $('delay-go').disabled=false; $('delay-clock').textContent='Ready'; }
+    left--;
+  };
+  tick(); delayTimer=setInterval(tick,1000);
+}
+$('delay-go').onclick=()=>{ $('scr-delay').classList.add('hidden'); beginRetention(); };
+
+/* ---------------- progress ---------------- */
+function updateProgress(){
+  const total = 3 + TRIALS_PER_SEQ*3 + 6;  // baseline(3)+acq(36)+ret(6)
+  let done = 0;
+  if(phase==='baseline') done = qi;
+  else if(phase==='acquisition') done = 3 + qi;
+  else if(phase==='retention') done = 3 + TRIALS_PER_SEQ*3 + qi;
+  $('prog').style.width = Math.min(100, done/total*100)+'%';
+}
+
+/* ---------------- results ---------------- */
+function mean(a){return a.length? a.reduce((x,y)=>x+y,0)/a.length : null;}
+function f1(n){return n==null?'–':n.toFixed(1);}
+function f2(n){return n==null?'–':n.toFixed(2);}
+
+function recs(phase){ return records.filter(r=>r.phase===phase); }
+
+/* chart: mean time across practice thirds + retention, for this one run */
+function renderChart(points){
+  const wrap=$('chart-wrap');
+  const vals=points.map(p=>p.v).filter(v=>v!=null);
+  if(vals.length<2){ wrap.innerHTML='<p style="text-align:center;color:var(--muted);font-size:13px">Not enough data to chart.</p>'; return; }
+  const W=680,H=300, padL=54,padR=20,padT=20,padB=64;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const maxV=Math.max(...vals)*1.15;
+  const y=v=> padT+plotH-(v/maxV)*plotH;
+  const n=points.length, barW=64;
+  const slot=plotW/n;
+  const COL=getComputedStyle(document.documentElement).getPropertyValue('--'+COND).trim()||'#1a7f8e';
+  const RETCOL=getComputedStyle(document.documentElement).getPropertyValue('--gold').trim()||'#e0a458';
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" font-family="inherit">`;
+  for(let i=0;i<=4;i++){
+    const gv=maxV*i/4, gy=y(gv);
+    svg+=`<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="#e6eaee" stroke-width="1"/>`;
+    svg+=`<text x="${padL-8}" y="${gy+4}" text-anchor="end" font-size="11" fill="#7a8a99">${gv.toFixed(1)}</text>`;
+  }
+  svg+=`<text x="14" y="${padT+plotH/2}" transform="rotate(-90 14 ${padT+plotH/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#5a6a75">Mean time (s)</text>`;
+  points.forEach((p,i)=>{
+    if(p.v==null) return;
+    const cx=padL+slot*i+slot/2, x=cx-barW/2;
+    const yy=y(p.v), hh=padT+plotH-yy;
+    const color=p.retention?RETCOL:COL;
+    svg+=`<rect x="${x}" y="${yy}" width="${barW}" height="${hh}" rx="4" fill="${color}"/>`;
+    svg+=`<text x="${cx}" y="${yy-6}" text-anchor="middle" font-size="12" font-weight="800" fill="#2c3e50">${p.v.toFixed(2)}</text>`;
+    svg+=`<text x="${cx}" y="${padT+plotH+22}" text-anchor="middle" font-size="12" font-weight="700" fill="#2c3e50">${p.label}</text>`;
+  });
+  svg+=`<line x1="${padL}" y1="${padT+plotH}" x2="${W-padR}" y2="${padT+plotH}" stroke="#b9c6cd" stroke-width="1.5"/>`;
+  svg+=`</svg>`;
+  wrap.innerHTML=svg;
+  $('chart-legend').innerHTML =
+    `<span style="color:${COL}">■ ${COND==='blocked'?'Blocked':'Random'} practice</span><span style="color:${RETCOL}">■ Retention test</span>`;
+}
+
+function showResults(){
+  $('prog').style.width='100%';
+  $('scr-task').classList.add('hidden');
+  $('scr-results').classList.remove('hidden');
+
+  const acqRows=recs('acquisition'), retRows=recs('retention');
+  const acqMean=mean(acqRows.map(r=>r.time));
+  const retMean=mean(retRows.map(r=>r.time));
+  const retErr =mean(retRows.map(r=>r.errors));
+  const delta = (acqMean!=null&&retMean!=null)? (retMean-acqMean) : null;
+
+  // self summary
+  $('cmp-self-head').innerHTML = `${PNAME} — <b>${COND}</b> practice`;
+  $('cs-acq').textContent=f2(acqMean)+' s';
+  $('cs-ret').textContent=f2(retMean)+' s';
+  $('cs-err').textContent=f2(retErr);
+  $('cs-delta').textContent = delta==null?'–':(delta<=0?'−':'+')+Math.abs(delta).toFixed(2)+' s';
+
+  // spreadsheet row: Section, Participant, Schedule, Acq mean, Ret mean, Ret errors
+  const row=[SECTION, PNAME, COND, f2(acqMean), f2(retMean), f2(retErr)];
+  const rb=$('row-body');
+  rb.innerHTML = row.map(v=>`<td>${v}</td>`).join('');
+  const line = row.join('\t');
+  $('row-line').textContent = row.join('   |   ');
+  $('copy-row').onclick=async()=>{
+    try{ await navigator.clipboard.writeText(line); }
+    catch(e){ const ta=document.createElement('textarea'); ta.value=line; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+    $('copy-status').textContent='Copied — paste into the class spreadsheet';
+    setTimeout(()=>{$('copy-status').textContent='';},4000);
+  };
+
+  // chart: practice thirds + retention
+  const thirds=[[0,12],[12,24],[24,36]], tl=['Practice early','Practice mid','Practice late'];
+  const pts=thirds.map((rg,i)=>({label:tl[i], v:mean(acqRows.slice(rg[0],rg[1]).map(r=>r.time)), retention:false}));
+  pts.push({label:'Retention', v:retMean, retention:true});
+  renderChart(pts);
+
+  // retention table (single condition)
+  const rtb=$('ret-body'); rtb.innerHTML='';
+  retRows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${COND}</td><td>${r.seq}</td><td>${r.trial}</td><td>${r.time.toFixed(1)}</td><td>${r.errors}</td>`;
+    rtb.appendChild(tr);
+  });
+
+  // acquisition summary thirds (single condition)
+  const ab=$('acq-body'); ab.innerHTML='';
+  thirds.forEach((rg,i)=>{
+    const slice=acqRows.slice(rg[0],rg[1]);
+    const mt=mean(slice.map(r=>r.time)), me=mean(slice.map(r=>r.errors));
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${COND}</td><td>${['Early (1–12)','Middle (13–24)','Late (25–36)'][i]}</td><td>${f2(mt)}</td><td>${f2(me)}</td>`;
+    ab.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
