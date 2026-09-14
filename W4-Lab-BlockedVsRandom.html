@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025 | Lab 4 - Contextual Interference (Blocked vs. Random Practice)
+  Sequence-production task. Two participants: one practices three 6-key
+  sequences BLOCKED, the other RANDOM. Baseline -> Acquisition -> delay ->
+  Retention. Time (movement time) is the primary measure; errors reported
+  alongside. Builds live results tables for the companion lab document.
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 4 — Blocked vs. Random Practice</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px; --green:#2e9e6b; --red:#d9534f; --blocked:#1a7f8e; --random:#b0552a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600}
+  .crumb b{color:var(--ink)}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .inner{max-width:820px;margin:0 auto;width:100%;padding:30px 24px 60px}
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  h1{font-size:30px;line-height:1.15;font-weight:800;letter-spacing:-.5px;margin-bottom:12px}
+  h2{font-size:23px;line-height:1.2;font-weight:800;margin-bottom:12px}
+  h3{font-size:17px;font-weight:750;margin:16px 0 8px}
+  p{font-size:16px;color:#3d4d5c;margin-bottom:12px}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:18px}
+  @media(max-width:640px){.card{padding:18px 16px}.inner{padding:22px 14px 48px}h1{font-size:24px}h2{font-size:20px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0}
+  .callout p{margin:0;font-size:14.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;
+    font-size:15px;font-weight:700;padding:12px 24px;border-radius:8px;cursor:pointer;transition:background .2s,transform .1s}
+  .btn:hover{background:var(--accent-dark)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{background:#b9c6cd;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--accent-dark);border:1.5px solid var(--accent)}
+  .btn.ghost:hover{background:var(--accent-soft)}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+
+  .field{margin:14px 0}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px}
+  .field input{width:100%;max-width:320px;font-size:15px;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit}
+  .field input:focus{border-color:var(--accent);outline:none}
+
+  .assign-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+  .assign-card{flex:1;min-width:220px;border:2px solid var(--line);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .15s,background .15s}
+  .assign-card:hover{border-color:var(--accent)}
+  .assign-card.sel-blocked{border-color:var(--blocked);background:var(--accent-soft)}
+  .assign-card.sel-random{border-color:var(--random);background:#f9ede3}
+  .assign-card .who{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .assign-card .cond{font-size:20px;font-weight:800;margin-top:4px}
+  .assign-card .cond.b{color:var(--blocked)} .assign-card .cond.r{color:var(--random)}
+
+  .hand-banner{display:flex;align-items:center;gap:16px;color:#fff;padding:15px 22px;border-radius:10px;margin-bottom:16px;transition:background .25s}
+  .hand-banner.blocked{background:linear-gradient(135deg,var(--blocked),var(--accent-dark))}
+  .hand-banner.random{background:linear-gradient(135deg,#c8862f,#a5641a)}
+  .hand-banner .who{font-size:12px;font-weight:700;opacity:.9;letter-spacing:.5px}
+  .hand-banner .big{font-size:21px;font-weight:800}
+  .hand-banner .phase{margin-left:auto;font-size:12px;font-weight:700;background:rgba(255,255,255,.20);padding:5px 12px;border-radius:20px;text-align:right}
+
+  .seqdisplay{display:flex;gap:10px;justify-content:center;margin:26px 0 10px;flex-wrap:wrap}
+  .key{width:58px;height:64px;border-radius:10px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:26px;font-weight:800;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.05);transition:all .12s}
+  .key.target{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .key.next{border-color:var(--gold);background:#fdf4e6;transform:translateY(-3px);box-shadow:0 4px 10px rgba(224,164,88,.3)}
+  .key.hit{border-color:var(--green);background:#e6f6ee;color:var(--green)}
+  .key.miss{border-color:var(--red);background:#fbeaea;color:var(--red)}
+  .key.masked{color:transparent;background:#eef2f4;border-color:var(--line)}
+
+  .prompt{text-align:center;font-size:15px;color:var(--muted);margin:6px 0 2px;min-height:22px}
+  .seqbadge{display:flex;justify-content:center;margin:4px 0 2px}
+  .seqbadge .pill{display:inline-flex;align-items:center;gap:10px;background:var(--accent-soft);color:var(--accent-dark);
+    border:2px solid var(--accent);border-radius:30px;padding:8px 22px;font-weight:800;letter-spacing:1px}
+  .seqbadge .pill .lbl{font-size:12px;text-transform:uppercase;letter-spacing:2px;opacity:.8}
+  .seqbadge .pill .id{font-size:30px;line-height:1}
+  .seqbadge.retention .pill{background:#fdf4e6;color:#a5641a;border-color:var(--gold)}
+  .typed{text-align:center;font-size:22px;font-weight:800;letter-spacing:6px;color:var(--ink);min-height:32px;margin-bottom:6px}
+
+  .readout{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+  .stat{flex:0 0 auto;min-width:120px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 18px;text-align:center}
+  .stat .v{font-size:24px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .stat .l{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  .hint{font-size:13.5px;color:var(--muted);margin-top:12px;text-align:center}
+  .bigcount{font-size:13px;color:var(--muted);text-align:center;margin-top:4px}
+
+  table{border-collapse:collapse;width:100%;font-size:14px;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:center}
+  thead th{background:var(--accent-soft);color:var(--accent-dark);font-weight:800;font-size:12.5px}
+  tbody th{background:#f6f9fa;text-align:left;font-weight:700}
+  .rowgroup{background:#eef4f5;font-weight:800;text-align:left;color:var(--accent-dark);font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+
+  .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  @media(max-width:600px){.cmp-grid{grid-template-columns:1fr}}
+  .cmp{border:1px solid var(--line);border-radius:10px;padding:16px;background:#fff}
+  .cmp.b{border-top:3px solid var(--blocked)} .cmp.r{border-top:3px solid var(--random)}
+  .cmp .h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .cmp .h b.b{color:var(--blocked)} .cmp .h b.r{color:var(--random)}
+  .cmp .pair{display:flex;justify-content:space-between;margin-top:8px;font-size:14px}
+  .cmp .pair .lab{color:var(--muted)} .cmp .pair .val{font-weight:800;color:var(--ink)}
+
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="crumb">HLSC 4025 &nbsp;·&nbsp; Lab 4 &nbsp;·&nbsp; <b>Blocked vs. Random Practice</b></span>
+  <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+</div>
+
+<div class="inner">
+
+  <!-- ============ INTRO / SETUP ============ -->
+  <section id="scr-intro">
+    <div class="eyebrow">Data Collection App</div>
+    <h1>Blocked vs. Random Practice</h1>
+    <p>This task compares two ways of scheduling practice. Two people each learn the <strong>same three 6-key sequences</strong> — but one practices them <strong>blocked</strong> (one sequence at a time) and the other <strong>random</strong> (the three sequences interleaved). After a short delay, both take a retention test, and you compare how well each remembered the sequences.</p>
+
+    <div class="callout">
+      <span class="clabel">Your goal</span>
+      <p>Learn the three sequences <strong>by heart</strong>. During practice the sequence is shown, but in the <strong>retention test at the end it will be hidden</strong> and you’ll type each one <strong>from memory</strong>. Practice as if you’re trying to memorize them — that’s what’s being measured.</p>
+    </div>
+
+    <div class="callout why">
+      <span class="clabel">You need a second person</span>
+      <p>This lab requires <strong>two participants</strong> — you and a friend. One of you does the blocked schedule, the other does random. You can both use this same device (the app hands off between you), or your friend can open the app on their own device and you enter their numbers into the lab document. Plan for about <strong>15 minutes each</strong>.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Set up the two participants</h3>
+      <div class="field">
+        <label for="p1name">Participant 1 — a name or initials</label>
+        <input id="p1name" type="text" placeholder="e.g. NK" maxlength="24" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="p2name">Participant 2 — a name or initials</label>
+        <input id="p2name" type="text" placeholder="e.g. friend’s initials" maxlength="24" autocomplete="off">
+      </div>
+      <p style="font-size:13.5px;margin-bottom:6px"><strong>Assign each person a schedule.</strong> Tap to set who does blocked and who does random — one of each.</p>
+      <div class="assign-row" id="assign-row">
+        <div class="assign-card" id="assign-p1"><div class="who" id="who1">Participant 1</div><div class="cond" id="cond1">tap to assign</div></div>
+        <div class="assign-card" id="assign-p2"><div class="who" id="who2">Participant 2</div><div class="cond" id="cond2">tap to assign</div></div>
+      </div>
+      <p class="hint" id="assign-hint" style="text-align:left"></p>
+    </div>
+
+    <button class="btn" id="begin" disabled>Start with Participant 1 &rarr;</button>
+  </section>
+
+  <!-- ============ PARTICIPANT INTRO (between participants) ============ -->
+  <section id="scr-handoff" class="hidden">
+    <div class="eyebrow" id="handoff-eyebrow">Participant</div>
+    <h2 id="handoff-title">—</h2>
+    <p id="handoff-body">—</p>
+    <div class="callout"><span class="clabel">How a trial works</span>
+      <p>A sequence of keys appears. Study it <strong>with your eyes only — don’t press the keys while studying</strong>. When ready, press <strong>Spacebar</strong> and type it <strong>from memory as fast as you can</strong> using the <strong>D, F, J, and K</strong> keys. The app times you from your first keypress to your last and notes any wrong keys. <strong>Try to memorize the sequences as you go</strong> — at the end you’ll be tested on them with the keys hidden. On a phone or tablet, on-screen keys appear.</p>
+    </div>
+    <button class="btn" id="handoff-go">Begin &rarr;</button>
+  </section>
+
+  <!-- ============ TASK ============ -->
+  <section id="scr-task" class="hidden">
+    <div class="hand-banner" id="task-banner">
+      <div>
+        <div class="who" id="tb-who">—</div>
+        <div class="big" id="tb-cond">—</div>
+      </div>
+      <div class="phase" id="tb-phase">—</div>
+    </div>
+
+    <div class="card">
+      <div class="seqbadge" id="seqbadge"><div class="pill"><span class="lbl">Sequence</span><span class="id" id="seqbadge-id">A</span></div></div>
+      <div class="prompt" id="prompt">Study the sequence</div>
+      <div class="seqdisplay" id="seqdisplay"></div>
+      <div class="typed" id="typed"></div>
+      <div style="text-align:center">
+        <button class="btn" id="start-trial">To start typing, press spacebar</button>
+      </div>
+      <div class="readout hidden" id="readout">
+        <div class="stat"><div class="v" id="live-time">0.0s</div><div class="l">Time</div></div>
+        <div class="stat"><div class="v" id="live-err">0</div><div class="l">Errors</div></div>
+      </div>
+      <p class="hint" id="task-hint">When you’re ready, press <strong>Start typing</strong> — the sequence stays visible on baseline and practice, and is hidden on the retention test.</p>
+      <div class="bigcount" id="bigcount"></div>
+    </div>
+
+    <!-- on-screen keys for touch devices -->
+    <div class="seqdisplay" id="touchkeys" style="margin-top:0"></div>
+  </section>
+
+  <!-- ============ DELAY ============ -->
+  <section id="scr-delay" class="hidden">
+    <div class="eyebrow">Short delay</div>
+    <h2 id="delay-title">Take a short break before the retention test</h2>
+    <p id="delay-body">The retention test needs to come after a brief rest, so it measures what was <em>learned</em> rather than momentary performance. The button unlocks after the timer.</p>
+    <div class="card" style="text-align:center">
+      <div style="font-size:44px;font-weight:800;color:var(--accent-dark)" id="delay-clock">2:00</div>
+      <p class="hint">Stay on this page. Don’t practice the sequences during the break.</p>
+    </div>
+    <button class="btn" id="delay-go" disabled>Start the retention test &rarr;</button>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="scr-results" class="hidden">
+    <div class="eyebrow">Your Data</div>
+    <h2>Results — copy these into your lab document</h2>
+    <p>Both participants are done. The comparison you came for is at the top; the full trial tables are below. Transcribe the summary values and the retention table into the Data section of the lab document.</p>
+
+    <div class="cmp-grid">
+      <div class="cmp b">
+        <div class="h" id="cmp-b-head">Blocked — <b class="b">name</b></div>
+        <div class="pair"><span class="lab">Acquisition mean time</span><span class="val" id="cb-acq">–</span></div>
+        <div class="pair"><span class="lab">Retention mean time</span><span class="val" id="cb-ret">–</span></div>
+        <div class="pair"><span class="lab">Retention errors (mean)</span><span class="val" id="cb-err">–</span></div>
+      </div>
+      <div class="cmp r">
+        <div class="h" id="cmp-r-head">Random — <b class="r">name</b></div>
+        <div class="pair"><span class="lab">Acquisition mean time</span><span class="val" id="cr-acq">–</span></div>
+        <div class="pair"><span class="lab">Retention mean time</span><span class="val" id="cr-ret">–</span></div>
+        <div class="pair"><span class="lab">Retention errors (mean)</span><span class="val" id="cr-err">–</span></div>
+      </div>
+    </div>
+
+    <div class="callout why">
+      <span class="clabel">What to look for</span>
+      <p id="results-read">—</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The comparison at a glance</h3>
+      <p style="font-size:13.5px">Mean sequence time in each phase. Lower is faster. Watch how the two schedules trade places between practice and retention.</p>
+      <div id="chart-wrap"></div>
+      <div id="chart-legend" style="display:flex;gap:18px;justify-content:center;margin-top:10px;font-size:12.5px;font-weight:700"></div>
+    </div>
+
+    <div class="callout why">
+      <span class="clabel">What a typical study of this kind shows</span>
+      <p>In the classic contextual-interference finding, the <strong>blocked</strong> schedule produces <strong>faster, smoother performance during practice</strong> — it looks like the better way to learn. But on a <strong>delayed retention test the pattern reverses</strong>: the <strong>random</strong> schedule usually wins, because interleaving forces you to reconstruct each sequence from memory on every trial, which builds a more durable, more flexible representation. So the schedule that felt harder during practice is the one that produced better learning. If your two bars show blocked lower on the left (practice) but random lower on the right (retention), you’ve reproduced the effect. With only one person per schedule it may not come out cleanly — that’s expected, and it’s a point your lab document asks you to think through.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Retention test — every trial</h3>
+      <table id="ret-table"><thead><tr><th>Participant</th><th>Schedule</th><th>Sequence</th><th>Trial</th><th>Time (s)</th><th>Errors</th></tr></thead><tbody id="ret-body"></tbody></table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Acquisition summary — mean time per block of practice</h3>
+      <p style="font-size:13.5px">This shows how each participant improved <em>during</em> practice. Watch whether the blocked participant looked better here than at retention.</p>
+      <table id="acq-table"><thead><tr><th>Participant</th><th>Schedule</th><th>Practice third</th><th>Mean time (s)</th><th>Mean errors</th></tr></thead><tbody id="acq-body"></tbody></table>
+    </div>
+
+    <div class="btn-row"><button class="btn ghost" id="restart">Start over</button></div>
+  </section>
+</div>
+
+<script>
+/* ---------------- config ---------------- */
+const SEQS = { A:['F','D','K','J','F','K'], B:['K','F','J','D','K','D'], C:['D','J','F','K','J','F'] };
+const SEQ_IDS = ['A','B','C'];
+const KEYS = ['D','F','J','K'];
+const TRIALS_PER_SEQ = 12;        // acquisition
+const BASELINE_PER_SEQ = 1;
+const RETENTION_PER_SEQ = 2;
+const DELAY_SECONDS = 120;
+
+/* ---------------- state ---------------- */
+let P = [ {name:'', cond:null}, {name:'', cond:null} ];  // participants
+let curP = 0;                 // which participant (0/1)
+let queue = [];               // ordered list of trials for current participant/phase
+let qi = 0;                   // index into queue
+let phase = 'baseline';
+let records = [];             // {p, name, cond, phase, seq, trial, time, errors}
+let acqCounter = {};          // per-seq trial counter during acquisition
+
+/* trial runtime */
+let awaiting=false, typed=[], target=[], tStart=0, errCount=0, masked=false, tPos=0;
+
+const $=id=>document.getElementById(id);
+
+/* ---------------- setup screen ---------------- */
+function refreshAssign(){
+  $('who1').textContent = P[0].name || 'Participant 1';
+  $('who2').textContent = P[1].name || 'Participant 2';
+  const label = c => c==='blocked'?'BLOCKED':c==='random'?'RANDOM':'tap to assign';
+  $('cond1').textContent = label(P[0].cond);
+  $('cond2').textContent = label(P[1].cond);
+  $('cond1').className = 'cond '+(P[0].cond==='blocked'?'b':P[0].cond==='random'?'r':'');
+  $('cond2').className = 'cond '+(P[1].cond==='blocked'?'b':P[1].cond==='random'?'r':'');
+  $('assign-p1').className = 'assign-card '+(P[0].cond?('sel-'+P[0].cond):'');
+  $('assign-p2').className = 'assign-card '+(P[1].cond?('sel-'+P[1].cond):'');
+  const ready = P[0].name && P[1].name && P[0].cond && P[1].cond && P[0].cond!==P[1].cond;
+  $('begin').disabled = !ready;
+  $('begin').textContent = ready ? `Start with ${P[0].name} (${P[0].cond}) →` : 'Start with Participant 1 →';
+}
+$('p1name').oninput = e=>{ P[0].name=e.target.value.trim(); refreshAssign(); };
+$('p2name').oninput = e=>{ P[1].name=e.target.value.trim(); refreshAssign(); };
+// clicking a participant card cycles their condition and forces the other to the opposite
+function assignClick(i){
+  const other=1-i;
+  P[i].cond = P[i].cond==='blocked' ? 'random' : 'blocked';
+  P[other].cond = P[i].cond==='blocked' ? 'random' : 'blocked';
+  refreshAssign();
+}
+$('assign-p1').onclick=()=>assignClick(0);
+$('assign-p2').onclick=()=>assignClick(1);
+
+$('begin').onclick=()=>{ curP=0; startParticipant(); };
+$('restart').onclick=()=>location.reload();
+
+/* ---------------- participant flow ---------------- */
+function startParticipant(){
+  phase='baseline';
+  $('scr-intro').classList.add('hidden');
+  $('scr-results').classList.add('hidden');
+  $('scr-task').classList.add('hidden');
+  $('scr-delay').classList.add('hidden');
+  const p=P[curP];
+  $('handoff-eyebrow').textContent = `Participant ${curP+1} of 2`;
+  $('handoff-title').textContent = `${p.name} — ${p.cond} practice`;
+  $('handoff-body').innerHTML = curP===0
+    ? `You’re first, <strong>${p.name}</strong>. You’ll do a few baseline attempts, then <strong>${p.cond}</strong> practice, then a short break and a retention test.`
+    : `Hand the device to <strong>${p.name}</strong> (or have them open the app on their own device). ${p.name} does the <strong>${p.cond}</strong> schedule — the same three sequences, scheduled differently.`;
+  $('scr-handoff').classList.remove('hidden');
+}
+$('handoff-go').onclick=()=>{ $('scr-handoff').classList.add('hidden'); beginBaseline(); };
+
+/* ----- build trial queues ----- */
+function beginBaseline(){
+  phase='baseline';
+  queue=[];
+  // one attempt at each sequence, in fixed order A,B,C
+  SEQ_IDS.forEach(s=>{ for(let k=0;k<BASELINE_PER_SEQ;k++) queue.push({seq:s}); });
+  qi=0; startTaskScreen(); loadTrial();
+}
+function beginAcquisition(){
+  phase='acquisition';
+  acqCounter={A:0,B:0,C:0};
+  queue=[];
+  const p=P[curP];
+  if(p.cond==='blocked'){
+    // A x12, B x12, C x12
+    SEQ_IDS.forEach(s=>{ for(let k=0;k<TRIALS_PER_SEQ;k++) queue.push({seq:s}); });
+  } else {
+    // random: 12 of each, shuffled, no more than 2 in a row of the same
+    let pool=[]; SEQ_IDS.forEach(s=>{ for(let k=0;k<TRIALS_PER_SEQ;k++) pool.push(s); });
+    pool = shuffleNoTriples(pool);
+    queue = pool.map(s=>({seq:s}));
+  }
+  qi=0; loadTrial();
+}
+function beginRetention(){
+  phase='retention';
+  queue=[];
+  // each sequence tested RETENTION_PER_SEQ times; order interleaved for everyone (fair test)
+  let pool=[]; SEQ_IDS.forEach(s=>{ for(let k=0;k<RETENTION_PER_SEQ;k++) pool.push(s); });
+  pool = shuffleNoTriples(pool);
+  queue = pool.map(s=>({seq:s}));
+  qi=0; startTaskScreen(); loadTrial();
+}
+function shuffleNoTriples(arr){
+  for(let attempt=0;attempt<200;attempt++){
+    const a=arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    let ok=true;
+    for(let i=2;i<a.length;i++){ if(a[i]===a[i-1] && a[i]===a[i-2]){ ok=false; break; } }
+    if(ok) return a;
+  }
+  return arr;
+}
+
+/* ---------------- task screen ---------------- */
+function startTaskScreen(){
+  $('scr-task').classList.remove('hidden');
+  const p=P[curP];
+  $('task-banner').className = 'hand-banner '+p.cond;
+  $('tb-who').textContent = `${p.name} · Participant ${curP+1}`;
+  $('tb-cond').textContent = p.cond==='blocked' ? 'Blocked practice' : 'Random practice';
+  buildTouchKeys();
+}
+function buildTouchKeys(){
+  const wrap=$('touchkeys'); wrap.innerHTML='';
+  KEYS.forEach(k=>{
+    const el=document.createElement('div'); el.className='key'; el.textContent=k;
+    el.style.cursor='pointer'; el.dataset.key=k;
+    el.onclick=()=>{
+      if(!awaiting && !$('start-trial').classList.contains('hidden')){
+        $('task-hint').innerHTML = '<span style="color:var(--red);font-weight:700">Study with your eyes only</span> — don’t tap keys until you start the trial. Press <strong>Spacebar</strong> or the button when you’re ready.';
+        return;
+      }
+      handleKey(k);
+    };
+    wrap.appendChild(el);
+  });
+}
+
+function phaseLabel(){
+  if(phase==='baseline') return 'Baseline';
+  if(phase==='acquisition') return 'Practice';
+  return 'Retention test';
+}
+
+function loadTrial(){
+  const cur=queue[qi];
+  target = SEQS[cur.seq].slice();
+  masked = (phase==='retention');   // hide the sequence on retention
+  typed=[]; errCount=0; tPos=0; awaiting=false;
+  $('tb-phase').textContent = `${phaseLabel()} · ${qi+1} of ${queue.length}`;
+  $('typed').textContent='';
+  $('readout').classList.add('hidden');
+  $('live-time').textContent='0.0s'; $('live-err').textContent='0';
+  $('start-trial').classList.remove('hidden');
+  $('start-trial').disabled=false;
+  renderSeq('idle');
+  // prominent sequence-identity badge
+  $('seqbadge-id').textContent = cur.seq;
+  $('seqbadge').className = 'seqbadge' + (phase==='retention' ? ' retention' : '');
+  if(phase==='retention'){
+    $('prompt').innerHTML = `Type this sequence <strong>from memory</strong>`;
+    $('task-hint').innerHTML = 'The keys are hidden. Recall <strong>sequence ' + cur.seq + '</strong>, press <strong>Spacebar</strong>, and enter it from memory.';
+  }else{
+    $('prompt').innerHTML = `Study the keys`;
+    $('task-hint').innerHTML = 'Study the keys with your eyes (mentally rehearse if you like, but <strong>don’t press any keys yet</strong>), then press <strong>Spacebar</strong> and type them as fast as you can.';
+  }
+  updateProgress();
+}
+
+function renderSeq(mode){
+  const wrap=$('seqdisplay'); wrap.innerHTML='';
+  target.forEach((k,i)=>{
+    const el=document.createElement('div'); el.className='key';
+    if(masked && mode!=='reveal'){ el.classList.add('masked'); el.textContent=k; }
+    else el.textContent=k;
+    if(mode==='typing'){
+      if(i<typed.length){ el.classList.add(typed[i]===target[i]?'hit':'miss'); if(masked) el.textContent=typed[i]; el.classList.remove('masked'); }
+      else if(i===tPos && !masked){ el.classList.add('next'); }
+      else if(masked){ el.classList.add('masked'); }
+    } else if(mode==='target'){ el.classList.add('target'); }
+    wrap.appendChild(el);
+  });
+}
+
+function beginTyping(){
+  if(awaiting) return;                       // already typing
+  if($('start-trial').classList.contains('hidden')) return; // not armed
+  awaiting=true; typed=[]; errCount=0; tPos=0; tStart=0;
+  $('start-trial').classList.add('hidden');
+  $('readout').classList.remove('hidden');
+  $('prompt').innerHTML = masked ? 'Type it from memory' : 'Type the sequence';
+  $('task-hint').innerHTML = 'Press <strong>D F J K</strong> to enter the sequence.';
+  renderSeq('typing');
+}
+$('start-trial').onclick=beginTyping;
+
+function handleKey(k){
+  if(!awaiting) return;
+  k=k.toUpperCase();
+  if(!KEYS.includes(k)) return;
+  if(typed.length===0){ tStart=performance.now(); }  // clock starts on first keypress
+  typed.push(k);
+  if(k!==target[typed.length-1]) errCount++;
+  tPos=typed.length;
+  $('typed').textContent = typed.join(' ');
+  $('live-err').textContent=errCount;
+  $('live-time').textContent=((performance.now()-tStart)/1000).toFixed(1)+'s';
+  renderSeq('typing');
+  if(typed.length>=target.length){ finishTrial(); }
+}
+document.addEventListener('keydown',e=>{
+  // spacebar starts an armed trial (so the hand can stay on the keyboard)
+  if(e.code==='Space' && !awaiting && !$('start-trial').classList.contains('hidden')
+     && !$('scr-task').classList.contains('hidden')){
+    e.preventDefault(); beginTyping(); return;
+  }
+  const k=e.key.toUpperCase();
+  // soft warning: task key pressed during the STUDY phase (armed, not yet typing)
+  if(!awaiting && KEYS.includes(k) && !$('start-trial').classList.contains('hidden')
+     && !$('scr-task').classList.contains('hidden')){
+    e.preventDefault();
+    $('task-hint').innerHTML = '<span style="color:var(--red);font-weight:700">Study with your eyes only</span> — don’t press keys until you start the trial. Press <strong>Spacebar</strong> when you’re ready.';
+    return;
+  }
+  if(awaiting && KEYS.includes(k)){ e.preventDefault(); handleKey(k); }
+});
+
+function finishTrial(){
+  awaiting=false;
+  const time=(performance.now()-tStart)/1000;
+  const cur=queue[qi];
+  const p=P[curP];
+  let trialNum;
+  if(phase==='acquisition'){ acqCounter[cur.seq]++; trialNum=acqCounter[cur.seq]; }
+  else trialNum=qi+1;
+  records.push({p:curP, name:p.name, cond:p.cond, phase, seq:cur.seq, trial:trialNum,
+                time:+time.toFixed(2), errors:errCount});
+  $('live-time').textContent=time.toFixed(1)+'s';
+  masked=false; renderSeq('typing');   // reveal what they typed vs target
+  const acc = errCount===0 ? 'clean' : errCount+' error'+(errCount>1?'s':'');
+  $('prompt').innerHTML = `Done — ${time.toFixed(1)}s, ${acc}`;
+  $('task-hint').innerHTML = '';
+  // advance
+  setTimeout(()=>{
+    qi++;
+    if(qi>=queue.length){ endPhase(); }
+    else loadTrial();
+  }, 650);
+}
+
+function endPhase(){
+  if(phase==='baseline'){ beginAcquisition(); return; }
+  if(phase==='acquisition'){ $('scr-task').classList.add('hidden'); startDelay(); return; }
+  if(phase==='retention'){
+    // participant done
+    if(curP===0){ curP=1; startParticipant(); }
+    else { showResults(); }
+  }
+}
+
+/* ---------------- delay ---------------- */
+let delayTimer=null;
+function startDelay(){
+  $('scr-delay').classList.remove('hidden');
+  let left=DELAY_SECONDS;
+  $('delay-go').disabled=true;
+  const p=P[curP];
+  $('delay-title').textContent = `${p.name}: take a short break before the retention test`;
+  const tick=()=>{
+    const m=Math.floor(left/60), s=left%60;
+    $('delay-clock').textContent = `${m}:${String(s).padStart(2,'0')}`;
+    if(left<=0){ clearInterval(delayTimer); $('delay-go').disabled=false; $('delay-clock').textContent='Ready'; }
+    left--;
+  };
+  tick(); delayTimer=setInterval(tick,1000);
+}
+$('delay-go').onclick=()=>{ $('scr-delay').classList.add('hidden'); beginRetention(); };
+
+/* ---------------- progress ---------------- */
+function updateProgress(){
+  // rough overall progress across both participants
+  const perP = 3 + TRIALS_PER_SEQ*3 + 6;  // baseline(3)+acq(36)+ret(6)
+  let done = curP*perP;
+  if(phase==='baseline') done += qi;
+  else if(phase==='acquisition') done += 3 + qi;
+  else if(phase==='retention') done += 3 + TRIALS_PER_SEQ*3 + qi;
+  $('prog').style.width = Math.min(100, done/(perP*2)*100)+'%';
+}
+
+/* ---------------- results ---------------- */
+function mean(a){return a.length? a.reduce((x,y)=>x+y,0)/a.length : null;}
+function f1(n){return n==null?'–':n.toFixed(1);}
+function f2(n){return n==null?'–':n.toFixed(2);}
+
+function byCond(cond){ return P[0].cond===cond?P[0]:P[1]; }
+function recs(cond,phase){ const nm=byCond(cond).name; return records.filter(r=>r.cond===cond&&r.phase===phase); }
+
+function renderChart({bAcq,rAcq,bRet,rRet,bName,rName}){
+  const wrap=$('chart-wrap');
+  const vals=[bAcq,rAcq,bRet,rRet].filter(v=>v!=null);
+  if(vals.length<4){ wrap.innerHTML='<p style="text-align:center;color:var(--muted);font-size:13px">Not enough data to chart.</p>'; return; }
+  const W=680,H=300, padL=54,padR=20,padT=20,padB=64;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const maxV=Math.max(bAcq,rAcq,bRet,rRet)*1.15;
+  const y=v=> padT+plotH-(v/maxV)*plotH;
+  const groups=[{label:'During practice',b:bAcq,r:rAcq},{label:'Retention test',b:bRet,r:rRet}];
+  const gW=plotW/2, barW=54, gap=18;
+  const BLU=getComputedStyle(document.documentElement).getPropertyValue('--blocked').trim()||'#1a7f8e';
+  const RND=getComputedStyle(document.documentElement).getPropertyValue('--random').trim()||'#b0552a';
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" font-family="inherit">`;
+  // y axis + gridlines
+  for(let i=0;i<=4;i++){
+    const gv=maxV*i/4, gy=y(gv);
+    svg+=`<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="#e6eaee" stroke-width="1"/>`;
+    svg+=`<text x="${padL-8}" y="${gy+4}" text-anchor="end" font-size="11" fill="#7a8a99">${gv.toFixed(1)}</text>`;
+  }
+  svg+=`<text x="14" y="${padT+plotH/2}" transform="rotate(-90 14 ${padT+plotH/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#5a6a75">Mean time (s)</text>`;
+  groups.forEach((g,gi)=>{
+    const cx=padL+gW*gi+gW/2;
+    const x1=cx-barW-gap/2, x2=cx+gap/2;
+    const draw=(x,v,color)=>{
+      const yy=y(v), hh=padT+plotH-yy;
+      svg+=`<rect x="${x}" y="${yy}" width="${barW}" height="${hh}" rx="4" fill="${color}"/>`;
+      svg+=`<text x="${x+barW/2}" y="${yy-6}" text-anchor="middle" font-size="12" font-weight="800" fill="#2c3e50">${v.toFixed(2)}</text>`;
+    };
+    draw(x1,g.b,BLU); draw(x2,g.r,RND);
+    svg+=`<text x="${cx}" y="${padT+plotH+22}" text-anchor="middle" font-size="13" font-weight="700" fill="#2c3e50">${g.label}</text>`;
+  });
+  // baseline axis
+  svg+=`<line x1="${padL}" y1="${padT+plotH}" x2="${W-padR}" y2="${padT+plotH}" stroke="#b9c6cd" stroke-width="1.5"/>`;
+  svg+=`</svg>`;
+  wrap.innerHTML=svg;
+  $('chart-legend').innerHTML =
+    `<span style="color:${BLU}">■ Blocked (${bName})</span><span style="color:${RND}">■ Random (${rName})</span>`;
+}
+
+function showResults(){
+  $('prog').style.width='100%';
+  $('scr-task').classList.add('hidden');
+  $('scr-results').classList.remove('hidden');
+
+  const bName=byCond('blocked').name, rName=byCond('random').name;
+  $('cmp-b-head').innerHTML = `Blocked — <b class="b">${bName}</b>`;
+  $('cmp-r-head').innerHTML = `Random — <b class="r">${rName}</b>`;
+
+  const bAcq=mean(recs('blocked','acquisition').map(r=>r.time));
+  const rAcq=mean(recs('random','acquisition').map(r=>r.time));
+  const bRet=mean(recs('blocked','retention').map(r=>r.time));
+  const rRet=mean(recs('random','retention').map(r=>r.time));
+  const bRetE=mean(recs('blocked','retention').map(r=>r.errors));
+  const rRetE=mean(recs('random','retention').map(r=>r.errors));
+
+  $('cb-acq').textContent=f2(bAcq)+' s'; $('cr-acq').textContent=f2(rAcq)+' s';
+  $('cb-ret').textContent=f2(bRet)+' s'; $('cr-ret').textContent=f2(rRet)+' s';
+  $('cb-err').textContent=f2(bRetE);     $('cr-err').textContent=f2(rRetE);
+
+  renderChart({bAcq,rAcq,bRet,rRet,bName,rName});
+
+  // interpretation line
+  let read='';
+  if(bAcq!=null&&rAcq!=null&&bRet!=null&&rRet!=null){
+    const blockedFasterAcq = bAcq < rAcq;
+    const randomFasterRet  = rRet < bRet;
+    if(blockedFasterAcq && randomFasterRet){
+      read = `Notice the reversal: <strong>${bName} (blocked)</strong> was faster during practice, but <strong>${rName} (random)</strong> was faster at retention — the classic contextual-interference pattern. Your Discussion questions ask you to interpret this.`;
+    } else if(randomFasterRet){
+      read = `<strong>${rName} (random)</strong> came out faster at retention. Whether the blocked participant led during practice is worth checking in the acquisition table below.`;
+    } else if(bRet!=null&&rRet!=null&&bRet<rRet){
+      read = `Here the <strong>blocked</strong> participant was faster at retention too. With one person per schedule, individual differences can outweigh the schedule effect — your Discussion asks you to reason about exactly this.`;
+    } else {
+      read = `Compare the two columns and the acquisition table below. Remember that with a single person per schedule, the result may not match the group findings from the literature — that limitation is itself a discussion point.`;
+    }
+  }
+  $('results-read').innerHTML=read;
+
+  // retention table
+  const rb=$('ret-body'); rb.innerHTML='';
+  ['blocked','random'].forEach(cond=>{
+    const rows=records.filter(r=>r.cond===cond&&r.phase==='retention');
+    rows.forEach(r=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${r.name}</td><td>${cond}</td><td>${r.seq}</td><td>${r.trial}</td><td>${r.time.toFixed(1)}</td><td>${r.errors}</td>`;
+      rb.appendChild(tr);
+    });
+  });
+
+  // acquisition summary: split each participant's 36 acq trials into thirds (early/mid/late)
+  const ab=$('acq-body'); ab.innerHTML='';
+  ['blocked','random'].forEach(cond=>{
+    const rows=records.filter(r=>r.cond===cond&&r.phase==='acquisition');
+    const nm=byCond(cond).name;
+    const thirds=[[0,12],[12,24],[24,36]]; const labels=['Early (1–12)','Middle (13–24)','Late (25–36)'];
+    thirds.forEach((rg,i)=>{
+      const slice=rows.slice(rg[0],rg[1]);
+      const mt=mean(slice.map(r=>r.time)), me=mean(slice.map(r=>r.errors));
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${nm}</td><td>${cond}</td><td>${labels[i]}</td><td>${f2(mt)}</td><td>${f2(me)}</td>`;
+      ab.appendChild(tr);
+    });
+  });
+}
+</script>
+</body>
+</html>
