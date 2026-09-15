@@ -140,7 +140,7 @@
 
     <div class="callout">
       <span class="clabel">Your goal</span>
-      <p>Learn the three sequences <strong>by heart</strong>. During practice the sequence is shown, but in the <strong>retention test at the end it will be hidden</strong> and you’ll type each one <strong>from memory</strong>. Practice as if you’re trying to memorize them — that’s what’s being measured.</p>
+      <p>Learn the three sequences <strong>by heart</strong>. During practice the sequence is shown, but in the <strong>retention test at the end it will be hidden</strong> and you’ll type each one <strong>from memory</strong>. On every trial, aim to <strong>get the sequence right first, then produce it as fast as you can</strong> — a fast time only counts when the keys are correct. Practice as if you’re trying to memorize them; that’s what’s being measured.</p>
     </div>
 
     <div class="callout why">
@@ -175,7 +175,7 @@
     <h2 id="handoff-title">—</h2>
     <p id="handoff-body">—</p>
     <div class="callout"><span class="clabel">How a trial works</span>
-      <p>A sequence of keys appears. Study it <strong>with your eyes only — don’t press the keys while studying</strong>. When ready, press <strong>Spacebar</strong> and type it <strong>from memory as fast as you can</strong> using the <strong>D, F, J, and K</strong> keys. The app times you from your first keypress to your last and notes any wrong keys. <strong>Try to memorize the sequences as you go</strong> — at the end you’ll be tested on them with the keys hidden. On a phone or tablet, on-screen keys appear.</p>
+      <p>A sequence of keys appears. Study it <strong>with your eyes only — don’t press the keys while studying</strong>. When ready, press <strong>Spacebar</strong> and reproduce it <strong>from memory — get it right first, then as fast as you can</strong> — using the <strong>D, F, J, and K</strong> keys. The app times you from your first keypress to your last and notes any wrong keys. <strong>Try to memorize the sequences as you go</strong> — at the end you’ll be tested on them with the keys hidden. On a phone or tablet, on-screen keys appear.</p>
     </div>
     <button class="btn" id="handoff-go">Begin &rarr;</button>
   </section>
@@ -234,12 +234,14 @@
         <div class="pair"><span class="lab">Acquisition mean time</span><span class="val" id="cb-acq">–</span></div>
         <div class="pair"><span class="lab">Retention mean time</span><span class="val" id="cb-ret">–</span></div>
         <div class="pair"><span class="lab">Retention errors (mean)</span><span class="val" id="cb-err">–</span></div>
+        <div class="pair"><span class="lab">Retention adjusted time</span><span class="val" id="cb-adj">–</span></div>
       </div>
       <div class="cmp r">
         <div class="h" id="cmp-r-head">Random — <b class="r">name</b></div>
         <div class="pair"><span class="lab">Acquisition mean time</span><span class="val" id="cr-acq">–</span></div>
         <div class="pair"><span class="lab">Retention mean time</span><span class="val" id="cr-ret">–</span></div>
         <div class="pair"><span class="lab">Retention errors (mean)</span><span class="val" id="cr-err">–</span></div>
+        <div class="pair"><span class="lab">Retention adjusted time</span><span class="val" id="cr-adj">–</span></div>
       </div>
     </div>
 
@@ -262,7 +264,8 @@
 
     <div class="card">
       <h3 style="margin-top:0">Retention test — every trial</h3>
-      <table id="ret-table"><thead><tr><th>Participant</th><th>Schedule</th><th>Sequence</th><th>Trial</th><th>Time (s)</th><th>Errors</th></tr></thead><tbody id="ret-body"></tbody></table>
+      <table id="ret-table"><thead><tr><th>Participant</th><th>Schedule</th><th>Sequence</th><th>Trial</th><th>Time (s)</th><th>Errors</th><th>Adjusted (s)</th></tr></thead><tbody id="ret-body"></tbody></table>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Adjusted time = completion time + 1.0 s per error. It combines speed and accuracy into one number (lower is better) while keeping the raw time and errors visible.</p>
     </div>
 
     <div class="card">
@@ -284,6 +287,8 @@ const TRIALS_PER_SEQ = 12;        // acquisition
 const BASELINE_PER_SEQ = 1;
 const RETENTION_PER_SEQ = 2;
 const DELAY_SECONDS = 120;
+const ERROR_PENALTY = 1.0;   // seconds added per wrong key, for the adjusted-time composite
+function adjTime(r){ return r.time + r.errors*ERROR_PENALTY; }  // adjusted time for one trial
 
 /* ---------------- state ---------------- */
 let P = [ {name:'', cond:null}, {name:'', cond:null} ];  // participants
@@ -441,7 +446,7 @@ function loadTrial(){
     $('task-hint').innerHTML = 'The keys are hidden. Recall <strong>sequence ' + cur.seq + '</strong>, press <strong>Spacebar</strong>, and enter it from memory.';
   }else{
     $('prompt').innerHTML = `Study the keys`;
-    $('task-hint').innerHTML = 'Study the keys with your eyes (mentally rehearse if you like, but <strong>don’t press any keys yet</strong>), then press <strong>Spacebar</strong> and type them as fast as you can.';
+    $('task-hint').innerHTML = 'Study the keys with your eyes (mentally rehearse if you like, but <strong>don’t press any keys yet</strong>), then press <strong>Spacebar</strong> and reproduce them — <strong>correct first, then fast</strong>.';
   }
   updateProgress();
 }
@@ -628,10 +633,13 @@ function showResults(){
   const rRet=mean(recs('random','retention').map(r=>r.time));
   const bRetE=mean(recs('blocked','retention').map(r=>r.errors));
   const rRetE=mean(recs('random','retention').map(r=>r.errors));
+  const bRetAdj=mean(recs('blocked','retention').map(adjTime));
+  const rRetAdj=mean(recs('random','retention').map(adjTime));
 
   $('cb-acq').textContent=f2(bAcq)+' s'; $('cr-acq').textContent=f2(rAcq)+' s';
   $('cb-ret').textContent=f2(bRet)+' s'; $('cr-ret').textContent=f2(rRet)+' s';
   $('cb-err').textContent=f2(bRetE);     $('cr-err').textContent=f2(rRetE);
+  $('cb-adj').textContent=f2(bRetAdj)+' s'; $('cr-adj').textContent=f2(rRetAdj)+' s';
 
   renderChart({bAcq,rAcq,bRet,rRet,bName,rName});
 
@@ -658,7 +666,7 @@ function showResults(){
     const rows=records.filter(r=>r.cond===cond&&r.phase==='retention');
     rows.forEach(r=>{
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${r.name}</td><td>${cond}</td><td>${r.seq}</td><td>${r.trial}</td><td>${r.time.toFixed(1)}</td><td>${r.errors}</td>`;
+      tr.innerHTML=`<td>${r.name}</td><td>${cond}</td><td>${r.seq}</td><td>${r.trial}</td><td>${r.time.toFixed(1)}</td><td>${r.errors}</td><td>${adjTime(r).toFixed(1)}</td>`;
       rb.appendChild(tr);
     });
   });
