@@ -150,8 +150,17 @@
         <input id="section" type="text" placeholder="e.g. your section number or time" maxlength="40" autocomplete="off">
       </div>
       <div class="field">
-        <label for="pname">Your name or initials</label>
-        <input id="pname" type="text" placeholder="e.g. NK" maxlength="24" autocomplete="off">
+        <label for="team">Team number</label>
+        <select id="team" style="width:auto;max-width:160px;font-size:15px;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;background:#fff">
+          <option value="">Pick your team…</option>
+          <option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option><option value="T4">T4</option>
+          <option value="T5">T5</option><option value="T6">T6</option><option value="T7">T7</option><option value="T8">T8</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="pinit">Your initials</label>
+        <input id="pinit" type="text" placeholder="e.g. AB" maxlength="8" autocomplete="off">
+        <p class="hint" id="name-preview" style="text-align:left;margin-top:6px"></p>
       </div>
       <p style="font-size:13.5px;margin-bottom:6px"><strong>Which schedule is your station running?</strong> Pick the one your instructor assigned.</p>
       <div class="assign-row" id="mode-row">
@@ -224,10 +233,12 @@
 
     <div class="card" style="border-top:3px solid var(--gold)">
       <h3 style="margin-top:0">Your row for the class spreadsheet</h3>
-      <p style="font-size:13.5px">Enter these seven values as one row, in this order. They’re also shown as a single line you can copy.</p>
+      <p style="font-size:13.5px">Enter these twelve values as one row, in this order. They’re also shown as a single line you can copy.</p>
       <table id="row-table"><thead><tr>
         <th>Section</th><th>Participant</th><th>Schedule</th>
-        <th>Acquisition mean time</th><th>Retention mean time</th><th>Retention errors</th><th>Retention adjusted time</th>
+        <th>Baseline mean time</th><th>Baseline errors</th><th>Baseline adjusted time</th>
+        <th>Acquisition mean time</th><th>Acquisition errors</th><th>Acquisition adjusted time</th>
+        <th>Retention mean time</th><th>Retention errors</th><th>Retention adjusted time</th>
       </tr></thead><tbody><tr id="row-body"></tr></tbody></table>
       <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <code id="row-line" style="background:#f2f6f7;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:14px;color:var(--ink)">—</code>
@@ -241,10 +252,10 @@
       <div class="cmp-grid">
         <div class="cmp" id="cmp-self" style="border-top:3px solid var(--accent)">
           <div class="h" id="cmp-self-head">Your run</div>
-          <div class="pair"><span class="lab">Acquisition mean time</span><span class="val" id="cs-acq">–</span></div>
-          <div class="pair"><span class="lab">Retention mean time</span><span class="val" id="cs-ret">–</span></div>
+          <div class="pair"><span class="lab">Acquisition adjusted time</span><span class="val" id="cs-acq">–</span></div>
+          <div class="pair"><span class="lab">Retention adjusted time</span><span class="val" id="cs-ret">–</span></div>
           <div class="pair"><span class="lab">Retention errors (mean)</span><span class="val" id="cs-err">–</span></div>
-          <div class="pair"><span class="lab">Retention adjusted time</span><span class="val" id="cs-adj">–</span></div>
+          <div class="pair" style="display:none"><span class="lab">adj</span><span class="val" id="cs-adj">–</span></div>
         </div>
         <div class="cmp">
           <div class="h">Change, practice → retention</div>
@@ -256,7 +267,7 @@
 
     <div class="card">
       <h3 style="margin-top:0">How you changed during practice</h3>
-      <p style="font-size:13.5px">Mean sequence time from the start of practice to your retention test. Lower is faster.</p>
+      <p style="font-size:13.5px">Mean adjusted time (completion time + 1 s per error) from the start of practice to your retention test. Lower is better.</p>
       <div id="chart-wrap"></div>
       <div id="chart-legend" style="display:flex;gap:18px;justify-content:center;margin-top:10px;font-size:12.5px;font-weight:700"></div>
     </div>
@@ -275,7 +286,7 @@
     <div class="card">
       <h3 style="margin-top:0">Acquisition summary — mean time per third of practice</h3>
       <p style="font-size:13.5px">This shows how you improved <em>during</em> practice, across your 36 practice trials.</p>
-      <table id="acq-table"><thead><tr><th>Schedule</th><th>Practice third</th><th>Mean time (s)</th><th>Mean errors</th></tr></thead><tbody id="acq-body"></tbody></table>
+      <table id="acq-table"><thead><tr><th>Schedule</th><th>Practice third</th><th>Mean time (s)</th><th>Mean errors</th><th>Adjusted (s)</th></tr></thead><tbody id="acq-body"></tbody></table>
     </div>
 
     <div class="btn-row"><button class="btn ghost" id="restart">Start a new run</button></div>
@@ -296,6 +307,7 @@ function adjTime(r){ return r.time + r.errors*ERROR_PENALTY; }
 
 /* ---------------- state ---------------- */
 let SECTION='', PNAME='', COND=null;     // single-run setup
+let TEAM='', INIT='';                     // team number + initials -> PNAME = "T3-AB"
 let queue = [];               // ordered list of trials for current phase
 let qi = 0;                   // index into queue
 let phase = 'baseline';
@@ -308,6 +320,12 @@ let awaiting=false, typed=[], target=[], tStart=0, errCount=0, masked=false, tPo
 const $=id=>document.getElementById(id);
 
 /* ---------------- setup screen ---------------- */
+function composeName(){
+  PNAME = (TEAM && INIT) ? `${TEAM}-${INIT}` : '';
+  $('name-preview').innerHTML = PNAME
+    ? `Your ID for the class data: <strong>${PNAME}</strong>`
+    : 'Pick a team and enter your initials — your ID will read like <strong>T3-AB</strong>.';
+}
 function refreshSetup(){
   $('mode-blocked').className = 'assign-card '+(COND==='blocked'?'sel-blocked':'');
   $('mode-random').className  = 'assign-card '+(COND==='random'?'sel-random':'');
@@ -316,9 +334,11 @@ function refreshSetup(){
   $('begin').textContent = ready ? `Begin ${COND} practice →` : 'Begin →';
 }
 $('section').oninput = e=>{ SECTION=e.target.value.trim(); refreshSetup(); };
-$('pname').oninput   = e=>{ PNAME=e.target.value.trim(); refreshSetup(); };
+$('team').onchange   = e=>{ TEAM=e.target.value; composeName(); refreshSetup(); };
+$('pinit').oninput   = e=>{ INIT=e.target.value.trim().toUpperCase(); e.target.value=INIT; composeName(); refreshSetup(); };
 $('mode-blocked').onclick=()=>{ COND='blocked'; refreshSetup(); };
 $('mode-random').onclick =()=>{ COND='random';  refreshSetup(); };
+composeName();
 
 $('begin').onclick=()=>{ startRun(); };
 $('restart').onclick=()=>location.reload();
@@ -568,7 +588,7 @@ function renderChart(points){
     svg+=`<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="#e6eaee" stroke-width="1"/>`;
     svg+=`<text x="${padL-8}" y="${gy+4}" text-anchor="end" font-size="11" fill="#7a8a99">${gv.toFixed(1)}</text>`;
   }
-  svg+=`<text x="14" y="${padT+plotH/2}" transform="rotate(-90 14 ${padT+plotH/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#5a6a75">Mean time (s)</text>`;
+  svg+=`<text x="14" y="${padT+plotH/2}" transform="rotate(-90 14 ${padT+plotH/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#5a6a75">Adjusted time (s)</text>`;
   points.forEach((p,i)=>{
     if(p.v==null) return;
     const cx=padL+slot*i+slot/2, x=cx-barW/2;
@@ -590,23 +610,32 @@ function showResults(){
   $('scr-task').classList.add('hidden');
   $('scr-results').classList.remove('hidden');
 
-  const acqRows=recs('acquisition'), retRows=recs('retention');
+  const baseRows=recs('baseline'), acqRows=recs('acquisition'), retRows=recs('retention');
+  const baseMean=mean(baseRows.map(r=>r.time));
+  const baseErr =mean(baseRows.map(r=>r.errors));
+  const baseAdj =mean(baseRows.map(adjTime));
   const acqMean=mean(acqRows.map(r=>r.time));
+  const acqErr =mean(acqRows.map(r=>r.errors));
+  const acqAdj =mean(acqRows.map(adjTime));
   const retMean=mean(retRows.map(r=>r.time));
   const retErr =mean(retRows.map(r=>r.errors));
   const retAdj =mean(retRows.map(adjTime));
-  const delta = (acqMean!=null&&retMean!=null)? (retMean-acqMean) : null;
+  const delta = (acqAdj!=null&&retAdj!=null)? (retAdj-acqAdj) : null;  // change in ADJUSTED time
 
   // self summary
   $('cmp-self-head').innerHTML = `${PNAME} — <b>${COND}</b> practice`;
-  $('cs-acq').textContent=f2(acqMean)+' s';
-  $('cs-ret').textContent=f2(retMean)+' s';
+  $('cs-acq').textContent=f2(acqAdj)+' s';
+  $('cs-ret').textContent=f2(retAdj)+' s';
   $('cs-err').textContent=f2(retErr);
   $('cs-adj').textContent=f2(retAdj)+' s';
   $('cs-delta').textContent = delta==null?'–':(delta<=0?'−':'+')+Math.abs(delta).toFixed(2)+' s';
 
-  // spreadsheet row: Section, Participant, Schedule, Acq mean, Ret mean, Ret errors, Ret adjusted
-  const row=[SECTION, PNAME, COND, f2(acqMean), f2(retMean), f2(retErr), f2(retAdj)];
+  // spreadsheet row (12 values): Section, Participant, Schedule,
+  //   Baseline mean/errors/adjusted, Acq mean/errors/adjusted, Ret mean/errors/adjusted
+  const row=[SECTION, PNAME, COND,
+             f2(baseMean), f2(baseErr), f2(baseAdj),
+             f2(acqMean), f2(acqErr), f2(acqAdj),
+             f2(retMean), f2(retErr), f2(retAdj)];
   const rb=$('row-body');
   rb.innerHTML = row.map(v=>`<td>${v}</td>`).join('');
   const line = row.join('\t');
@@ -618,10 +647,10 @@ function showResults(){
     setTimeout(()=>{$('copy-status').textContent='';},4000);
   };
 
-  // chart: practice thirds + retention
+  // chart: practice thirds + retention, on ADJUSTED time
   const thirds=[[0,12],[12,24],[24,36]], tl=['Practice early','Practice mid','Practice late'];
-  const pts=thirds.map((rg,i)=>({label:tl[i], v:mean(acqRows.slice(rg[0],rg[1]).map(r=>r.time)), retention:false}));
-  pts.push({label:'Retention', v:retMean, retention:true});
+  const pts=thirds.map((rg,i)=>({label:tl[i], v:mean(acqRows.slice(rg[0],rg[1]).map(adjTime)), retention:false}));
+  pts.push({label:'Retention', v:retAdj, retention:true});
   renderChart(pts);
 
   // retention table (single condition)
@@ -632,13 +661,13 @@ function showResults(){
     rtb.appendChild(tr);
   });
 
-  // acquisition summary thirds (single condition)
+  // acquisition summary thirds (single condition) — time, errors, and adjusted
   const ab=$('acq-body'); ab.innerHTML='';
   thirds.forEach((rg,i)=>{
     const slice=acqRows.slice(rg[0],rg[1]);
-    const mt=mean(slice.map(r=>r.time)), me=mean(slice.map(r=>r.errors));
+    const mt=mean(slice.map(r=>r.time)), me=mean(slice.map(r=>r.errors)), ma=mean(slice.map(adjTime));
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${COND}</td><td>${['Early (1–12)','Middle (13–24)','Late (25–36)'][i]}</td><td>${f2(mt)}</td><td>${f2(me)}</td>`;
+    tr.innerHTML=`<td>${COND}</td><td>${['Early (1–12)','Middle (13–24)','Late (25–36)'][i]}</td><td>${f2(mt)}</td><td>${f2(me)}</td><td>${f2(ma)}</td>`;
     ab.appendChild(tr);
   });
 }
