@@ -90,6 +90,17 @@
   .key.masked{color:transparent;background:#eef2f4;border-color:var(--line)}
 
   .prompt{text-align:center;font-size:15px;color:var(--muted);margin:6px 0 2px;min-height:22px}
+
+  /* per-sequence badge colors set inline via JS; base pill keeps shape */
+  .seqbadge .pill .name{font-size:13px;font-weight:800;letter-spacing:.5px;margin-left:2px}
+  .anchor-grid{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+  .anchor-card{border:2px solid var(--line);border-left-width:8px;border-radius:10px;padding:14px 18px;background:#fff}
+  .anchor-card .top{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+  .anchor-card .nm{font-size:19px;font-weight:800}
+  .anchor-card .tag{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;opacity:.7}
+  .anchor-keys{display:flex;gap:8px;flex-wrap:wrap}
+  .anchor-keys .k{width:46px;height:52px;border-radius:8px;border:2px solid var(--line);background:#fafcfd;
+    display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800;color:var(--ink)}
   .seqbadge{display:flex;justify-content:center;margin:4px 0 2px}
   .seqbadge .pill{display:inline-flex;align-items:center;gap:10px;background:var(--accent-soft);color:var(--accent-dark);
     border:2px solid var(--accent);border-radius:30px;padding:8px 22px;font-weight:800;letter-spacing:1px}
@@ -181,6 +192,16 @@
       <p>A sequence of keys appears. Study it <strong>with your eyes only — don’t press the keys while studying</strong>. When ready, press <strong>Spacebar</strong> and reproduce it <strong>from memory — get it right first, then as fast as you can</strong> — using the <strong>D, F, J, and K</strong> keys. The app times you from your first keypress to your last and notes any wrong keys. <strong>Try to memorize the sequences as you go</strong> — at the end you’ll be tested on them with the keys hidden. On a phone or tablet, on-screen keys appear.</p>
     </div>
     <button class="btn" id="handoff-go">Begin &rarr;</button>
+  </section>
+
+  <!-- ============ MEET THE SEQUENCES (anchoring) ============ -->
+  <section id="scr-anchor" class="hidden">
+    <div class="eyebrow">Meet the three sequences</div>
+    <h2>Learn the names first</h2>
+    <p>You’ll practice these <strong>three</strong> sequences. Each has a <strong>name</strong> and a <strong>color</strong> — learn which name goes with which pattern now, because during the test the keys are hidden and you’ll be asked for them <strong>by name</strong>.</p>
+    <div class="anchor-grid" id="anchor-grid"></div>
+    <div class="callout"><span class="clabel">Tip</span><p>Try to attach each name to the feel of the pattern — the way the keys “move” under your fingers. That link is what you’ll rely on at retention.</p></div>
+    <button class="btn" id="anchor-go">Got it — start &rarr;</button>
   </section>
 
   <!-- ============ TASK ============ -->
@@ -295,7 +316,12 @@
 
 <script>
 /* ---------------- config ---------------- */
-const SEQS = { A:['F','D','K','J','F','K'], B:['K','F','J','D','K','D'], C:['D','J','F','K','J','F'] };
+const SEQS = { A:['D','J','F','K','D','J'], B:['F','K','D','J','F','K'], C:['J','D','K','F','J','D'] };
+const SEQ_META = {
+  A:{name:'Staircase', color:'#1a7f8e', soft:'#e8f4f6', dark:'#146470'},
+  B:{name:'Bounce',    color:'#b0552a', soft:'#f9ede3', dark:'#8a4420'},
+  C:{name:'Zigzag',    color:'#6b4fa0', soft:'#efeaf7', dark:'#4f3a78'}
+};
 const SEQ_IDS = ['A','B','C'];
 const KEYS = ['D','F','J','K'];
 const TRIALS_PER_SEQ = 12;        // acquisition
@@ -355,7 +381,24 @@ function startRun(){
   $('handoff-body').innerHTML = `You’ll do a few baseline attempts, then <strong>${COND}</strong> practice of the three sequences, then a short break and a retention test. Your results get added to the class dataset at the end.`;
   $('scr-handoff').classList.remove('hidden');
 }
-$('handoff-go').onclick=()=>{ $('scr-handoff').classList.add('hidden'); beginBaseline(); };
+$('handoff-go').onclick=()=>{ $('scr-handoff').classList.add('hidden'); showAnchor(); };
+function showAnchor(){
+  const grid=$('anchor-grid'); grid.innerHTML='';
+  SEQ_IDS.forEach(id=>{
+    const m=SEQ_META[id];
+    const keys=SEQS[id].map(k=>`<div class="k">${k}</div>`).join('');
+    const card=document.createElement('div');
+    card.className='anchor-card';
+    card.style.borderLeftColor=m.color;
+    card.innerHTML=`<div class="top"><span class="nm" style="color:${m.color}">${m.name}</span>`+
+                   `<span class="tag">Sequence ${id}</span></div>`+
+                   `<div class="anchor-keys">${keys}</div>`;
+    grid.appendChild(card);
+  });
+  $('scr-anchor').classList.remove('hidden');
+}
+$('anchor-go').onclick=()=>{ $('scr-anchor').classList.add('hidden'); beginBaseline(); };
+
 
 /* ----- build trial queues ----- */
 function beginBaseline(){
@@ -439,11 +482,18 @@ function loadTrial(){
   $('start-trial').disabled=false;
   renderSeq('idle');
   // prominent sequence-identity badge
-  $('seqbadge-id').textContent = cur.seq;
-  $('seqbadge').className = 'seqbadge' + (phase==='retention' ? ' retention' : '');
+  { const m=SEQ_META[cur.seq]; const pill=document.querySelector('#seqbadge .pill');
+    $('seqbadge-id').textContent = cur.seq;
+    let nmEl=document.getElementById('seqbadge-name');
+    if(!nmEl){ nmEl=document.createElement('span'); nmEl.id='seqbadge-name'; nmEl.className='name'; pill.appendChild(nmEl); }
+    nmEl.textContent = m.name;
+    pill.style.background=m.soft; pill.style.color=m.dark; pill.style.borderColor=m.color;
+    nmEl.style.color=m.dark; $('seqbadge-id').style.color=m.dark;
+  }
+  $('seqbadge').className = 'seqbadge';
   if(phase==='retention'){
-    $('prompt').innerHTML = `Type this sequence <strong>from memory</strong>`;
-    $('task-hint').innerHTML = 'The keys are hidden. Recall <strong>sequence ' + cur.seq + '</strong>, press <strong>Spacebar</strong>, and enter it from memory.';
+    $('prompt').innerHTML = `Type <strong>${SEQ_META[cur.seq].name}</strong> from memory`;
+    $('task-hint').innerHTML = 'The keys are hidden. Recall <strong>' + SEQ_META[cur.seq].name + '</strong> (sequence ' + cur.seq + '), press <strong>Spacebar</strong>, and enter it from memory.';
   }else{
     $('prompt').innerHTML = `Study the keys`;
     $('task-hint').innerHTML = 'Study the keys with your eyes (mentally rehearse if you like, but <strong>don’t press any keys yet</strong>), then press <strong>Spacebar</strong> and reproduce them — <strong>correct first, then fast</strong>.';
