@@ -1234,7 +1234,7 @@
       <div class="card">
         <div class="eyebrow">See it in action</div>
         <h2>The penalty-kick goalie</h2>
-        <p>A shooter can aim at <strong>6 zones</strong> &mdash; left / center / right &times; high / low. From the goalie&rsquo;s view, every zone is a live possibility, so uncertainty is high:</p>
+        <p>A shooter can aim at <strong>6 zones</strong> &mdash; left / center / right &times; high / low. From the goalie&rsquo;s view, every zone is a real possibility for where the ball could go, so uncertainty is high:</p>
         <figure class="study-fig" style="max-width:420px;margin-left:auto;margin-right:auto">
           <img src="images/ip-goalie-zones.jpg" alt="View from behind a penalty taker facing the goal, with the goal mouth divided into six numbered target zones: 1-2-3 across the top and 4-5-6 across the bottom.">
           <figcaption>The goal, from the shooter&rsquo;s side, divided into the six possible target zones.</figcaption>
@@ -1252,7 +1252,7 @@
           <div class="bitmeter"><div class="fill" id="bitFill" style="width:100%"></div></div>
           <div class="goal-read">
             <div class="gr-eq">I = log&#8322;(<span id="nVal">6</span>) = <b id="bitVal">2.58</b> bits</div>
-            <div class="gr-sub" id="bitSub">All 6 zones live &mdash; maximum uncertainty.</div>
+            <div class="gr-sub" id="bitSub">All 6 zones are possible &mdash; maximum uncertainty.</div>
           </div>
         </div>
         <p style="font-size:13px;color:var(--muted)">If the goalie reads that the shot is going <em>low</em> (ruling out the 3 high zones), uncertainty falls from 2.58 to log&#8322;(3) = 1.58 bits &mdash; less to process, a faster, more confident dive.</p>
@@ -1319,7 +1319,7 @@
     <div class="inner">
       <div class="kc-card">
         <div class="eyebrow">Knowledge check</div>
-        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">An expert tennis returner learns to read the server&rsquo;s toss and body position, so that instead of preparing for all 4 serve zones, they can usually narrow it to 2. In information terms, what have they done?</p>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">An expert tennis player learns to read the server&rsquo;s toss and body position, so that instead of preparing for all 4 serve zones, they can usually narrow it to 2. In information terms, what have they done?</p>
         <div id="kcopts">
           <button class="kc-opt" data-c="1"><strong>Reduced the information to resolve</strong> &mdash; from log&#8322;(4)=2 bits down to log&#8322;(2)=1 bit, so there&rsquo;s less uncertainty and faster preparation.<span class="mark"></span></button>
           <button class="kc-opt" data-c="0"><strong>Increased the information</strong> &mdash; reading cues adds more bits to process.<span class="mark"></span></button>
@@ -1440,7 +1440,7 @@
       var bits=Math.log2(n);
       nEl.textContent=n; bEl.textContent=bits.toFixed(2);
       fill.style.width=(bits/Math.log2(6)*100)+"%";
-      if(n===6) sub.textContent="All 6 zones live \u2014 maximum uncertainty.";
+      if(n===6) sub.textContent="All 6 zones are possible \u2014 maximum uncertainty.";
       else if(n===3) sub.textContent="Down to 3 zones \u2014 uncertainty nearly halved.";
       else if(n===1) sub.textContent="One zone \u2014 the goalie knows exactly where to go.";
       else sub.textContent=n+" zones live \u2014 uncertainty reduced.";
