@@ -975,6 +975,75 @@
 
   /* ===== IP Lesson 1 additions ===== */
   /* input-process-output model */
+  /* flippable input-processing-output */
+  .ipo-flip{display:flex;align-items:stretch;margin:18px 0}
+  .ipo-flip .flipcard{flex:1;min-width:0;height:150px}
+  .ipo-flip .ar{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:22px;font-weight:700;padding:0 6px;flex:none}
+  .ipo-flip .fc-front{border:0;color:#fff}
+  .ipo-flip .in .fc-front{background:#1a7f8e}
+  .ipo-flip .proc .fc-front{background:#12333f}
+  .ipo-flip .out .fc-front{background:#e0a458;color:#5a3d12}
+  .ipo-flip .ipo-word{font-size:22px;font-weight:800;letter-spacing:.2px}
+  .ipo-flip .fc-front .fc-hint{color:inherit;opacity:.85;margin-top:10px}
+  .ipo-flip .fc-front .fc-hint::before{content:"\21BB  "}
+  .ipo-flip .fc-back{background:#fff;color:var(--ink);font-size:14px;line-height:1.5}
+  .ipo-flip .in .fc-back{border:2px solid #1a7f8e}
+  .ipo-flip .proc .fc-back{border:2px solid #12333f}
+  .ipo-flip .out .fc-back{border:2px solid #e0a458}
+  .ipo-flip .fc-back h4{margin:0 0 6px;font-size:15px}
+  .ipo-flip .in .fc-back h4{color:#1a7f8e}
+  .ipo-flip .proc .fc-back h4{color:#12333f}
+  .ipo-flip .out .fc-back h4{color:#b5822f}
+  @media(max-width:600px){.ipo-flip{flex-direction:column}.ipo-flip .flipcard{width:100%}.ipo-flip .ar{transform:rotate(90deg);padding:4px 0}}
+  #stageflip .flipcard{height:180px}
+  #stageflip .fc-back{font-size:13px;padding:12px 12px}
+  #stageflip .fc-back h4{font-size:14px}
+  .ipo-flip .ipo-sub{font-size:13px;font-weight:600;opacity:.9;margin-top:2px}
+  .ipo-flip .fc-back .ipo-map{display:block;margin-top:8px;font-size:12px;color:var(--muted);font-style:italic}
+  .reminder-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#40638a;background:#eef3f8;border:1px solid #d5e0eb;border-radius:999px;padding:4px 12px;margin-bottom:10px}
+  .newidea{font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#b5822f;margin:18px 0 0}
+  /* uses-of-RT cards */
+  .uses .flipcard{height:190px}
+  .uses .fc-front{border:0;border-top:4px solid var(--uc);background:linear-gradient(180deg,var(--ucs) 0%,#fff 70%);align-items:center;justify-content:center;gap:2px}
+  .uses .u-icon{width:52px;height:52px;border-radius:50%;background:var(--uc);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+  .uses .u-icon svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .uses .u-eyebrow{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--ucd)}
+  .uses .u-title{font-size:17px;font-weight:800;color:var(--ink);line-height:1.3;margin-top:3px;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .uses .fc-hint{font-size:12px;color:var(--ucd);font-weight:700;margin-top:10px}
+  .uses .fc-hint::before{content:"\21BB  "}
+  .uses .fc-back{border:2px solid var(--uc);background:#fff;color:var(--ink);font-size:13.5px}
+  .uses .fc-back h4{margin:0 0 6px;font-size:15px;color:var(--ucd)}
+  .uses .u1{--uc:#1a7f8e;--ucs:#e8f4f6;--ucd:#146470}
+  .uses .u2{--uc:#e0a458;--ucs:#fbf1e3;--ucd:#9a6a22}
+  .uses .u3{--uc:#6a8caf;--ucs:#eef3f8;--ucd:#40638a}
+  /* three-across RT situations */
+  .pn-row.three{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:700px){.pn-row.three{grid-template-columns:1fr}}
+  /* simple RT demo */
+  .rtdemo{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fafcfd;margin-top:14px}
+  .rd-stage{height:200px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:background .08s;background:#eef2f5;border:2px solid #dbe2e7;text-align:center;padding:12px}
+  .rd-stage .rd-big{font-size:24px;font-weight:800;color:var(--ink)}
+  .rd-stage .rd-small{font-size:13.5px;color:#556;margin-top:6px}
+  .rd-stage.wait{background:#fff;border-color:var(--gold)}
+  .rd-stage.wait .rd-big{color:#b5822f}
+  .rd-stage.go{background:#1a7f8e;border-color:#146470}
+  .rd-stage.go .rd-big,.rd-stage.go .rd-small{color:#fff}
+  .rd-stage.bad{background:#fdeeee;border-color:#e3a5a3}
+  .rd-stage.bad .rd-big{color:#a3403c}
+  .rd-stage.result .rd-big{color:var(--accent-dark);font-size:34px}
+  .rd-trials{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  .rd-trials .lbl{font-size:12.5px;font-weight:700;color:var(--muted);margin-right:4px}
+  .rd-chip{min-width:62px;text-align:center;font-size:13px;font-weight:700;padding:5px 9px;border-radius:7px;background:#fff;border:1px solid var(--line);color:#99a5ae;font-variant-numeric:tabular-nums}
+  .rd-chip.done{color:var(--accent-dark);border-color:#b9dbe0;background:#e8f4f6}
+  .rd-summary{margin-top:12px;font-size:14.5px;color:var(--ink)}
+  .rd-summary b{color:var(--accent-dark)}
+  .rd-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .rd-btn{font:inherit;font-weight:700;font-size:14px;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff}
+  .rd-btn.ghost{background:#fff;color:var(--accent-dark)}
+  .rd-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .rd-runs{margin-top:14px;border-top:1px dashed var(--line);padding-top:10px;font-size:13.5px;color:#445}
+  .rd-runs ol{margin:6px 0 0;padding-left:20px}
+  .rd-runs li{margin-bottom:2px;font-variant-numeric:tabular-nums}
   .ipo{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
   .ipo .box{flex:1;min-width:140px;border-radius:10px;padding:14px 15px;text-align:center;color:#fff}
   .ipo .box.in{background:#1a7f8e}
@@ -1041,7 +1110,7 @@
 
 <header class="topbar">
   <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 7 &nbsp;&rsaquo;&nbsp; <b>Lesson 2: Measuring Preparation &mdash; Reaction Time</b></div>
-  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">15</span></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">16</span></div>
   <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
 </header>
 
@@ -1079,33 +1148,43 @@
     </div>
   </section>
 
-  <!-- 3 THREE STAGES -->
+  <!-- 3 THREE STAGES (reminder from Lesson 1) -->
   <section class="screen" data-screen data-gate="stages">
     <div class="inner">
       <div class="card">
+        <span class="reminder-tag">&#8634; A reminder from Lesson 1</span>
         <div class="eyebrow">What has to happen</div>
         <h2>Three stages of information processing</h2>
-        <p>To initiate an action, the system must pass through <em>at least</em> three stages (Proctor, 2004). <strong>Click each to reveal it</strong> &mdash; all three to continue:</p>
-        <div class="fac-list" id="stagefac">
-          <button class="fac" aria-expanded="false" onclick="facTog(this)">
-            <span class="fac-head"><span class="fac-n">1</span><span class="fac-t">Identify the stimulus</span><span class="fac-plus">+</span></span>
-            <span class="fac-body">Detect and recognize what&rsquo;s happening in the environment &mdash; <em>is that the go signal?</em></span>
+        <p>Remember the <strong>input &rarr; processing &rarr; output</strong> model from Lesson 1? Researchers describe the same flow as <em>at least</em> three stages that must happen before an action can begin (Johnson &amp; Proctor, 2004). <strong>Flip each box</strong> to review &mdash; all three to continue:</p>
+        <div class="ipo-flip" id="stageflip">
+          <button class="flipcard in" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="ipo-word">Identify</span><span class="ipo-sub">the stimulus</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Stimulus identification</h4><span style="display:block">Detect and recognize what&rsquo;s happening &mdash; <em>is that the go signal?</em></span><span class="ipo-map">Lesson 1: Input</span></span>
+            </span>
           </button>
-          <button class="fac" aria-expanded="false" onclick="facTog(this)">
-            <span class="fac-head"><span class="fac-n">2</span><span class="fac-t">Select the response</span><span class="fac-plus">+</span></span>
-            <span class="fac-body">Decide <em>which</em> action is the right one for this stimulus.</span>
+          <div class="ar" aria-hidden="true">&rarr;</div>
+          <button class="flipcard proc" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="ipo-word">Select</span><span class="ipo-sub">the response</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Response selection</h4><span style="display:block">Decide <em>which</em> action is the right one for this stimulus.</span><span class="ipo-map">Lesson 1: Processing</span></span>
+            </span>
           </button>
-          <button class="fac" aria-expanded="false" onclick="facTog(this)">
-            <span class="fac-head"><span class="fac-n">3</span><span class="fac-t">Program the movement</span><span class="fac-plus">+</span></span>
-            <span class="fac-body">Organize the motor commands that will carry the chosen action out.</span>
+          <div class="ar" aria-hidden="true">&rarr;</div>
+          <button class="flipcard out" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="ipo-word">Program</span><span class="ipo-sub">the movement</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Response programming</h4><span style="display:block">Organize the motor commands that will carry the chosen action out.</span><span class="ipo-map">Lesson 1: Output</span></span>
+            </span>
           </button>
         </div>
-        <div class="callout warn">
+        <p class="newidea">New in this lesson</p>
+        <div class="callout warn" style="margin-top:8px">
           <span class="clabel">The methodological catch</span>
           <p>We <strong>can&rsquo;t directly observe</strong> these stages happening inside the brain. So researchers study them <em>indirectly</em> &mdash; by watching how <strong>reaction time changes</strong> when they manipulate factors known to load one stage or another.</p>
         </div>
         <p class="refblock">Johnson, A., &amp; Proctor, R. W. (2004). <em>Attention: Theory and Practice</em>. SAGE. &nbsp;<a class="cite-link" href="https://sk.sagepub.com/book/mono/attention/toc" target="_blank" rel="noopener">View book &rarr;</a></p>
-        <p class="gate-note" id="stagesnote">Reveal all three stages to continue.</p>
+        <p class="gate-note" id="stagesnote">Flip all three stages to continue.</p>
       </div>
     </div>
   </section>
@@ -1127,6 +1206,7 @@
           <div class="nc-body">
             <h4>Franciscus Donders (1818&ndash;1889)</h4>
             <p>His insight &mdash; that you can measure mental processing by timing responses &mdash; still underlies RT research. The <a href="https://www.ru.nl/en/donders-institute" target="_blank" rel="noopener" style="color:var(--accent-dark);font-weight:700">Donders Institute for Brain, Cognition, and Behaviour</a> at Radboud University is named for him.</p>
+            <p style="margin-top:8px"><a class="cite-link" href="https://www.ru.nl/en/donders-institute/about-us/about-fc-donders" target="_blank" rel="noopener">Biography of F.C. Donders (Donders Institute, Radboud University) &rarr;</a></p>
           </div>
         </div>
       </div>
@@ -1160,22 +1240,22 @@
         <div class="eyebrow">Why we measure it</div>
         <h2>RT as a performance measure</h2>
         <p>RT has a long history as a popular measure of human motor-skill performance &mdash; because it captures something no other simple number does. <strong>Flip each card</strong> to see what RT is used for:</p>
-        <div class="flip3" id="usesflip">
-          <button class="flipcard" onclick="doFlip(this)">
+        <div class="flip3 uses" id="usesflip">
+          <button class="flipcard u1" onclick="doFlip(this)">
             <span class="fc-inner">
-              <span class="fc-face fc-front"><span class="fc-eyebrow">Use 1</span><span class="fc-prompt">Assess initiation speed</span><span class="fc-hint">Flip &rarr;</span></span>
+              <span class="fc-face fc-front"><span class="u-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="10" y1="2" x2="14" y2="2"/><line x1="12" y1="14" x2="15" y2="11"/><circle cx="12" cy="14" r="8"/></svg></span><span class="u-eyebrow">Use 1</span><span class="u-title">Assess initiation speed</span><span class="fc-hint">Flip</span></span>
               <span class="fc-face fc-back"><h4>Initiation speed</h4><span style="display:block">How quickly a person can <strong>initiate</strong> a required movement &mdash; e.g., a sprinter off the blocks.</span></span>
             </span>
           </button>
-          <button class="flipcard" onclick="doFlip(this)">
+          <button class="flipcard u2" onclick="doFlip(this)">
             <span class="fc-inner">
-              <span class="fc-face fc-front"><span class="fc-eyebrow">Use 2</span><span class="fc-prompt">Reveal dual-tasking costs</span><span class="fc-hint">Flip &rarr;</span></span>
+              <span class="fc-face fc-front"><span class="u-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg></span><span class="u-eyebrow">Use 2</span><span class="u-title">Reveal dual-tasking costs</span><span class="fc-hint">Flip</span></span>
               <span class="fc-face fc-back"><h4>Dual-tasking costs</h4><span style="display:block">The effect of doing a <strong>second task</strong> at the same time &mdash; e.g., a distracted driver reaching for a phone.</span></span>
             </span>
           </button>
-          <button class="flipcard" onclick="doFlip(this)">
+          <button class="flipcard u3" onclick="doFlip(this)">
             <span class="fc-inner">
-              <span class="fc-face fc-front"><span class="fc-eyebrow">Use 3</span><span class="fc-prompt">Test anticipation</span><span class="fc-hint">Flip &rarr;</span></span>
+              <span class="fc-face fc-front"><span class="u-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg></span><span class="u-eyebrow">Use 3</span><span class="u-title">Test anticipation</span><span class="fc-hint">Flip</span></span>
               <span class="fc-face fc-back"><h4>Anticipation</h4><span style="display:block">How well someone can <strong>anticipate</strong> and time an action &mdash; e.g., reading a tennis serve. With good anticipation, RT can be <strong>very fast &mdash; or even negative</strong> (moving <em>before</em> the signal).</span></span>
             </span>
           </button>
@@ -1196,7 +1276,7 @@
           <img src="images/rt-types2.jpg" alt="Diagram of three reaction-time setups. Simple RT: one red stimulus light mapped to one response key (index finger). Choice RT: red, blue, and green lights each mapped to its own key (index, middle, ring). Discrimination RT: red, blue, and green lights but only the red light is mapped to a single response key (index finger).">
           <figcaption>Three RT setups, from the stimulus light(s) down to the response key(s).</figcaption>
         </figure>
-        <div class="pn-row" style="margin-top:4px">
+        <div class="pn-row three" style="margin-top:4px">
           <div class="pn pos"><div class="pnh">Simple RT</div><p style="margin-top:6px">One signal, one response.</p></div>
           <div class="pn pos" style="border-top-color:var(--gold)"><div class="pnh" style="color:#b5822f">Choice RT</div><p style="margin-top:6px">You make <strong>one</strong> response &mdash; but you&rsquo;re uncertain <em>which</em> it will be. Each possible signal is mapped to a specific effector (index, middle, ring finger).</p></div>
           <div class="pn pos" style="border-top-color:#6a8caf"><div class="pnh" style="color:#40638a">Discrimination RT</div><p style="margin-top:6px">Many signals, but only <strong>one</strong> of them calls for a response &mdash; you must tell the &ldquo;go&rdquo; signal from the rest.</p></div>
@@ -1206,7 +1286,32 @@
     </div>
   </section>
 
-  <!-- 8 THE RT PARADIGM INTRO -->
+  <!-- 8 SIMPLE RT DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself</div>
+        <h2>What&rsquo;s your simple reaction time?</h2>
+        <p>This is a <strong>simple RT</strong> situation: one signal, one response. Click <strong>Start</strong>. When the box turns gold, get ready. When it turns <strong>teal</strong>, click it (or press the <kbd>Space</kbd> bar) as fast as you can. Five trials per person.</p>
+        <div class="rtdemo" id="rtDemo">
+          <div class="rd-stage" id="rdStage" role="button" tabindex="0" aria-live="polite">
+            <span class="rd-big" id="rdBig">Ready when you are</span>
+            <span class="rd-small" id="rdSmall">Click Start, then watch this box.</span>
+          </div>
+          <div class="rd-trials" id="rdTrials"><span class="lbl">Your trials:</span></div>
+          <div class="rd-summary" id="rdSummary"></div>
+          <div class="rd-actions">
+            <button class="rd-btn" id="rdStart" type="button">Start</button>
+            <button class="rd-btn ghost" id="rdReset" type="button">Next person: reset</button>
+          </div>
+          <div class="rd-runs" id="rdRuns" hidden><b>Finished runs on this computer</b><ol id="rdRunList"></ol></div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:12px">Your browser and keyboard add a small delay (roughly 20&ndash;50 ms), so these times run a bit slower than lab values. Keep this question in mind for the next screens: did this task measure pure <em>reaction</em> time, or did it include a little <em>movement</em>?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 THE RT PARADIGM INTRO -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1224,7 +1329,7 @@
     </div>
   </section>
 
-  <!-- 9 TIMELINE INTERACTIVE -->
+  <!-- 10 TIMELINE INTERACTIVE -->
   <section class="screen" data-screen data-gate="timeline">
     <div class="inner">
       <div class="card">
@@ -1272,7 +1377,7 @@
     </div>
   </section>
 
-  <!-- 10 QUICK CHECK -->
+  <!-- 11 QUICK CHECK -->
   <section class="screen" data-screen data-gate="qc">
     <div class="inner">
       <div class="card">
@@ -1290,7 +1395,7 @@
     </div>
   </section>
 
-  <!-- 11 FRACTIONATING INTRO -->
+  <!-- 12 FRACTIONATING INTRO -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1306,7 +1411,7 @@
           <div class="pn pos" style="border-top-color:#6a8caf">
             <div class="pnh" style="color:#40638a">Motor component</div>
             <h4>First muscle activity &rarr; movement</h4>
-            <p>From first muscle activation to the moment observable movement begins &mdash; the <strong>electromechanical delay</strong> of the muscle itself.</p>
+            <p>From first muscle activation to the moment observable movement begins. The muscle switches on <em>before</em> anything visibly moves, because it takes a little time for the muscle to build up enough force to <strong>overcome the inertia of the limb</strong>. This lag is called the <strong>electromechanical delay</strong>.</p>
           </div>
         </div>
         <figure class="study-fig">
@@ -1317,7 +1422,7 @@
     </div>
   </section>
 
-  <!-- 12 FRACTIONATION SVG -->
+  <!-- 13 FRACTIONATION SVG -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1357,7 +1462,7 @@
     </div>
   </section>
 
-  <!-- 13 WHY PREMOTOR IS BETTER -->
+  <!-- 14 WHY PREMOTOR IS BETTER -->
   <section class="screen" data-screen data-gate="why">
     <div class="inner">
       <div class="card">
@@ -1376,7 +1481,7 @@
     </div>
   </section>
 
-  <!-- 14 KNOWLEDGE CHECK -->
+  <!-- 15 KNOWLEDGE CHECK -->
   <section class="screen" data-screen data-gate="kc">
     <div class="inner">
       <div class="kc-card">
@@ -1393,7 +1498,7 @@
     </div>
   </section>
 
-  <!-- 15 SUMMARY -->
+  <!-- 16 SUMMARY -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1439,7 +1544,7 @@
     dotsWrap.appendChild(b);
   });
   function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
-  var GATEMSG={stages:"Reveal all three stages to continue",timeline:"Explore all four intervals to continue",
+  var GATEMSG={stages:"Flip all three stages to continue",timeline:"Explore all four intervals to continue",
     qc:"Make a choice to continue",why:"Reveal the answer to continue",kc:"Answer to continue"};
   function show(i){
     screens[cur].classList.remove("active");
@@ -1488,7 +1593,77 @@
     }
   };
 
-  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+  var stageFlipped=new Set();
+  window.doFlip=function(card){
+    card.classList.toggle("flipped");
+    var wrap=card.closest("#stageflip");
+    if(wrap && !answered.stages){
+      stageFlipped.add(card);
+      if(stageFlipped.size>=wrap.querySelectorAll(".flipcard").length){
+        answered.stages=true;
+        document.getElementById("stagesnote").textContent="All flipped — you can continue.";
+        if(screens[cur].dataset.gate==="stages"){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; }
+      }
+    }
+  };
+
+  // Simple RT demo
+  (function(){
+    var N=5, stage=document.getElementById("rdStage"), big=document.getElementById("rdBig"), small=document.getElementById("rdSmall"),
+        trialsEl=document.getElementById("rdTrials"), sumEl=document.getElementById("rdSummary"),
+        startBtn=document.getElementById("rdStart"), resetBtn=document.getElementById("rdReset"),
+        runsBox=document.getElementById("rdRuns"), runList=document.getElementById("rdRunList");
+    var state="idle", rts=[], timer=null, onset=0, runNo=0;
+    function chips(){
+      trialsEl.querySelectorAll(".rd-chip").forEach(function(c){c.remove();});
+      for(var i=0;i<N;i++){ var c=document.createElement("span"); c.className="rd-chip"+(i<rts.length?" done":""); c.textContent=i<rts.length?Math.round(rts[i])+" ms":"–"; trialsEl.appendChild(c); }
+    }
+    function set(cls,b,sm){ stage.className="rd-stage"+(cls?" "+cls:""); big.textContent=b; small.textContent=sm||""; }
+    function median(a){ var s=a.slice().sort(function(x,y){return x-y;}), m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; }
+    function arm(){
+      state="wait"; set("wait","Get ready…","Wait for teal.");
+      timer=setTimeout(function(){
+        requestAnimationFrame(function(){
+          set("go","Click now!","");
+          requestAnimationFrame(function(ts){ onset=ts; state="go"; });
+          state="go"; onset=performance.now();
+        });
+      }, 1000+Math.random()*2000);
+    }
+    function respond(t){
+      if(state==="wait"){
+        clearTimeout(timer); state="early"; set("bad","Too early!","Wait for teal. This trial will be repeated.");
+        setTimeout(function(){ if(state==="early") arm(); }, 1300); return;
+      }
+      if(state!=="go") return;
+      var rt=t-onset; state="between";
+      if(rt<100){ set("bad","Too fast to be a reaction","Under 100 ms counts as a guess. Repeating the trial."); setTimeout(function(){ if(state==="between") arm(); },1300); return; }
+      rts.push(rt); chips();
+      if(rts.length<N){ set("result",Math.round(rt)+" ms","Next trial coming…"); setTimeout(function(){ if(state==="between") arm(); },1100); }
+      else finish();
+    }
+    function finish(){
+      state="done"; var md=median(rts), best=Math.min.apply(null,rts);
+      set("result",Math.round(md)+" ms","Your median simple reaction time");
+      sumEl.innerHTML="Median: <b>"+Math.round(md)+" ms</b> &nbsp;&middot;&nbsp; Fastest: <b>"+Math.round(best)+" ms</b>";
+      runNo++; var li=document.createElement("li"); li.textContent="Run "+runNo+": median "+Math.round(md)+" ms, fastest "+Math.round(best)+" ms"; runList.appendChild(li); runsBox.hidden=false;
+      startBtn.textContent="Start again"; startBtn.disabled=false;
+    }
+    function reset(){
+      clearTimeout(timer); state="idle"; rts=[]; chips(); sumEl.innerHTML="";
+      set("","Ready when you are","Click Start, then watch this box."); startBtn.textContent="Start"; startBtn.disabled=false;
+    }
+    startBtn.addEventListener("click",function(){ reset(); startBtn.disabled=true; startBtn.blur(); arm(); });
+    resetBtn.addEventListener("click",reset);
+    stage.addEventListener("pointerdown",function(e){ if(state!=="idle"&&state!=="done"){ e.preventDefault(); respond(e.timeStamp>0&&e.timeStamp<1e11?e.timeStamp:performance.now()); } });
+    document.addEventListener("keydown",function(e){
+      if(e.code!=="Space"||e.repeat) return;
+      if(!stage.closest(".screen").classList.contains("active")) return;
+      if(state==="idle"||state==="done") return;
+      e.preventDefault(); respond(e.timeStamp>0&&e.timeStamp<1e11?e.timeStamp:performance.now());
+    });
+    chips();
+  })();
 
   window.doFlipResult=function(box){
     box.classList.toggle("flipped");

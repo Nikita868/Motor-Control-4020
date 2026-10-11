@@ -975,6 +975,48 @@
 
   /* ===== IP Lesson 1 additions ===== */
   /* input-process-output model */
+  /* flippable input-processing-output */
+  .ipo-flip{display:flex;align-items:stretch;margin:18px 0}
+  .ipo-flip .flipcard{flex:1;min-width:0;height:150px}
+  .ipo-flip .ar{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:22px;font-weight:700;padding:0 6px;flex:none}
+  .ipo-flip .fc-front{border:0;color:#fff}
+  .ipo-flip .in .fc-front{background:#1a7f8e}
+  .ipo-flip .proc .fc-front{background:#12333f}
+  .ipo-flip .out .fc-front{background:#e0a458;color:#5a3d12}
+  .ipo-flip .ipo-word{font-size:22px;font-weight:800;letter-spacing:.2px}
+  .ipo-flip .fc-front .fc-hint{color:inherit;opacity:.85;margin-top:10px}
+  .ipo-flip .fc-front .fc-hint::before{content:"\21BB  "}
+  .ipo-flip .fc-back{background:#fff;color:var(--ink);font-size:14px;line-height:1.5}
+  .ipo-flip .in .fc-back{border:2px solid #1a7f8e}
+  .ipo-flip .proc .fc-back{border:2px solid #12333f}
+  .ipo-flip .out .fc-back{border:2px solid #e0a458}
+  .ipo-flip .fc-back h4{margin:0 0 6px;font-size:15px}
+  .ipo-flip .in .fc-back h4{color:#1a7f8e}
+  .ipo-flip .proc .fc-back h4{color:#12333f}
+  .ipo-flip .out .fc-back h4{color:#b5822f}
+  @media(max-width:600px){.ipo-flip{flex-direction:column}.ipo-flip .flipcard{width:100%}.ipo-flip .ar{transform:rotate(90deg);padding:4px 0}}
+  /* braking example */
+  .brake-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  @media(max-width:600px){.brake-steps{grid-template-columns:1fr}}
+  .brake-steps .bs{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px 13px;border-top:3px solid #1a7f8e}
+  .brake-steps .bs.proc{border-top-color:#12333f}
+  .brake-steps .bs.out{border-top-color:#e0a458}
+  .brake-steps .bs .bsl{display:block;font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#1a7f8e;margin-bottom:4px}
+  .brake-steps .bs.proc .bsl{color:#12333f}
+  .brake-steps .bs.out .bsl{color:#b5822f}
+  .brake-steps .bs p{margin:0;font-size:13px;color:#445;line-height:1.45}
+  /* sensory channel flip cards */
+  .flip2.short .flipcard{height:165px}
+  .chan .flipcard{height:150px}
+  .chan .fc-front svg{width:42px;height:42px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
+  .chan .fc-front .fc-title{font-size:16px;font-weight:800}
+  .chan .fc-front .fc-hint::before{content:"\21BB  "}
+  .chan .vis .fc-front{color:#1a7f8e;border-top:3px solid #1a7f8e}
+  .chan .aud .fc-front{color:#b5822f;border-top:3px solid #e0a458}
+  .chan .som .fc-front{color:#40638a;border-top:3px solid #6a8caf}
+  .chan .fc-front .fc-title{color:inherit}
+  .chan .fc-back{font-size:13.5px}
+  .chan .fc-back h4{margin:0 0 6px;font-size:15px;color:var(--accent-dark)}
   .ipo{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
   .ipo .box{flex:1;min-width:140px;border-radius:10px;padding:14px 15px;text-align:center;color:#fff}
   .ipo .box.in{background:#1a7f8e}
@@ -1021,7 +1063,7 @@
 
 <header class="topbar">
   <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 7 &nbsp;&rsaquo;&nbsp; <b>Lesson 1: The Information-Processing Approach</b></div>
-  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">15</span></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">16</span></div>
   <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
 </header>
 
@@ -1066,7 +1108,7 @@
         <div class="eyebrow">The starting point</div>
         <h2>What is action preparation?</h2>
         <div class="statement gold" style="margin:6px 0"><p><strong>Action preparation:</strong> the set of processes that occur <em>between perceiving a stimulus and initiating a movement</em> &mdash; the work done immediately before you act.</p></div>
-        <p>It&rsquo;s the invisible layer between the world sending a signal and your body responding. In the next screens we&rsquo;ll build a framework for what happens in that gap &mdash; but first, a concrete scene to hold onto.</p>
+        <p>It&rsquo;s the invisible layer between the world sending a signal and your body responding. In the next screens we&rsquo;ll build a framework for what happens in that gap &mdash; but first, let&rsquo;s examine one example situation where action preparation occurs.</p>
       </div>
     </div>
   </section>
@@ -1075,7 +1117,7 @@
   <section class="screen" data-screen data-gate="swim">
     <div class="inner">
       <div class="card">
-        <div class="eyebrow">A scene to hold onto</div>
+        <div class="eyebrow">An example situation</div>
         <h2>The swimmer on the blocks</h2>
         <figure class="study-fig">
           <img src="images/ip-swimmers.jpg" alt="A row of competitive swimmers crouched on the starting blocks in profile, poised and waiting for the starting signal.">
@@ -1085,7 +1127,7 @@
         <div class="fac-list" id="swimfac">
           <button class="fac" aria-expanded="false" onclick="facTog(this)">
             <span class="fac-head"><span class="fac-n">1</span><span class="fac-t">Alertness &amp; arousal</span><span class="fac-plus">+</span></span>
-            <span class="fac-body">How alert and aroused they are &mdash; too little or too much can both hurt the start.</span>
+            <span class="fac-body">How alert and aroused they are. <strong>Arousal</strong> refers to the <em>excitability of the central nervous system</em>: think of performing after a strong coffee versus when you&rsquo;re sleepy. Too little or too much arousal can both hurt the start.</span>
           </button>
           <button class="fac" aria-expanded="false" onclick="facTog(this)">
             <span class="fac-head"><span class="fac-n">2</span><span class="fac-t">Anticipation</span><span class="fac-plus">+</span></span>
@@ -1112,14 +1154,49 @@
       <div class="card">
         <div class="eyebrow">The framework</div>
         <h2>Humans as information processors</h2>
-        <p>The <strong>information-processing approach</strong> frames the performer much like a computer: information comes <em>in</em>, gets <em>processed</em> in the middle, and drives movement <em>out</em>.</p>
-        <div class="ipo">
-          <div class="box in"><h4>Input</h4><p>Sensory information &mdash; what you see, hear, touch, feel.</p></div>
-          <div class="ar">&rarr;</div>
-          <div class="box proc"><h4>Processing</h4><p>An executive center integrates, plans, and decides.</p></div>
-          <div class="ar">&rarr;</div>
-          <div class="box out"><h4>Output</h4><p>Motor execution &mdash; programs that tell the body what to do.</p></div>
+        <p>The <strong>information-processing approach</strong> frames the performer much like a computer: information comes <em>in</em>, gets <em>processed</em> in the middle, and drives movement <em>out</em> (Johnson &amp; Proctor, 2004). <strong>Flip each box</strong> to see what happens at that stage.</p>
+        <div class="ipo-flip">
+          <button class="flipcard in" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="ipo-word">Input</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Input</h4><span style="display:block">Sensory information &mdash; what you see, hear, touch, and feel.</span></span>
+            </span>
+          </button>
+          <div class="ar" aria-hidden="true">&rarr;</div>
+          <button class="flipcard proc" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="ipo-word">Processing</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Processing</h4><span style="display:block">An executive center integrates the information, plans, and <strong>decides</strong> what to do.</span></span>
+            </span>
+          </button>
+          <div class="ar" aria-hidden="true">&rarr;</div>
+          <button class="flipcard out" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="ipo-word">Output</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Output</h4><span style="display:block">Motor execution &mdash; programs that tell the body what to do.</span></span>
+            </span>
+          </button>
         </div>
+        <div class="callout">
+          <span class="clabel">Example: braking in traffic</span>
+          <p>You&rsquo;re driving, and the brake lights of the car ahead suddenly turn red. All three stages happen before your foot reaches the brake:</p>
+          <div class="brake-steps">
+            <div class="bs in"><span class="bsl">Input</span><p><strong>Perceive the signal:</strong> your eyes detect the red brake lights.</p></div>
+            <div class="bs proc"><span class="bsl">Processing</span><p><strong>Decide:</strong> take your foot off the gas and move it to the brake.</p></div>
+            <div class="bs out"><span class="bsl">Output</span><p><strong>Execute:</strong> lift the foot, move it over, and press the brake pedal.</p></div>
+          </div>
+        </div>
+        <p class="refblock">Johnson, A., &amp; Proctor, R. W. (2004). <em>Attention: Theory and Practice</em>. SAGE. &nbsp;<a class="cite-link" href="https://sk.sagepub.com/book/mono/attention/toc" target="_blank" rel="noopener">View book &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 WHERE THE FRAMEWORK FITS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Where this fits</div>
+        <h2>A familiar framework, with limits</h2>
         <div class="callout">
           <span class="clabel">Connects back to Week 6</span>
           <p>This is the <strong>motor program perspective</strong> you studied in the theories module &mdash; the &ldquo;central executive&rdquo; view, where the brain plans and commands the movement from the top down. The information-processing approach is that same family of ideas, now applied to how we <em>prepare</em> to act.</p>
@@ -1132,7 +1209,7 @@
     </div>
   </section>
 
-  <!-- 6 WHAT IS INFORMATION -->
+  <!-- 7 WHAT IS INFORMATION -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1144,17 +1221,32 @@
           <div class="crit"><div class="cn">2</div><h4>Decide</h4><p>What action is appropriate?</p></div>
           <div class="crit"><div class="cn">3</div><h4>Prepare</h4><p>Organize the movement to carry it out.</p></div>
         </div>
-        <p style="margin-top:16px">It arrives through multiple channels:</p>
-        <div class="pn-row" style="margin-top:10px">
-          <div class="pn pos"><div class="pnh">Visual</div><p style="margin-top:6px">A starting light, a moving ball.</p></div>
-          <div class="pn pos" style="border-top-color:var(--gold)"><div class="pnh" style="color:#b5822f">Auditory</div><p style="margin-top:6px">A beep, a verbal cue.</p></div>
-          <div class="pn pos" style="border-top-color:#6a8caf"><div class="pnh" style="color:#40638a">Somatosensory</div><p style="margin-top:6px">Touch, proprioception.</p></div>
+        <p style="margin-top:16px">It arrives through multiple channels. <strong>Flip each card</strong> for examples:</p>
+        <div class="flip3 chan" style="margin-top:10px">
+          <button class="flipcard vis" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span class="fc-title">Visual</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Visual</h4><span style="display:block">What you see: a starting light, a moving ball, brake lights ahead.</span></span>
+            </span>
+          </button>
+          <button class="flipcard aud" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/></svg><span class="fc-title">Auditory</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Auditory</h4><span style="display:block">What you hear: a starting beep, a verbal cue from a therapist.</span></span>
+            </span>
+          </button>
+          <button class="flipcard som" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-6-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg><span class="fc-title">Somatosensory</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Somatosensory</h4><span style="display:block">What you feel: touch and pressure on the skin, plus proprioception (the sense of limb position and movement).</span></span>
+            </span>
+          </button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 7 UNCERTAINTY REDUCTION -->
+  <!-- 8 UNCERTAINTY REDUCTION -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1167,7 +1259,7 @@
     </div>
   </section>
 
-  <!-- 8 ELEVATOR EXAMPLE -->
+  <!-- 9 ELEVATOR EXAMPLE -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1188,24 +1280,26 @@
     </div>
   </section>
 
-  <!-- 9 INFORMATION VS NOISE -->
+  <!-- 10 INFORMATION VS NOISE -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
         <div class="eyebrow">Not all input helps</div>
         <h2>Information vs. noise</h2>
         <p>Incoming sensory input isn&rsquo;t automatically useful. Part of preparing well is telling the two apart:</p>
-        <div class="pn-row">
-          <div class="pn pos">
-            <div class="pnh">Relevant information</div>
-            <h4>Helps you act</h4>
-            <p>Contributes directly to selecting or preparing the action. <em>A floor-number display lets you anticipate which elevator is arriving.</em></p>
-          </div>
-          <div class="pn neg" style="border-top-color:#d9534f">
-            <div class="pnh" style="color:#d9534f">Noise</div>
-            <h4>Irrelevant &mdash; may slow you down</h4>
-            <p>Doesn&rsquo;t help the task and can clog processing. <em>Someone calling out &ldquo;it&rsquo;ll be the left one!&rdquo; &mdash; they don&rsquo;t actually know.</em></p>
-          </div>
+        <div class="flip2 short">
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="fc-eyebrow">Relevant information</span><span class="fc-prompt">How does it affect preparation?</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Helps you act</h4><span style="display:block">Contributes directly to selecting or preparing the action. <em>A floor-number display lets you anticipate which elevator is arriving.</em></span></span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front risk"><span class="fc-eyebrow">Noise</span><span class="fc-prompt">How does it affect preparation?</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back risk"><h4>Irrelevant &mdash; may slow you down</h4><span style="display:block">Doesn&rsquo;t help the task and can clog processing. <em>Someone calling out &ldquo;it&rsquo;ll be the left one!&rdquo; &mdash; they don&rsquo;t actually know.</em></span></span>
+            </span>
+          </button>
         </div>
         <div class="callout why">
           <span class="clabel">The challenge</span>
@@ -1215,7 +1309,7 @@
     </div>
   </section>
 
-  <!-- 10 QUANTIFYING: BITS -->
+  <!-- 11 QUANTIFYING: BITS -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1228,13 +1322,13 @@
     </div>
   </section>
 
-  <!-- 11 GOALIE INTERACTIVE -->
+  <!-- 12 GOALIE INTERACTIVE -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
         <div class="eyebrow">See it in action</div>
         <h2>The penalty-kick goalie</h2>
-        <p>A shooter can aim at <strong>6 zones</strong> &mdash; left / center / right &times; high / low. From the goalie&rsquo;s view, every zone is a real possibility for where the ball could go, so uncertainty is high:</p>
+        <p>A shooter can aim at <strong>6 zones</strong> &mdash; left / center / right &times; high / low. From the goalie&rsquo;s view, every zone is a live possibility, so uncertainty is high:</p>
         <figure class="study-fig" style="max-width:420px;margin-left:auto;margin-right:auto">
           <img src="images/ip-goalie-zones.jpg" alt="View from behind a penalty taker facing the goal, with the goal mouth divided into six numbered target zones: 1-2-3 across the top and 4-5-6 across the bottom.">
           <figcaption>The goal, from the shooter&rsquo;s side, divided into the six possible target zones.</figcaption>
@@ -1252,7 +1346,7 @@
           <div class="bitmeter"><div class="fill" id="bitFill" style="width:100%"></div></div>
           <div class="goal-read">
             <div class="gr-eq">I = log&#8322;(<span id="nVal">6</span>) = <b id="bitVal">2.58</b> bits</div>
-            <div class="gr-sub" id="bitSub">All 6 zones are possible &mdash; maximum uncertainty.</div>
+            <div class="gr-sub" id="bitSub">All 6 zones live &mdash; maximum uncertainty.</div>
           </div>
         </div>
         <p style="font-size:13px;color:var(--muted)">If the goalie reads that the shot is going <em>low</em> (ruling out the 3 high zones), uncertainty falls from 2.58 to log&#8322;(3) = 1.58 bits &mdash; less to process, a faster, more confident dive.</p>
@@ -1260,23 +1354,26 @@
     </div>
   </section>
 
-  <!-- 12 MORE/FEWER BITS -->
+  <!-- 13 MORE/FEWER BITS -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
         <div class="eyebrow">Reading the number</div>
         <h2>What more or fewer bits means</h2>
-        <div class="pn-row">
-          <div class="pn neg" style="border-top-color:#d9534f">
-            <div class="pnh" style="color:#d9534f">More bits</div>
-            <h4>More information</h4>
-            <p>&rarr; greater uncertainty<br>&rarr; longer to process<br>&rarr; more &ldquo;room&rdquo; to learn &amp; improve</p>
-          </div>
-          <div class="pn pos">
-            <div class="pnh">Fewer bits</div>
-            <h4>Less information</h4>
-            <p>&rarr; less uncertainty<br>&rarr; quicker to process<br>&rarr; less &ldquo;room&rdquo; to learn</p>
-          </div>
+        <p><strong>Flip each card</strong> to see what the number tells you:</p>
+        <div class="flip2 short" style="margin-top:12px">
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front risk"><span class="fc-eyebrow">More bits</span><span class="fc-prompt">What does a higher number mean for the performer?</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back risk"><h4>More information</h4><span style="display:block">&rarr; greater uncertainty<br>&rarr; longer to process<br>&rarr; more &ldquo;room&rdquo; to learn &amp; improve</span></span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="fc-eyebrow">Fewer bits</span><span class="fc-prompt">What does a lower number mean for the performer?</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Less information</h4><span style="display:block">&rarr; less uncertainty<br>&rarr; quicker to process<br>&rarr; less &ldquo;room&rdquo; to learn</span></span>
+            </span>
+          </button>
         </div>
         <div class="callout">
           <span class="clabel">Why this matters for the rest of the module</span>
@@ -1286,7 +1383,7 @@
     </div>
   </section>
 
-  <!-- 13 CONE CALCULATOR -->
+  <!-- 14 CONE CALCULATOR -->
   <section class="screen" data-screen data-gate="cone">
     <div class="inner">
       <div class="card">
@@ -1314,12 +1411,12 @@
     </div>
   </section>
 
-  <!-- 14 KNOWLEDGE CHECK -->
+  <!-- 15 KNOWLEDGE CHECK -->
   <section class="screen" data-screen data-gate="kc">
     <div class="inner">
       <div class="kc-card">
         <div class="eyebrow">Knowledge check</div>
-        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">An expert tennis player learns to read the server&rsquo;s toss and body position, so that instead of preparing for all 4 serve zones, they can usually narrow it to 2. In information terms, what have they done?</p>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">An expert tennis returner learns to read the server&rsquo;s toss and body position, so that instead of preparing for all 4 serve zones, they can usually narrow it to 2. In information terms, what have they done?</p>
         <div id="kcopts">
           <button class="kc-opt" data-c="1"><strong>Reduced the information to resolve</strong> &mdash; from log&#8322;(4)=2 bits down to log&#8322;(2)=1 bit, so there&rsquo;s less uncertainty and faster preparation.<span class="mark"></span></button>
           <button class="kc-opt" data-c="0"><strong>Increased the information</strong> &mdash; reading cues adds more bits to process.<span class="mark"></span></button>
@@ -1331,7 +1428,7 @@
     </div>
   </section>
 
-  <!-- 15 SUMMARY -->
+  <!-- 16 SUMMARY -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -1408,6 +1505,9 @@
     if(e.key==="ArrowLeft")go(-1);
   });
 
+  // Flip cards
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
   // Expandable reveal cards + reveal-all gate
   var facSeen={};
   window.facTog=function(btn){
@@ -1440,7 +1540,7 @@
       var bits=Math.log2(n);
       nEl.textContent=n; bEl.textContent=bits.toFixed(2);
       fill.style.width=(bits/Math.log2(6)*100)+"%";
-      if(n===6) sub.textContent="All 6 zones are possible \u2014 maximum uncertainty.";
+      if(n===6) sub.textContent="All 6 zones live \u2014 maximum uncertainty.";
       else if(n===3) sub.textContent="Down to 3 zones \u2014 uncertainty nearly halved.";
       else if(n===1) sub.textContent="One zone \u2014 the goalie knows exactly where to go.";
       else sub.textContent=n+" zones live \u2014 uncertainty reduced.";

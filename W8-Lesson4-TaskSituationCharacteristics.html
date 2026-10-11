@@ -975,6 +975,33 @@
 
   /* ===== IP Lesson 1 additions ===== */
   /* input-process-output model */
+  /* uses-of-RT cards */
+  .uses .flipcard{height:210px}
+  .uses .fc-front{border:0;border-top:4px solid var(--uc);background:linear-gradient(180deg,var(--ucs) 0%,#fff 70%);align-items:center;justify-content:center;gap:2px}
+  .uses .u-icon{width:52px;height:52px;border-radius:50%;background:var(--uc);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+  .uses .u-icon svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .uses .u-eyebrow{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--ucd)}
+  .uses .u-title{font-size:17px;font-weight:800;color:var(--ink);line-height:1.3;margin-top:3px;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .uses .fc-hint{font-size:12px;color:var(--ucd);font-weight:700;margin-top:10px}
+  .uses .fc-hint::before{content:"\21BB  "}
+  .uses .fc-back{border:2px solid var(--uc);background:#fff;color:var(--ink);font-size:13.5px}
+  .uses .fc-back h4{margin:0 0 6px;font-size:15px;color:var(--ucd)}
+  .uses .u1{--uc:#1a7f8e;--ucs:#e8f4f6;--ucd:#146470}
+  .uses .u2{--uc:#e0a458;--ucs:#fbf1e3;--ucd:#9a6a22}
+  .uses .u3{--uc:#6a8caf;--ucs:#eef3f8;--ucd:#40638a}
+  .flip2.short .flipcard{height:175px}
+  .uses.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.uses.two{grid-template-columns:1fr}}
+  .uses .u-sub{font-size:13px;color:#556;margin-top:2px}
+  .tex{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  @media(max-width:600px){.tex{grid-template-columns:1fr}}
+  .tex .tx{background:#fff;border:1px solid var(--line);border-radius:9px;padding:12px 14px;border-top:3px solid var(--uc)}
+  .tex .tx h5{margin:0 0 6px;font-size:13px;font-weight:800;color:var(--ucd)}
+  .tex .tx p{margin:0;font-size:13px;color:#445;line-height:1.5}
+  .tex .t1{--uc:#1a7f8e;--ucd:#146470}
+  .tex .t2{--uc:#e0a458;--ucd:#9a6a22}
+  .rerun{font:inherit;font-weight:700;font-size:13.5px;border-radius:8px;padding:8px 15px;cursor:pointer;border:1px solid var(--accent);background:#fff;color:var(--accent-dark);margin-top:12px}
+  .rerun:hover{background:var(--accent-soft)}
   .ipo{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
   .ipo .box{flex:1;min-width:140px;border-radius:10px;padding:14px 15px;text-align:center;color:#fff}
   .ipo .box.in{background:#1a7f8e}
@@ -1160,7 +1187,7 @@
       <div class="title-inner">
         <div class="eyebrow">Module 7 &middot; Lesson 4</div>
         <h1>Task &amp; Situation Characteristics</h1>
-        <p>Hold the performer constant and change the task &mdash; and preparation time changes too. Seven features of the situation, each one a lever on reaction time.</p>
+        <p>In this lesson, we&rsquo;ll consider factors related to the task and the situation, and how each one affects reaction time.</p>
         <div class="title-meta">
           <span><span class="dot"></span> ~30 min</span>
           <span><span class="dot"></span> Action preparation &middot; 4 of 5</span>
@@ -1212,19 +1239,21 @@
     <div class="inner">
       <div class="card">
         <div class="eyebrow">One idea to hold onto</div>
-        <h2>Every factor is a lever in one of two directions</h2>
-        <p>Before we go through them one by one, here&rsquo;s the frame that ties all seven together. Each factor either <strong>adds</strong> to what the performer must process (slowing RT) or <strong>removes</strong> some of it (speeding RT):</p>
-        <div class="pn-row">
-          <div class="pn neg" style="border-top-color:#d9534f">
-            <div class="pnh" style="color:#d9534f">Lengthen RT</div>
-            <h4>More to process</h4>
-            <p>More choices &middot; incompatible mapping &middot; irregular foreperiod &middot; more complexity &middot; tighter accuracy &middot; a competing second signal</p>
-          </div>
-          <div class="pn pos">
-            <div class="pnh">Shorten RT</div>
-            <h4>Less to process</h4>
-            <p>Fewer choices &middot; compatible mapping &middot; regular foreperiod &middot; anticipation &amp; precues &middot; repetition</p>
-          </div>
+        <h2>Each factor can either increase or decrease RT</h2>
+        <p>Before we go through them one by one, here&rsquo;s the frame that ties all seven together. Each factor either <strong>adds</strong> to what the performer must process (increasing RT) or <strong>removes</strong> some of it (decreasing RT). <strong>Flip each card</strong> to see which factors go where:</p>
+        <div class="flip2 short">
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front risk"><span class="fc-eyebrow">Increase RT</span><span class="fc-prompt">Which factors slow preparation down?</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back risk"><h4>More to process</h4><span style="display:block">More choices &middot; incompatible mapping &middot; irregular foreperiod &middot; more complexity &middot; tighter accuracy &middot; a competing second signal</span></span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="fc-eyebrow">Decrease RT</span><span class="fc-prompt">Which factors speed preparation up?</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Less to process</h4><span style="display:block">Fewer choices &middot; compatible mapping &middot; regular foreperiod &middot; anticipation &amp; precues &middot; repetition</span></span>
+            </span>
+          </button>
         </div>
         <p style="margin-top:16px">Keep this two-column map in mind &mdash; as each factor comes up, notice which side it sits on and <em>why</em>. We&rsquo;ll return to it at the end.</p>
       </div>
@@ -1289,7 +1318,11 @@
         </div>
         <div class="callout why">
           <span class="clabel">Why this was a landmark</span>
-          <p>Hick (1952) and Hyman (1953) were among the first to apply <strong>Shannon &amp; Weaver&rsquo;s</strong> communication theory to human performance &mdash; launching the information-processing approach. RT rises with the <strong>bits</strong> of information to process. <em>You&rsquo;ll measure this yourself in this week&rsquo;s lab.</em></p>
+          <p>Hick (1952) and Hyman (1953) were among the first to apply <strong>Shannon &amp; Weaver&rsquo;s</strong> communication theory to human performance &mdash; launching the information-processing approach. RT rises with the <strong>bits</strong> of information to process. <em>You&rsquo;ll measure this yourself in this week&rsquo;s lab or homework activity.</em></p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Reading the slope</span>
+          <p>Each doubling of the choices (1 &rarr; 2, 2 &rarr; 4, 4 &rarr; 8) adds <strong>one bit</strong>. So the increase in RT from one step to the next gives you an estimate of how long the <strong>decision-making (response-selection) stage</strong> takes to process each additional bit of information. That increase is the <strong>slope</strong> of the straight line.</p>
         </div>
       </div>
     </div>
@@ -1327,7 +1360,11 @@
             <div class="crt-results" id="crtResults"></div>
           </div>
         </div>
-        <p style="font-size:13px;color:var(--muted)">Your own numbers will wobble &mdash; but the trend almost always climbs: more choices, slower RT. That&rsquo;s the law, measured on you.</p>
+        <div class="callout why">
+          <span class="clabel">Why does RT climb?</span>
+          <p>Each additional choice places a greater demand on the <strong>decision-making (response-selection)</strong> stage of information processing: there are more possible responses to sort through before you can pick the right one. Identifying the light and pressing the key don&rsquo;t get much harder &mdash; <em>choosing</em> does.</p>
+        </div>
+        <p style="font-size:13px;color:var(--muted)">Your own numbers will be variable &mdash; but the trend almost always climbs: more choices, slower RT. That&rsquo;s the law, measured on you.</p>
         <p class="gate-note" id="crtnote">Finish all four blocks to continue.</p>
       </div>
     </div>
@@ -1339,19 +1376,30 @@
       <div class="card">
         <div class="eyebrow">Beating the law</div>
         <h2>How experts reduce uncertainty</h2>
-        <p>If more choices means slower RT, experts win by <strong>reducing the choices in advance</strong> &mdash; anticipation. Two routes:</p>
-        <div class="pn-row">
-          <div class="pn pos">
-            <div class="pnh">Advance kinematic cues</div>
-            <h4>Reading the body</h4>
-            <p>Experts interpret an opponent&rsquo;s movement earlier and better (e.g., Gredin et al., 2021). Studied with <strong>visual occlusion</strong> &mdash; hiding the display in time or space to see which cues matter.</p>
-          </div>
-          <div class="pn pos" style="border-top-color:var(--gold)">
-            <div class="pnh" style="color:#b5822f">Contextual information</div>
-            <h4>Reading the situation</h4>
-            <p>Probabilities: first serve vs. second, the score, an opponent&rsquo;s tendencies &mdash; game analytics (e.g., Vernon et al., 2018). All shrink the live possibilities before the ball is even struck.</p>
+        <p>If more choices means slower RT, experts win by <strong>reducing the choices in advance</strong> &mdash; anticipation. <strong>Flip each card</strong> to see the two routes:</p>
+        <div class="uses two">
+          <button class="flipcard u1" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="u-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="1.8"/><path d="m9 21 3-6.5 3 6.5"/><path d="M5.5 9 12 10.5 18.5 9"/><path d="M12 10.5V14.5"/></svg></span><span class="u-eyebrow">Route 1</span><span class="u-title">Advance kinematic cues</span><span class="u-sub">Reading the body</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Reading the body</h4><span style="display:block">Experts interpret an opponent&rsquo;s movement earlier and better (e.g., Gredin et al., 2021). Studied with <strong>visual occlusion</strong> &mdash; hiding parts of a video in time or space to see which cues matter.</span></span>
+            </span>
+          </button>
+          <button class="flipcard u2" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="u-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><span class="u-eyebrow">Route 2</span><span class="u-title">Contextual information</span><span class="u-sub">Reading the situation</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Reading the situation</h4><span style="display:block">Probabilities: first serve vs. second, the score, an opponent&rsquo;s tendencies &mdash; game analytics (e.g., Vernon et al., 2018). All shrink the live possibilities before the ball is even struck.</span></span>
+            </span>
+          </button>
+        </div>
+        <div class="callout" style="margin-top:18px">
+          <span class="clabel">Both routes in tennis</span>
+          <div class="tex">
+            <div class="tx t1"><h5>Kinematic cues: the server&rsquo;s body</h5><p>Farrow et al. (2005) showed expert players videos of serves that cut off at different moments. Experts predicted serve direction more accurately when the video stopped <strong>closer to racket&ndash;ball contact</strong>, when the server&rsquo;s movements are most reliable, than when it stopped earlier. What mattered was not <em>how much</em> of the serve they saw, but whether they saw the parts of the movement that are <strong>relevant to serve direction</strong>.</p></div>
+            <div class="tx t2"><h5>Contextual information: the opponent&rsquo;s habits</h5><p>Experienced players usually know an opponent&rsquo;s tendencies &mdash; where they like to aim a <strong>first serve vs. a second serve</strong>, or how their choices change <strong>early vs. late in a match</strong>. That knowledge narrows the likely serve zones before the server even tosses the ball.</p></div>
           </div>
         </div>
+        <p class="refblock">Gredin, N. V., Bishop, D. T., Williams, A. M., &amp; Broadbent, D. P. (2021). Integrating explicit contextual priors and kinematic information during anticipation. <em>Journal of Sports Sciences, 39</em>(7), 783&ndash;791. &nbsp;<a class="cite-link" href="https://www.tandfonline.com/doi/full/10.1080/02640414.2020.1845494" target="_blank" rel="noopener">View article &rarr;</a><br>
+        Farrow, D., Abernethy, B., &amp; Jackson, R. C. (2005). Probing expert anticipation with the temporal occlusion paradigm: Experimental investigations of some methodological issues. <em>Motor Control, 9</em>(3), 330&ndash;349. &nbsp;<a class="cite-link" href="https://doi.org/10.1123/mcj.9.3.330" target="_blank" rel="noopener">View article &rarr;</a></p>
       </div>
     </div>
   </section>
@@ -1553,6 +1601,10 @@
             <span class="fr-face fr-back"><strong>The memory-drum idea.</strong> A more elaborate <strong>motor program</strong> for the <em>whole</em> sequence must be loaded and prepared before the first movement can start &mdash; so RT grows with the amount of information in that program (Henry &amp; Rogers, 1960).</span>
           </span>
         </button>
+        <div class="callout" style="margin-top:16px">
+          <span class="clabel">Try it yourself</span>
+          <p>You&rsquo;ll do a version of this task in this week&rsquo;s <strong>lab or homework activity</strong>, measuring your own reaction time before movements with 1, 2, and 4 parts.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -1585,7 +1637,7 @@
         <div class="statement gold" style="margin:6px 0"><p>If the next attempt requires the <strong>same</strong> response, RT for that attempt is <strong>faster</strong> than the first (Campbell &amp; Proctor, 1993).</p></div>
         <p>The benefit is largest at first and <strong>lessens</strong> as repetitions pile up. It&rsquo;s thought to come from a shortcut in the <strong>response-selection</strong> process &mdash; you&rsquo;ve already selected this response once, so re-selecting it is cheaper.</p>
         <div class="callout">
-          <span class="clabel">You&rsquo;ll see this in lab</span>
+          <span class="clabel">You&rsquo;ll see this in the lab or homework activity</span>
           <p>In a simple-RT task, your own times typically <em>drop</em> over the first several trials, then plateau &mdash; until a lapse in focus spikes one back up.</p>
         </div>
       </div>
@@ -1616,7 +1668,7 @@
         </div>
         <p>The second response can&rsquo;t be selected until the first is dealt with &mdash; so it waits. First reported by <strong>Telford (1931)</strong>; reviewed in Lien &amp; Proctor (2002). It&rsquo;s why a good <strong>fake</strong> works: the soccer attacker&rsquo;s first move (signal 1) delays the defender&rsquo;s response to the real move (signal 2).</p>
         <figure class="study-fig">
-          <img src="images/ts-soccer-fake.jpg" alt="A soccer attacker with the ball feints one way, drawing the defender to commit, before pushing off in the opposite direction.">
+          <img src="images/ts-soccer-fake.gif" onerror="this.onerror=null;this.src='images/ts-soccer-fake.jpg'" alt="A soccer attacker with the ball feints one way, drawing the defender to commit, before pushing off in the opposite direction.">
           <figcaption>The fake is signal 1; the real move is signal 2. The defender&rsquo;s response to signal 2 is delayed &mdash; the PRP in action.</figcaption>
         </figure>
       </div>
@@ -1753,6 +1805,7 @@
   };
   function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
   window.doFlipResult=function(box){ box.classList.toggle("flipped"); };
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
 
   // Choice-RT demo (feel the Hick-Hyman law)
   (function(){
@@ -1851,8 +1904,19 @@
       });
       document.getElementById("crtLine").setAttribute("points", poly.join(" "));
       var rows=results.map(function(r){return "<tr><td>"+r.n+"</td><td>"+(r.rt||"\u2014")+" ms</td></tr>";}).join("");
-      document.getElementById("crtResults").innerHTML="<table><tr><th>Choices</th><th>Your mean RT</th></tr>"+rows+"</table>";
+      document.getElementById("crtResults").innerHTML="<table><tr><th>Choices</th><th>Your mean RT</th></tr>"+rows+"</table>"+
+        '<button class="rerun" type="button" id="crtAgain">&#8635; Run again for the next person</button>';
+      document.getElementById("crtAgain").addEventListener("click", resetCrt);
       openGate("crt"); document.getElementById("crtnote").textContent="You can continue.";
+    }
+    function resetCrt(){
+      blockI=0; trialInBlock=0; results=[]; blockRTs=[]; awaiting=false; armed=false;
+      document.getElementById("crtChart").hidden=true;
+      document.getElementById("crtPlay").hidden=true;
+      document.getElementById("crtStart").hidden=false;
+      document.getElementById("crtBegin").textContent="Begin block 1 (1 choice)";
+      document.getElementById("crtLine").setAttribute("points","");
+      document.getElementById("crtPts").innerHTML="";
     }
     document.getElementById("crtBegin").addEventListener("click", startBlock);
   })();
@@ -1864,8 +1928,10 @@
     var trial=0, go=-1, shownAt=0, awaiting=false, armed=false, trialCued=false;
     var cuedRTs=[], uncuedRTs=[];
     // schedule: 4 cued, 4 uncued, shuffled
-    var sched=[]; for(var i=0;i<4;i++){sched.push(true);sched.push(false);}
-    for(var j=sched.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=sched[j];sched[j]=sched[r];sched[r]=t;}
+    var sched=[];
+    function shuffleSched(){ sched=[]; for(var i=0;i<4;i++){sched.push(true);sched.push(false);}
+      for(var j=sched.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=sched[j];sched[j]=sched[r];sched[r]=t;} }
+    shuffleSched();
     var tgEls=targets.querySelectorAll(".pcd-tg");
     tgEls.forEach(function(tg){ tg.addEventListener("click",function(){ respond(parseInt(tg.dataset.i,10)); }); });
     function clear(){ tgEls.forEach(function(t){ t.classList.remove("cue","go"); }); }
@@ -1915,7 +1981,13 @@
       res.innerHTML=
         '<div class="pr-row"><span><b style="color:#9a6a1a">Precued</b> trials</span><b>'+mc+' ms</b></div>'+
         '<div class="pr-row"><span>No-precue trials</span><b>'+mu+' ms</b></div>'+
-        '<div class="pr-diff">'+(diff>=0?'Precue saved you '+diff+' ms':'About the same this time ('+diff+' ms)')+' \u2014 a head start on selecting the response.</div>';
+        '<div class="pr-diff">'+(diff>=0?'Precue saved you '+diff+' ms':'About the same this time ('+diff+' ms)')+' \u2014 a head start on selecting the response.</div>'+
+        '<button class="rerun" type="button" id="pcdAgain">&#8635; Run again for the next person</button>';
+      document.getElementById("pcdAgain").addEventListener("click",function(){
+        trial=0; cuedRTs=[]; uncuedRTs=[]; awaiting=false; armed=false; shuffleSched(); clear();
+        tgEls.forEach(function(t){ t.disabled=false; });
+        res.hidden=true; document.getElementById("pcdPlay").hidden=true; document.getElementById("pcdStart").hidden=false;
+      });
       openGate("pcd"); document.getElementById("pcdnote").textContent="You can continue.";
     }
     document.getElementById("pcdBegin").addEventListener("click",function(){
@@ -2040,25 +2112,34 @@
     var TOTT=12, trial=0, cur=null, trialCompat=null, shownAt=0;
     var compRTs=[], incompRTs=[];
     // Build a balanced, shuffled schedule: 6 compatible, 6 incompatible
-    var sched=[]; for(var i=0;i<6;i++){sched.push(true);sched.push(false);}
-    for(var j=sched.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=sched[j];sched[j]=sched[r];sched[r]=t;}
+    var sched=[];
+    function shuffleSched(){ sched=[]; for(var i=0;i<6;i++){sched.push(true);sched.push(false);}
+      for(var j=sched.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=sched[j];sched[j]=sched[r];sched[r]=t;} }
+    shuffleSched();
     function mean(a){ return a.length? Math.round(a.reduce(function(x,y){return x+y;},0)/a.length):0; }
     function finish(){
       wordEl.textContent="\u2713"; wordEl.style.color="#2e9e6b"; fb.textContent="";
-      score.textContent="Complete \u2014 "+TOTT+" trials";
+      score.textContent="Complete \u2014 "+(compRTs.length+incompRTs.length)+" correct trials";
       document.querySelectorAll("#stroopOpts button").forEach(function(b){b.disabled=true;});
       var mc=mean(compRTs), mi=mean(incompRTs), diff=mi-mc;
       results.hidden=false;
       results.innerHTML=
         '<div class="sr-row"><span>Mean RT &mdash; <b style="font-size:14px">compatible</b> (word matches ink)</span><b>'+mc+' ms</b></div>'+
         '<div class="sr-row incomp"><span>Mean RT &mdash; <b style="font-size:14px">incompatible</b> (word &ne; ink)</span><b>'+mi+' ms</b></div>'+
-        '<div class="sr-diff">Stroop effect = '+(diff>=0?'+':'')+diff+' ms slower when they mismatch'+(diff>0?' \u2014 exactly the point.':' (try again, go faster!).')+'</div>';
+        '<div class="sr-diff">Stroop effect = '+(diff>=0?'+':'')+diff+' ms slower when they mismatch'+(diff>0?' \u2014 exactly the point.':' (try again, go faster!).')+'</div>'+
+        '<button class="rerun" type="button" id="stroopAgain">&#8635; Run again for the next person</button>';
+      document.getElementById("stroopAgain").addEventListener("click",function(){
+        trial=0; compRTs=[]; incompRTs=[]; awaiting=false; shuffleSched();
+        document.querySelectorAll("#stroopOpts button").forEach(function(b){b.disabled=false;});
+        wordEl.textContent="\u2014"; wordEl.style.color=""; fb.textContent=""; score.textContent="Trial 0 of "+TOTT;
+        results.hidden=true; document.getElementById("stroopPlay").hidden=true; document.getElementById("stroopStart").hidden=false;
+      });
       openGate("stroop"); document.getElementById("stroopnote").textContent="You can continue.";
     }
     var awaiting=false;   // true only while a response is expected for the current trial
     function next(){
       trial++;
-      if(trial>TOTT){ finish(); return; }
+      if(trial>sched.length){ finish(); return; }
       var compat=sched[trial-1]; trialCompat=compat;
       var textColor=COLORS[Math.floor(Math.random()*COLORS.length)];
       var wordName;
@@ -2067,7 +2148,7 @@
       cur=textColor.k;
       wordEl.textContent=wordName.label.toLowerCase();
       wordEl.style.color=textColor.hex;
-      fb.textContent=""; score.textContent="Trial "+trial+" of "+TOTT;
+      fb.textContent=""; score.textContent="Trial "+trial+" of "+sched.length;
       // Start the clock on the next animation frame, after the new word has painted.
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ shownAt=performance.now(); awaiting=true; }); });
     }
