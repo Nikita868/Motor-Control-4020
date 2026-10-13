@@ -1499,15 +1499,15 @@
       <div class="card">
         <div class="eyebrow">Try it yourself</div>
         <h2>Can you stop the lift in time?</h2>
-        <p>Here&rsquo;s a mini version of Slater-Hammel&rsquo;s task. Remember: in the real study the response was to <strong>lift a finger</strong> off a key at the 800&nbsp;ms mark. So in this demo:</p>
+        <p>Here&rsquo;s a mini version of Slater-Hammel&rsquo;s task. In the real study, the finger was already <strong>pressing a key</strong> and the planned response was to <strong>lift it</strong> at the 800&nbsp;ms mark. So in this demo the lift is <em>already armed</em> &mdash; it will fire automatically at 800 unless you cancel it in time.</p>
         <ul class="sum-list" style="margin-top:4px">
-          <li><span class="n">1</span><span class="t"><strong>Press and hold</strong> the space bar (or the button). A bar starts sweeping toward the <strong>800&nbsp;ms</strong> mark.</span></li>
-          <li><span class="n">2</span><span class="t">Your plan is to <strong>lift</strong> (release) exactly when the bar reaches 800 &mdash; that&rsquo;s the prepared movement.</span></li>
-          <li><span class="n">3</span><span class="t">But on some trials a <strong style="color:#d9534f">red STOP line</strong> appears partway along. That&rsquo;s your signal to <strong>cancel the lift and keep holding</strong> &mdash; do <em>not</em> release.</span></li>
+          <li><span class="n">1</span><span class="t">Press <strong>Start trial</strong>. The bar sweeps toward the <strong>800&nbsp;ms</strong> mark, where the lift is set to fire.</span></li>
+          <li><span class="n">2</span><span class="t">On most trials, no signal appears &mdash; the lift simply fires at 800 (the normal, planned movement).</span></li>
+          <li><span class="n">3</span><span class="t">But on some trials a <strong style="color:#d9534f">red STOP line</strong> appears partway along. That&rsquo;s your signal to <strong>cancel the lift</strong> &mdash; hit <em>Cancel lift</em> (or press Space) <strong>before</strong> the bar reaches 800.</span></li>
         </ul>
         <div class="callout why">
           <span class="clabel">What the red line is testing</span>
-          <p>The red line is the <strong>stop signal</strong>. The question is: how much <em>warning</em> do you need to successfully abort the lift? If the line appears <strong>early</strong>, you have time to cancel. If it appears <strong>late</strong> (close to 800), your lift is already &ldquo;committed&rdquo; and comes out anyway. The demo tracks how often you succeed at each timing.</p>
+          <p>The red line is the <strong>stop signal</strong>. The question is: how much <em>warning</em> do you need to successfully abort the lift? If the line appears <strong>early</strong>, you have time to cancel. If it appears <strong>late</strong> (close to 800), the lift is already &ldquo;committed&rdquo; and fires anyway. The demo tracks how often you succeed at each timing.</p>
         </div>
         <div class="shdemo" id="shDemo">
           <div class="sh-track">
@@ -1517,9 +1517,10 @@
             <div class="sh-targetlbl">800 ms</div>
           </div>
           <div class="sh-controls">
-            <button class="btn btn-next" id="shHold" style="min-width:200px">Hold to start (or press Space)</button>
+            <button class="btn btn-next" id="shGo" style="min-width:130px">Start trial</button>
+            <button class="btn" id="shCancel" disabled style="min-width:160px;background:#d9534f;color:#fff">Cancel lift</button>
           </div>
-          <p class="sh-result" id="shResult">Press and <strong>hold</strong> the button (or the space bar) to begin a trial.</p>
+          <p class="sh-result" id="shResult">Press <strong>Start trial</strong> to begin. Watch for a red STOP line &mdash; if it appears, hit <em>Cancel lift</em> (or Space) before the bar reaches 800.</p>
           <div class="sh-plotwrap" id="shPlotWrap" hidden>
             <div class="sh-plot-title">Your results: probability of stopping vs. when the STOP line appeared</div>
             <svg id="shPlot" viewBox="0 0 440 240" role="img" aria-label="Scatter plot building up your probability of successfully stopping as a function of how long before the 800 ms target the stop line appeared."></svg>
@@ -1732,17 +1733,18 @@
   // Flip cards
   window.doFlip=function(card){ card.classList.toggle("flipped"); };
 
-  // Slater-Hammel demo (hold-and-release / lift version, with results plot)
+  // Slater-Hammel demo: armed-lift / cancel model (robust, records every trial)
   (function(){
     var fill=document.getElementById("shFill"), stopLine=document.getElementById("shStop");
-    var holdBtn=document.getElementById("shHold"), result=document.getElementById("shResult");
+    var goBtn=document.getElementById("shGo"), cancelBtn=document.getElementById("shCancel");
+    var result=document.getElementById("shResult");
     var plotWrap=document.getElementById("shPlotWrap"), plot=document.getElementById("shPlot"), plotNote=document.getElementById("shPlotNote");
     if(!fill) return;
     var DUR=1800;            // bar reaches the 800 mark at t=DUR ms (slowed for playability)
-    var raf=null, t0=0, stopPct=null, stopMsBefore=null, running=false, held=false, done=false;
+    var raf=null, t0=0, stopPct=null, stopMsBefore=null, running=false, cancelled=false;
     var trials=[];           // {ms: time-before-target the stop line appeared, ok: stopped?}
     function setResult(cls,html){ result.className="sh-result"+(cls?" "+cls:""); result.innerHTML=html; }
-    function endTrial(cls,msg){ running=false; done=true; cancelAnimationFrame(raf); holdBtn.disabled=false; holdBtn.textContent="Hold to start (or press Space)"; setResult(cls,msg); }
+    function endTrial(){ running=false; cancelAnimationFrame(raf); goBtn.disabled=false; cancelBtn.disabled=true; }
 
     function frame(ts){
       if(!t0) t0=ts;
@@ -1750,12 +1752,13 @@
       fill.style.width=(pct*100)+"%";
       if(stopPct!==null && stopLine.hidden && pct>=stopPct-0.001){ stopLine.hidden=false; }
       if(pct>=1){
-        // bar reached 800 and they are STILL holding (never lifted)
+        // bar reached 800: the armed lift FIRES now (nobody cancelled in time)
+        endTrial();
         if(stopPct===null){
-          endTrial("no","&#10007; <strong>Missed the lift.</strong> On a go trial you were meant to <em>release</em> right at 800 ms. Try to time the release to the target.");
+          setResult("ok","&#10003; <strong>Go trial &mdash; lift fired at 800 ms.</strong> No stop signal appeared, so the planned movement executed as intended.");
         } else {
-          trials.push({ms:stopMsBefore, ok:true});
-          endTrial("ok","&#10003; <strong>Successfully stopped!</strong> The STOP line appeared ~"+Math.round(stopMsBefore)+" ms before the target and you held &mdash; the lift was cancelled in time.");
+          trials.push({ms:stopMsBefore, ok:false});
+          setResult("no","&#10007; <strong>Too late &mdash; the lift fired.</strong> The STOP line appeared only ~"+Math.round(stopMsBefore)+" ms before the target, and you couldn&rsquo;t cancel in time.");
           drawPlot();
         }
         return;
@@ -1764,43 +1767,43 @@
     }
     function startTrial(){
       if(running) return;
-      running=true; done=false; held=true; t0=0;
+      running=true; cancelled=false; t0=0;
       fill.style.width="0%"; stopLine.hidden=true;
-      holdBtn.disabled=true; holdBtn.textContent="Holding… (release to lift)";
-      // 70% STOP trials; stop line appears 90-480 ms before the 800 target
-      if(Math.random()<0.70){ stopMsBefore=90+Math.random()*390; stopPct=1-(stopMsBefore/DUR); stopLine.style.left=(stopPct*100)+"%"; }
+      goBtn.disabled=true; cancelBtn.disabled=false;
+      // 70% STOP trials; stop line appears 90-520 ms before the 800 target
+      if(Math.random()<0.70){ stopMsBefore=90+Math.random()*430; stopPct=1-(stopMsBefore/DUR); stopLine.style.left=(stopPct*100)+"%"; }
       else { stopPct=null; stopMsBefore=null; }
-      setResult("","Hold steady&hellip; release right at the 800 ms mark &mdash; unless the red STOP line appears.");
+      setResult("","Watch the bar&hellip; if a red STOP line appears, hit <strong>Cancel lift</strong> before it reaches 800.");
       raf=requestAnimationFrame(frame);
     }
-    function releaseLift(){
-      if(!running || !held) return;
-      held=false;
-      var el=performance.now()-t0, pct=el/DUR;
-      if(pct>=1) return; // already completed by frame()
+    function cancelLift(){
+      if(!running || cancelled) return;
+      cancelled=true;
+      var pct=Math.min((performance.now()-t0)/DUR,1);
+      if(pct>=1) return; // lift already fired this frame
+      endTrial();
       if(stopPct===null){
-        // go trial: released -> that's the lift. Judge timing.
-        var offMs=Math.round((1-pct)*DUR);
-        endTrial("ok","&#10003; <strong>Go trial &mdash; lift executed.</strong> You released ~"+offMs+" ms before the target. On go trials the planned lift is supposed to happen; nicely done.");
+        // no stop signal this trial -> cancelling was an error (false alarm)
+        setResult("no","&#10007; <strong>False alarm.</strong> There was no STOP signal on this trial &mdash; you only cancel when the red line appears. (Not counted.)");
+      } else if(pct < stopPct){
+        // cancelled before the stop line even appeared -> too eager, not a valid response
+        setResult("no","&#9888; <strong>Jumped the gun.</strong> You cancelled before the STOP line appeared. Wait for the red line, then cancel. (Not counted.)");
       } else {
-        // STOP trial but they lifted anyway -> failed to inhibit
-        trials.push({ms:stopMsBefore, ok:false});
-        endTrial("no","&#10007; <strong>Couldn&rsquo;t stop the lift.</strong> The STOP line appeared only ~"+Math.round(stopMsBefore)+" ms before the target &mdash; too little time to cancel, so the lift came out anyway.");
+        // valid: cancelled after the stop line, before 800 -> success
+        trials.push({ms:stopMsBefore, ok:true});
+        setResult("ok","&#10003; <strong>Lift cancelled in time!</strong> The STOP line appeared ~"+Math.round(stopMsBefore)+" ms before the target and you stopped the movement.");
         drawPlot();
       }
     }
 
-    // pointer + keyboard (space) control
-    holdBtn.addEventListener("pointerdown",function(e){ e.preventDefault(); startTrial(); });
-    holdBtn.addEventListener("pointerup",function(e){ e.preventDefault(); releaseLift(); });
-    holdBtn.addEventListener("pointerleave",function(){ if(held) releaseLift(); });
+    goBtn.addEventListener("click",function(){ startTrial(); });
+    cancelBtn.addEventListener("click",function(){ cancelLift(); });
+    // Space = cancel (ignore auto-repeat); only while this screen is active and a trial is running
     document.addEventListener("keydown",function(e){
-      if(e.code==="Space" && document.querySelector(".screen.active #shDemo")){
-        e.preventDefault(); if(!running) startTrial();
-      }
-    });
-    document.addEventListener("keyup",function(e){
-      if(e.code==="Space" && document.querySelector(".screen.active #shDemo")){ e.preventDefault(); releaseLift(); }
+      if(e.code!=="Space" || e.repeat) return;
+      if(!document.querySelector(".screen.active #shDemo")) return;
+      e.preventDefault();
+      if(running) cancelLift(); else startTrial();
     });
 
     // Results plot: probability of stopping vs. stop-signal time before target
