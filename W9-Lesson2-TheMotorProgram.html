@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 8 / Lesson 2 - The Motor Program
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 8 · Lesson 2 — The Motor Program</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  a.cite-link{color:var(--accent-dark);font-weight:700;text-decoration:none;white-space:nowrap}
+  a.cite-link:hover{text-decoration:underline}
+  .refblock{font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line);line-height:1.65}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* ===== Lesson 2 additions ===== */
+  /* schedule visualizer */
+  .sv-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  @media(max-width:560px){.sv-controls{grid-template-columns:1fr}}
+  .svbtn{border:2px solid var(--line);border-radius:9px;padding:13px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;text-align:center;transition:.15s}
+  .svbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .svbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .svbtn .svb-t{font-size:15px;font-weight:800;display:block}
+  .svbtn .svb-s{font-size:11.5px;opacity:.8;display:block;margin-top:2px}
+  .sv-stage{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:20px}
+  .sv-track{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:44px;align-items:center}
+  .sv-cell{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .sv-cell.show{opacity:1;transform:none}
+  .sv-c1{background:#1a7f8e}.sv-c2{background:#e0a458}.sv-c3{background:#6a8caf}.sv-c4{background:#c46b6b}
+  .sv-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:12.5px;color:#3d4d5c}
+  .sv-legend span{display:inline-flex;align-items:center;gap:6px}
+  .sv-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sv-readout{margin-top:16px;padding:16px 18px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:70px}
+  .sv-readout .svr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sv-readout h4{font-size:16px;margin:5px 0 6px}
+  .sv-readout p{font-size:14px;color:#3d4d5c;margin:0}
+  .sv-ci{display:inline-block;margin-top:9px;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px}
+  .sv-ci.low{background:#eafaf1;color:#1d6b47}
+  .sv-ci.med{background:#fff6e6;color:#b5822f}
+  .sv-ci.high{background:#fdeeee;color:#a3403c}
+
+  /* CI continuum */
+  .ci-bar{position:relative;height:54px;margin:24px 0 10px;border-radius:27px;
+    background:linear-gradient(90deg,#eafaf1,#fff6e6,#fdeeee);border:1px solid var(--line)}
+  .ci-bar .ci-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .ci-bar .ci-end.l{left:20px;color:#1d6b47}
+  .ci-bar .ci-end.r{right:20px;color:#a3403c}
+  .ci-marks{display:flex;justify-content:space-between;margin-top:14px;gap:8px}
+  .ci-mark{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .ci-mark h4{font-size:14px;margin:0 0 3px}
+  .ci-mark .cim-seq{font-family:monospace;font-size:12px;color:var(--accent-dark);letter-spacing:1px;margin:4px 0}
+  .ci-mark p{font-size:12px;color:#556;margin:4px 0 0;line-height:1.4}
+
+  /* factors accordion (block-safe reveal, from limc pattern) */
+  .fac-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .fac{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;width:100%;transition:.16s;display:block}
+  .fac:hover{border-color:var(--accent);background:#fafdfe}
+  .fac[aria-expanded="true"]{border-color:var(--accent)}
+  .fac-head{display:flex;align-items:center;gap:12px;padding:15px 17px}
+  .fac-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .fac-t{font-size:15px;font-weight:700;color:var(--ink)}
+  .fac-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .fac[aria-expanded="true"] .fac-plus{transform:rotate(45deg)}
+  .fac-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;
+    padding:0 17px;font-size:14px;color:#3d4d5c;line-height:1.55}
+  .fac[aria-expanded="true"] .fac-body{max-height:320px;padding:0 17px 16px}
+
+
+  /* ===== AFB Lesson 1 additions ===== */
+  /* video embed / placeholder */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+  /* KR/KP sorter */
+  .krkp-intro{display:flex;gap:12px;margin:16px 0}
+  .krkp-key{flex:1;border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fff}
+  .krkp-key.kr{border-top:3px solid var(--accent)}
+  .krkp-key.kp{border-top:3px solid var(--gold)}
+  .krkp-key h4{margin:0 0 4px;font-size:14px}
+  .krkp-key.kr h4{color:var(--accent-dark)}
+  .krkp-key.kp h4{color:#b5822f}
+  .krkp-key p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  .sortq{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fff;margin-bottom:12px}
+  .sortq .sq-txt{font-size:14.5px;color:var(--ink);margin-bottom:11px;line-height:1.5}
+  .sortq .sq-txt .ctx{font-weight:700;color:var(--accent-dark)}
+  .sq-btns{display:flex;gap:9px}
+  .sq-btns button{flex:1;border:2px solid var(--line);border-radius:8px;padding:9px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .sq-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .sq-btns button:disabled{cursor:default}
+  .sq-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .sq-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .sq-fb{font-size:12.5px;margin-top:9px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .sq-fb[hidden]{display:none}
+
+  /* two-axis classify (KR/KP x during/after) */
+  .classify-item{border:1px solid var(--line);border-radius:10px;padding:15px 17px;background:#fff;margin-bottom:14px}
+  .ci-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:13px}
+  .ci-scenario b{color:var(--accent-dark)}
+  .ci-axes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.ci-axes{grid-template-columns:1fr}}
+  .ci-axis .ax-label{font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .ci-axis .ax-btns{display:flex;gap:7px}
+  .ci-axis .ax-btns button{flex:1;border:2px solid var(--line);border-radius:7px;padding:8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s}
+  .ci-axis .ax-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .ci-axis .ax-btns button:disabled{cursor:default}
+  .ci-axis .ax-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .ci-axis .ax-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .ci-fb{font-size:12.5px;margin-top:11px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .ci-fb[hidden]{display:none}
+  .ci-img{margin:4px 0 12px}
+  .ci-img img{max-width:220px;width:100%;height:auto;border-radius:8px;border:1px solid var(--line)}
+  .ci-img svg{border-radius:8px;border:1px solid var(--line)}
+
+
+  /* ===== AFB Lesson 2 additions ===== */
+  /* four-roles overview grid */
+  .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.roles-grid{grid-template-columns:1fr}}
+  .role-card{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fff;position:relative}
+  .role-card .rc-tag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:9px}
+  .role-card.good .rc-tag{background:#eafaf1;color:#1d6b47}
+  .role-card.risk .rc-tag{background:#fdeeee;color:#a3403c}
+  .role-card h4{margin:0 0 5px;font-size:15.5px;color:var(--ink)}
+  .role-card p{margin:0;font-size:13px;color:#556;line-height:1.5}
+
+  /* error-loop svg holder */
+  .loopfig{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .loopfig svg{width:100%;max-width:560px;height:auto}
+  .loopfig .lf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic}
+
+  /* role sorter */
+  .rolesort-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .rsi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .rsi-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.rsi-btns{grid-template-columns:1fr}}
+  .rsi-btns button{border:2px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s;text-align:left}
+  .rsi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .rsi-btns button:disabled{cursor:default}
+  .rsi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .rsi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .rsi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .rsi-fb[hidden]{display:none}
+
+
+  /* ===== AFB Lesson 3 additions ===== */
+  /* group badge pill (wider than obj-num, for percentages) */
+  .grp-badge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:26px;padding:0 10px;
+    border-radius:14px;color:#fff;font-weight:800;font-size:13px;flex:none;margin-right:2px;letter-spacing:.3px}
+  /* study chart holder */
+  .chartfig{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .chartfig svg{width:100%;max-width:520px;height:auto}
+  .chartfig .cf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic;text-align:left}
+
+  /* bandwidth interactive */
+  .bw-tool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .bw-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .bw-controls label{font-size:14px;font-weight:700;color:var(--ink)}
+  .bw-controls input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+  .bw-val{font-size:15px;font-weight:800;color:var(--accent-dark);min-width:56px;text-align:right}
+  .bw-stage{margin-top:6px}
+  .bw-readout{margin-top:12px;display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px}
+  .bw-readout .ro{padding:8px 14px;border-radius:8px;background:var(--accent-soft);font-weight:700;color:#245a63}
+  .bw-readout .ro b{color:var(--accent-dark)}
+  .bw-hint{font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* full-width flip result box */
+  .flipresult{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;width:100%;margin:6px 0;display:block}
+  .flipresult .fr-inner{position:relative;display:block;width:100%;min-height:148px;transition:transform .55s;transform-style:preserve-3d}
+  .flipresult.flipped .fr-inner{transform:rotateY(180deg)}
+  .fr-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px 22px;box-sizing:border-box}
+  .fr-front{background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff}
+  .fr-front .fr-q{font-size:14.5px;font-weight:700;line-height:1.4}
+  .fr-front .fr-hint{font-size:12px;opacity:.85;margin-top:7px}
+  .fr-front .fr-hint::before{content:"\21BB  "}
+  .fr-back{background:#fdf3e0;border:1px solid #e0a458;transform:rotateY(180deg);color:#5a3d12;font-size:15px;line-height:1.55}
+  .fr-back strong{color:#b5822f}
+
+  /* flippable cards */
+  .flip-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.flip-grid{grid-template-columns:1fr}}
+  .flipcard{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1000px;height:130px;width:100%;display:block}
+  .flipcard .fc-inner{position:relative;display:block;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+  .fc-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px 16px;box-sizing:border-box}
+  .fc-front{background:#fff}
+  .fc-front .tm-n{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .fc-front .fc-title{font-size:16px;font-weight:800;color:var(--ink)}
+  .fc-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:8px}
+  .fc-back{background:var(--accent-soft);transform:rotateY(180deg);font-size:14px;color:#245a63;line-height:1.5}
+  .flipcard.flipped .fc-front{border-color:#2e9e6b}
+  /* taller flip cards for comparison content (heading + sentences) */
+  .flip2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .flip3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:18px}
+  @media(max-width:640px){.flip3{grid-template-columns:1fr}}
+  .flip4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+  @media(max-width:700px){.flip4{grid-template-columns:1fr 1fr}}
+  @media(max-width:420px){.flip4{grid-template-columns:1fr}}
+  .flip4 .flipcard{height:190px}
+  @media(max-width:560px){.flip2{grid-template-columns:1fr}}
+  .flip2 .flipcard{height:210px}
+  .flip2 .fc-face{align-items:stretch;justify-content:flex-start;text-align:left;padding:16px 18px}
+  .flip2 .fc-front{background:#fff}
+  .flip2 .fc-front .fc-eyebrow{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--accent-dark)}
+  .flip2 .fc-front.risk .fc-eyebrow{color:#d9534f}
+  .flip2 .fc-front .fc-prompt{font-size:15px;font-weight:700;color:var(--ink);margin-top:8px;line-height:1.4}
+  .flip2 .fc-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:auto}
+  .flip2 .fc-front .fc-hint::before{content:"\21BB  "}
+  .flip2 .fc-back{background:var(--accent-soft);color:#245a63;font-size:13.5px;line-height:1.5}
+  .flip2 .fc-back.risk{background:#fdeeee;color:#a3403c}
+  .flip2 .fc-back h4{margin:0 0 6px;font-size:15px;color:var(--accent-dark)}
+  .flip2 .fc-back.risk h4{color:#a3403c}
+
+  /* technique overview list */
+  .tech-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:600px){.tech-list{grid-template-columns:1fr}}
+  .tech-mini{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff}
+  .tech-mini .tm-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .tech-mini h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+  .tech-mini p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+
+
+  /* ===== AFB Lesson 4 additions ===== */
+  /* KP case number badge in headings */
+  .kp-num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
+    background:var(--accent);color:#fff;font-size:18px;font-weight:800;margin-right:12px;vertical-align:middle;flex:none}
+  /* match/sort item (reuse rolesort look) */
+  .match-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .mi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .mi-scenario .q{font-weight:700;color:var(--accent-dark)}
+  .mi-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  @media(max-width:520px){.mi-btns{grid-template-columns:1fr}}
+  .mi-btns button{border:2px solid var(--line);border-radius:8px;padding:10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s;text-align:left}
+  .mi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .mi-btns button:disabled{cursor:default}
+  .mi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .mi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .mi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .mi-fb[hidden]{display:none}
+  /* video placeholder (reuse from L1 pattern) */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+
+  /* ===== Theory Lesson 1 additions ===== */
+  /* figure holder for SVGs */
+  .svgfig{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .svgfig svg{width:100%;max-width:560px;height:auto}
+  .svgfig .sf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic;text-align:left}
+  /* three-criteria (theory tests) */
+  .crit-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+  @media(max-width:600px){.crit-list{grid-template-columns:1fr}}
+  .crit{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fff;border-top:3px solid var(--accent)}
+  .crit .cn{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .crit h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+  .crit p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  /* practitioner 4-step (identify/create/predict/evaluate) */
+  .why-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+  @media(max-width:640px){.why-steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:400px){.why-steps{grid-template-columns:1fr}}
+  .why-step{border:1px solid var(--line);border-radius:10px;padding:13px 14px;background:#fff}
+  .why-step .ws-n{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--accent-dark);text-transform:uppercase}
+  .why-step h4{margin:5px 0 5px;font-size:14.5px;color:var(--ink)}
+  .why-step p{margin:0;font-size:12px;color:#556;line-height:1.45}
+  /* name card (in place of a portrait) */
+  .namecard{display:flex;align-items:center;gap:16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:16px 18px;background:#fafdfe;margin:18px 0}
+  .namecard .nc-badge{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+  .namecard .nc-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--accent)}
+  .namecard .nc-body h4{margin:0 0 3px;font-size:15.5px;color:var(--ink)}
+  .namecard .nc-body p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  /* DOF counter interactive */
+  .dof-tool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .dof-joints{display:flex;flex-direction:column;gap:10px}
+  .dof-joint{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:9px;padding:11px 15px;background:#fafbfc}
+  .dof-joint .dj-name{font-size:14px;font-weight:700;color:var(--ink)}
+  .dof-joint .dj-name small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .dof-joint .dj-btns{display:flex;gap:6px;flex:none}
+  .dof-joint .dj-btns button{width:34px;height:34px;border:2px solid var(--line);border-radius:7px;background:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;color:var(--ink);transition:.15s}
+  .dof-joint .dj-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .dof-joint .dj-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .dof-joint .dj-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .dof-joint .dj-btns button:disabled{cursor:default}
+  .dof-total{margin-top:14px;text-align:center;font-size:15px;font-weight:700;color:var(--accent-dark);padding:12px;border-radius:9px;background:var(--accent-soft)}
+  .dof-total b{font-size:22px}
+
+
+  /* ===== Theory Lesson 2 additions ===== */
+  /* hierarchy diagram tiers */
+  .hier{display:flex;flex-direction:column;align-items:center;gap:0;margin:6px auto;max-width:340px}
+  .hier .tier{width:100%;text-align:center;border-radius:9px;padding:12px 14px;color:#fff;font-weight:700;font-size:14px}
+  .hier .tier small{display:block;font-weight:400;font-size:11.5px;opacity:.9;margin-top:2px}
+  .hier .arrow{font-size:20px;color:#b7c2ca;line-height:1;margin:4px 0}
+  /* pipeline (modular) */
+  .pipe{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
+  .pipe .stage{flex:1;min-width:120px;border:1px solid var(--line);border-radius:9px;padding:12px 13px;background:#fff;text-align:center}
+  .pipe .stage .pn-num{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--accent-dark);text-transform:uppercase}
+  .pipe .stage h4{margin:5px 0 4px;font-size:14px;color:var(--ink)}
+  .pipe .stage p{margin:0;font-size:12px;color:#556;line-height:1.4}
+  .pipe .parrow{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:20px;font-weight:700;padding:0 4px}
+  @media(max-width:600px){.pipe{flex-direction:column}.pipe .parrow{transform:rotate(90deg);padding:4px 0}}
+  /* flippable pipeline */
+  .pipe-flip{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:nowrap}
+  .pipe-flip .flipcard{flex:1;height:150px}
+  .pipe-flip .parrow{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:20px;font-weight:700;padding:0 5px;flex:none}
+  @media(max-width:600px){.pipe-flip{flex-direction:column}.pipe-flip .flipcard{width:100%}.pipe-flip .parrow{transform:rotate(90deg);padding:4px 0}}
+
+
+  /* ===== Theory Lesson 3 additions ===== */
+  /* constraints sorter (reuse match-item look) */
+  .match-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .mi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .mi-scenario .q{font-weight:700;color:var(--accent-dark)}
+  .mi-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  @media(max-width:560px){.mi-btns{grid-template-columns:1fr}}
+  .mi-btns button{border:2px solid var(--line);border-radius:8px;padding:9px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);transition:.15s;text-align:center}
+  .mi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .mi-btns button:disabled{cursor:default}
+  .mi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .mi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .mi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .mi-fb[hidden]{display:none}
+  /* three-constraint cards */
+  .con3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+  @media(max-width:640px){.con3{grid-template-columns:1fr}}
+  .con-card{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fff;border-top:3px solid var(--accent)}
+  .con-card.env{border-top-color:var(--gold)}
+  .con-card.task{border-top-color:#6a8caf}
+  .con-card h4{margin:0 0 6px;font-size:14.5px;color:var(--accent-dark)}
+  .con-card.env h4{color:#b5822f}
+  .con-card.task h4{color:#40638a}
+  .con-card p{margin:0;font-size:12.5px;color:#556;line-height:1.5}
+  .con-card .ex{display:block;margin-top:7px;font-size:12px;color:#7a8a99;font-style:italic}
+
+
+  /* ===== Theory Lesson 4 additions ===== */
+  /* stage progression (3-stage horizontal) */
+  .stages3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:640px){.stages3{grid-template-columns:1fr}}
+  .stage-card{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fff;border-top:3px solid var(--accent)}
+  .stage-card .sc-n{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--accent-dark);text-transform:uppercase}
+  .stage-card h4{margin:5px 0 6px;font-size:15px;color:var(--ink)}
+  .stage-card p{margin:0;font-size:12.5px;color:#556;line-height:1.5}
+  /* video embed (reuse) */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:6px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none}
+  /* vereijken results two-panel */
+  .ver-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  @media(max-width:560px){.ver-row{grid-template-columns:1fr}}
+  .ver-panel{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fafbfc}
+  .ver-panel h4{margin:0 0 10px;font-size:14px;color:var(--accent-dark)}
+  .ver-day{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}
+  .ver-day .dlab{font-weight:800;font-size:12px;color:#fff;background:var(--muted);border-radius:5px;padding:2px 8px;flex:none}
+  .ver-day .dlab.d7{background:var(--accent)}
+  .ver-day .dtxt{font-size:12.5px;color:#3d4d5c;line-height:1.4}
+  /* two coaches synthesis */
+  .coach-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:640px){.coach-wrap{grid-template-columns:1fr}}
+  .coach{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+  .coach .ch-head{padding:12px 16px;font-weight:800;font-size:15px;color:#fff}
+  .coach.mp .ch-head{background:#1a7f8e}
+  .coach.cla .ch-head{background:#b5822f}
+  .coach .ch-body{padding:14px 16px}
+  .coach .ch-body p{margin:0 0 10px;font-size:13px;color:#3d4d5c;line-height:1.5}
+  .coach .ch-reveal{margin-top:8px}
+  .coach .ch-q{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:10px}
+
+
+  /* ===== IP Lesson 1 additions ===== */
+  /* input-process-output model */
+  .ipo{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
+  .ipo .box{flex:1;min-width:140px;border-radius:10px;padding:14px 15px;text-align:center;color:#fff}
+  .ipo .box.in{background:#1a7f8e}
+  .ipo .box.proc{background:#12333f}
+  .ipo .box.out{background:#e0a458;color:#5a3d12}
+  .ipo .box h4{margin:0 0 5px;font-size:14.5px}
+  .ipo .box p{margin:0;font-size:12.5px;line-height:1.45}
+  .ipo .box.in p,.ipo .box.proc p{color:#eaf4f6}
+  .ipo .box.out p{color:#4a3208}
+  .ipo .ar{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:22px;font-weight:700;padding:0 6px;flex:none}
+  @media(max-width:600px){.ipo{flex-direction:column}.ipo .ar{transform:rotate(90deg);padding:4px 0}}
+  /* goal-zone interactive */
+  .goaltool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .goalgrid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,52px);gap:7px;max-width:380px;margin:0 auto;padding:12px;background:#2e7d46;border-radius:8px;border:4px solid #e9eef0}
+  .gz{border:2px solid rgba(255,255,255,.6);border-radius:6px;background:rgba(255,255,255,.12);cursor:pointer;transition:.15s;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;font-family:inherit}
+  .gz:hover{background:rgba(255,255,255,.26)}
+  .gz.on{background:#e0a458;border-color:#fff;color:#5a3d12}
+  .goal-read{margin-top:14px;text-align:center}
+  .goal-read .gr-eq{font-size:15px;color:var(--ink);font-weight:700}
+  .goal-read .gr-eq b{color:var(--accent-dark);font-size:20px}
+  .goal-read .gr-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+  /* bits meter */
+  .bitmeter{height:14px;border-radius:7px;background:#eef2f4;overflow:hidden;margin:10px auto 0;max-width:380px}
+  .bitmeter .fill{height:100%;background:linear-gradient(90deg,#6fb3bd,#1a7f8e);transition:width .35s}
+  /* cone calculator */
+  .cone-tool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .cone-row{display:flex;justify-content:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .cone{width:40px;height:44px;position:relative;cursor:default}
+  .cone svg{width:100%;height:100%}
+  .cone-opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .cone-opts button{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);transition:.15s}
+  .cone-opts button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .cone-opts button:disabled{cursor:default}
+  .cone-opts button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .cone-opts button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .cone-fb{font-size:13px;margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);color:#245a63}
+  .cone-fb[hidden]{display:none}
+
+
+  /* ===== RT Lesson 2 additions ===== */
+  /* interactive RT timeline */
+  .rttool{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .rttool svg{width:100%;max-width:640px;height:auto;display:block;margin:0 auto}
+  .rt-seg{cursor:pointer;transition:.15s}
+  .rt-seg:hover{opacity:.82}
+  .rt-readout{margin-top:14px;min-height:58px;padding:12px 14px;border-radius:9px;background:var(--accent-soft);color:#245a63;font-size:13.5px;line-height:1.5}
+  .rt-readout b{color:var(--accent-dark)}
+  .rt-readout.empty{background:#f4f7f8;color:var(--muted);font-style:italic}
+  .rt-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+  .rt-chip{border:2px solid var(--line);border-radius:20px;padding:6px 15px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s}
+  .rt-chip:hover{border-color:var(--accent);background:#fafdfe}
+  .rt-chip.done{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  /* fractionation legend */
+  .frac-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12.5px}
+  .frac-legend span{display:inline-flex;align-items:center;gap:6px;color:#3d4d5c}
+  .frac-legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+
+
+  /* ===== PC Lesson 3 additions ===== */
+  /* foreperiod window interactive */
+  .fptool{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .fptool svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+  .fp-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+  .fp-controls label{font-size:14px;font-weight:700;color:var(--ink)}
+  .fp-controls input[type=range]{flex:1;min-width:180px;max-width:320px;accent-color:var(--accent)}
+  .fp-val{font-size:16px;font-weight:800;color:var(--accent-dark);min-width:64px;text-align:right}
+  .fp-readout{margin-top:12px;text-align:center;font-size:14px;font-weight:700;padding:11px;border-radius:9px}
+  .fp-readout.good{background:#eafaf1;color:#1d6b47}
+  .fp-readout.meh{background:#fdf3e0;color:#9a6a1a}
+  /* sensory vs motor set */
+  .setcompare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  @media(max-width:560px){.setcompare{grid-template-columns:1fr}}
+  .setcard{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fff}
+  .setcard.sens{border-top:3px solid var(--accent)}
+  .setcard.mot{border-top:3px solid var(--gold)}
+  .setcard h4{margin:0 0 6px;font-size:15px}
+  .setcard.sens h4{color:var(--accent-dark)}
+  .setcard.mot h4{color:#b5822f}
+  .setcard p{margin:0;font-size:13px;color:#3d4d5c;line-height:1.5}
+
+
+  /* ===== TS Lesson 4 additions ===== */
+  /* tennis zones interactive */
+  .tennis-tool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .tennis-court{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:460px;margin:0 auto;padding:12px;background:#2e7d46;border-radius:8px}
+  .tz{height:54px;border:2px solid rgba(255,255,255,.55);border-radius:6px;background:rgba(255,255,255,.12);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;text-align:center;transition:.15s}
+  .tz:hover{background:rgba(255,255,255,.28)}
+  .tz.off{opacity:.3;text-decoration:line-through}
+  .tennis-read{margin-top:12px;text-align:center;font-size:14px}
+  .tennis-read b{color:var(--accent-dark);font-size:18px}
+  /* Hick chart */
+  .hicktool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .hicktool svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+  .hick-toggle{display:flex;gap:8px;justify-content:center;margin-top:12px}
+  .hick-toggle button{border:2px solid var(--line);border-radius:8px;padding:8px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .hick-toggle button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  /* stove burners */
+  .stove{margin:16px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .stove svg{width:100%;max-width:440px;height:auto;display:block;margin:0 auto}
+  .stove-controls{display:flex;gap:10px;justify-content:center;margin-top:12px}
+  .stove-controls button{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .stove-controls button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .stove-read{margin-top:12px;text-align:center;font-size:13.5px;padding:10px;border-radius:8px}
+  .stove-read.good{background:#eafaf1;color:#1d6b47}
+  .stove-read.bad{background:#fdeeee;color:#a3403c}
+  /* stroop */
+  .stroop{margin:16px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;text-align:center}
+  .stroop-word{font-size:46px;font-weight:800;letter-spacing:1px;margin:6px 0 14px;min-height:56px}
+  .stroop-opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .stroop-opts button{border:2px solid var(--line);border-radius:8px;padding:9px 18px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);transition:.12s}
+  .stroop-opts button:hover{border-color:var(--accent)}
+  .stroop-score{margin-top:12px;font-size:13px;color:var(--muted)}
+  .stroop-begin{border:2px solid var(--accent);border-radius:9px;padding:12px 32px;background:var(--accent);color:#fff;
+    cursor:pointer;font-family:inherit;font-size:16px;font-weight:800;transition:.15s}
+  .stroop-begin:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+  /* choice-RT demo */
+  .crt{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;text-align:center}
+  .crt-stage{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .crt-lights{display:flex;gap:14px;justify-content:center}
+  .crt-light{width:34px;height:34px;border-radius:50%;background:#1f3a52;border:2px solid #16314a;transition:background .05s}
+  .crt-light.on{background:#ffd23f;border-color:#e0a458;box-shadow:0 0 14px rgba(255,210,63,.7)}
+  .crt-keys{display:flex;gap:14px;justify-content:center}
+  .crt-key{width:46px;height:46px;border-radius:9px;border:2px solid var(--line);background:#fff;cursor:pointer;
+    font-family:inherit;font-size:16px;font-weight:800;color:var(--ink);transition:.12s}
+  .crt-key:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .crt-key:disabled{cursor:default;opacity:.55}
+  .crt-prompt{font-size:14px;font-weight:700;color:var(--accent-dark);min-height:22px}
+  .crt-begin{border:2px solid var(--accent);border-radius:9px;padding:11px 28px;background:var(--accent);color:#fff;
+    cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;transition:.15s}
+  .crt-begin:hover{background:var(--accent-dark)}
+  .crt-chart{margin-top:14px}
+  .crt-chart svg{width:100%;max-width:440px;height:auto}
+  .crt-results{margin-top:12px;font-size:13.5px}
+  .crt-results table{margin:8px auto 0;border-collapse:collapse;font-size:13px}
+  .crt-results td,.crt-results th{padding:5px 14px;border-bottom:1px solid var(--line);text-align:center}
+  .crt-results th{color:var(--accent-dark);font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  /* precue demo */
+  .pcd{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;text-align:center}
+  .pcd-targets{display:flex;gap:16px;justify-content:center;margin:8px 0}
+  .pcd-tg{width:70px;height:70px;border-radius:10px;border:3px solid var(--line);background:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:800;font-size:14px;color:#8a98a2;transition:.12s}
+  .pcd-tg:hover:not(:disabled){border-color:var(--accent)}
+  .pcd-tg.cue{border-color:var(--gold);background:#fdf3e0;color:#9a6a1a}
+  .pcd-tg.go{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47;box-shadow:0 0 12px rgba(46,158,107,.4)}
+  .pcd-tg:disabled{cursor:default}
+  .pcd-prompt{font-size:14px;font-weight:700;color:var(--accent-dark);min-height:22px;margin-top:4px}
+  .pcd-results{margin-top:12px;font-size:13.5px}
+  .pcd-results .pr-row{display:flex;justify-content:space-between;max-width:360px;margin:0 auto 6px;font-size:14px}
+  .pcd-results .pr-row b{font-size:16px;color:var(--accent-dark)}
+  .pcd-results .pr-diff{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-weight:700;color:#245a63;max-width:360px;margin-left:auto;margin-right:auto}
+  .stroop-results{margin-top:14px;padding:14px 16px;border-radius:9px;background:var(--accent-soft);text-align:left}
+  .stroop-results .sr-row{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:6px}
+  .stroop-results .sr-row b{font-size:17px;color:var(--accent-dark)}
+  .stroop-results .sr-row.incomp b{color:#a3403c}
+  .stroop-results .sr-diff{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13.5px;font-weight:700;color:#245a63}
+  .stroop-fb{margin-top:10px;font-size:13.5px;font-weight:700;min-height:20px}
+  /* PRP timeline */
+  .prptool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .prptool svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+
+
+  /* ===== APA Lesson 5 additions ===== */
+  /* EMG firing-order interactive */
+  .emgtool{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .emgtool svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+  .emg-reveal{display:flex;justify-content:center;margin-top:14px}
+  .emg-reveal button{border:2px solid var(--accent);border-radius:9px;padding:10px 24px;background:var(--accent);color:#fff;
+    cursor:pointer;font-family:inherit;font-size:14.5px;font-weight:800;transition:.15s}
+  .emg-reveal button:hover{background:var(--accent-dark)}
+  .emg-trace{opacity:0;transition:opacity .5s}
+  .emg-trace.show{opacity:1}
+  /* muscle timing bars (Mercer & Sahrmann) */
+  .msbars{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .msbars svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+
+
+  /* ===== Open/Closed-loop Lesson 1 additions ===== */
+  .loop-tool{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .loop-tool svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+  .loop-controls{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .loop-controls button{border:2px solid var(--line);border-radius:8px;padding:9px 18px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .loop-controls button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .loop-read{margin-top:12px;text-align:center;font-size:13.5px;padding:11px;border-radius:9px;background:var(--accent-soft);color:#245a63;line-height:1.5}
+  .fb-path{opacity:0;transition:opacity .5s}
+  .fb-path.show{opacity:1}
+  /* speed trade-off bar */
+  .spdbar{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .spdbar svg{width:100%;max-width:540px;height:auto;display:block;margin:0 auto}
+  /* vertical example reveal cards (page 2) */
+  .exrow{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+  .excard{border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden;text-align:left}
+  .excard-head{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:#fff;border:0;
+    cursor:pointer;font-family:inherit;text-align:left;transition:.15s}
+  .excard-head:hover{background:#fafdfe}
+  .excard-head .ex-ico{width:38px;height:38px;border-radius:9px;background:var(--accent-soft);display:flex;align-items:center;
+    justify-content:center;flex:none;color:var(--accent-dark)}
+  .excard-head .ex-ico svg{width:22px;height:22px}
+  .excard-head .ex-ttl{flex:1}
+  .excard-head .ex-ttl b{display:block;font-size:15.5px;color:var(--ink)}
+  .excard-head .ex-ttl span{font-size:12.5px;color:var(--muted)}
+  .excard-head .ex-plus{font-size:20px;font-weight:800;color:var(--accent);flex:none;transition:transform .2s}
+  .excard-head[aria-expanded="true"] .ex-plus{transform:rotate(45deg)}
+  .excard-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .excard-body.open{max-height:900px}
+  .excard-body .ex-inner{padding:0 16px 16px}
+  .excard-body p{margin:0 0 12px;font-size:13.5px;color:#3d4d5c;line-height:1.55}
+  .excard-body .ex-media{width:100%;max-width:360px;border-radius:9px;border:1px solid var(--line);display:block;margin:0 auto}
+  /* symbol on flip-card fronts (page 4) */
+  .flip2 .fc-front .fc-sym{font-size:34px;line-height:1;margin-bottom:8px}
+  .flip2 .fc-front.gold .fc-sym{color:var(--gold)}
+  .flip2 .fc-front .fc-sym.teal{color:var(--accent)}
+
+
+  /* ===== Motor Program Lesson 2 additions ===== */
+  /* components loop diagram */
+  .mploop{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .mploop svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+  /* component reveal chips */
+  .compgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:560px){.compgrid{grid-template-columns:1fr}}
+  .compcard{border:1px solid var(--line);border-radius:10px;padding:0;background:#fff;overflow:hidden}
+  .compcard-head{display:flex;align-items:center;gap:11px;width:100%;padding:13px 15px;background:#fff;border:0;
+    cursor:pointer;font-family:inherit;text-align:left;transition:.15s}
+  .compcard-head:hover{background:#fafdfe}
+  .compcard-head .cc-n{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;flex:none}
+  .compcard-head .cc-t{flex:1;font-size:14.5px;font-weight:700;color:var(--ink)}
+  .compcard-head .cc-plus{font-size:19px;font-weight:800;color:var(--accent);transition:transform .2s;flex:none}
+  .compcard-head[aria-expanded="true"] .cc-plus{transform:rotate(45deg)}
+  .compcard-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .compcard-body.open{max-height:300px}
+  .compcard-body p{margin:0;padding:0 15px 15px;font-size:13px;color:#3d4d5c;line-height:1.5}
+  /* build-the-program drag/assemble */
+  .buildtool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .build-slots{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .build-slot{display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px dashed var(--line);border-radius:9px;background:#fff;min-height:20px}
+  .build-slot.filled{border-style:solid;border-color:#2e9e6b;background:#eafaf1}
+  .build-slot .bs-lbl{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;flex:none;width:92px}
+  .build-slot .bs-val{font-size:13.5px;color:var(--ink);font-weight:600}
+  .build-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .build-chip{border:2px solid var(--line);border-radius:8px;padding:9px 14px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.12s}
+  .build-chip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .build-chip:disabled{opacity:.4;cursor:default}
+  .build-chip.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c;animation:shake .3s}
+  .build-chip{touch-action:none}
+  .build-chip.dragging{opacity:.5;border-color:var(--accent)}
+  .build-chip.selected{border-color:var(--accent);background:#eef8fa;box-shadow:0 0 0 2px rgba(26,127,142,.2)}
+  .build-slot.dragover{border-color:var(--accent);background:#eef8fa}
+  .build-hint{font-size:12.5px;color:var(--muted);font-weight:400}
+  .callout a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-word}
+  .callout a:hover{text-decoration:underline}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 8 &nbsp;&rsaquo;&nbsp; <b>Lesson 2: The Motor Program</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">13</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 8 &middot; Lesson 2</div>
+        <h1>The Motor Program</h1>
+        <p>Lesson 1 left us with a plan that runs without feedback. Now the question: what <em>is</em> that plan &mdash; and what&rsquo;s actually inside it?</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~20 min</span>
+          <span><span class="dot"></span> Motor programs &middot; 2 of 4</span>
+          <span><span class="dot"></span> Keele; Schmidt &amp; Lee</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Learning objectives</div>
+        <h2>By the end of this lesson you will be able to&hellip;</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define a <strong>motor program</strong> (Keele&rsquo;s definition) and explain &ldquo;without feedback.&rdquo;</span></li>
+          <li><span class="obj-num">2</span><span class="txt">List the <strong>components</strong> a simple motor program specifies.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Trace the <strong>flow</strong> from task goal to movement outcome.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Recognize actions that are likely <strong>motor-program controlled</strong>.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 THE QUESTION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Picking up from Lesson 1</div>
+        <h2>So what is the &ldquo;plan&rdquo;?</h2>
+        <p>Lesson 1 ended here: fast actions &mdash; the brake, the pitch, the jab &mdash; are too quick to steer with feedback, so they must be <strong>planned in advance and run as a unit</strong>. We gave that plan a name:</p>
+        <div class="statement gold" style="margin:6px 0"><p>The <strong>motor program</strong> &mdash; a pre-structured set of movement commands.</p></div>
+        <p>But that&rsquo;s just a label so far. This lesson opens it up: where does it come from, what does it contain, and how does it run on its own?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 WEEK 6 CALLBACK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A quick callback to Week 6</div>
+        <h2>Where the program comes from: the central executive</h2>
+        <p>You met this idea in the theories module. In the motor-program view, coordination is organized <strong>top-down</strong> by a <em>central executive</em> &mdash; the brain packages and issues the plan, and the muscles carry it out.</p>
+        <div class="ex-trio" style="grid-template-columns:1fr 1fr;align-items:start">
+          <figure style="margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff">
+            <img src="images/mp-cortical-keyboard.jpg" alt="The cortical keyboard analogy: a ghost-like executive reads from memory and plays a cortical keyboard, which drives the muscles and joints below." style="width:100%;height:auto;display:block">
+            <figcaption style="font-size:12px;color:#556;padding:9px 12px;text-align:center;background:#fafbfc;border-top:1px solid var(--line)">Cortical keyboard: the executive plays the sequence.</figcaption>
+          </figure>
+          <figure style="margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff">
+            <img src="images/mp-business-analogy.jpg" alt="The business analogy: a central executive (boss) directs a general manager (motor cortex) who directs laborers (muscles)." style="width:100%;height:auto;display:block">
+            <figcaption style="font-size:12px;color:#556;padding:9px 12px;text-align:center;background:#fafbfc;border-top:1px solid var(--line)">Business analogy: boss &rarr; manager &rarr; laborers.</figcaption>
+          </figure>
+        </div>
+        <p style="margin-top:14px">That&rsquo;s the <em>source</em>. Now let&rsquo;s zoom in on the plan itself.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 THE CONCEPT -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The definition</div>
+        <h2>What a motor program is</h2>
+        <p>The classic definition of a &ldquo;simple&rdquo; motor program comes from <strong>Keele (1968, p. 387)</strong> &mdash; and it&rsquo;s the one to hold onto:</p>
+        <div class="statement gold" style="margin:6px 0"><p>&ldquo;A set of <strong>muscle commands</strong> that are <strong>structured before</strong> a movement sequence begins, and that allow the entire sequence to be carried out <strong>uninfluenced by peripheral feedback</strong>.&rdquo;</p></div>
+        <p>Two phrases carry the whole idea: <em>structured before</em> (it&rsquo;s planned in advance) and <em>uninfluenced by peripheral feedback</em> (once it starts, it runs on its own).</p>
+        <div class="callout">
+          <span class="clabel">What is &ldquo;peripheral feedback&rdquo;?</span>
+          <p>Peripheral feedback is the feedback provided by the <strong>sensory organs of the body</strong> &mdash; <strong>proprioception</strong> (from muscles and joints), <strong>vision</strong>, <strong>hearing</strong>, and the other senses. Saying a movement runs &ldquo;uninfluenced by peripheral feedback&rdquo; means that once the program starts, none of these incoming signals can reach back and alter the commands already in flight.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 WITHOUT FEEDBACK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The key mechanism</div>
+        <h2>&ldquo;Without feedback&rdquo; &mdash; what that really means</h2>
+        <p>This is the heart of the concept, and it connects straight back to Lesson 1. A motor program is the <strong>open-loop</strong> case made concrete:</p>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">What it does</div>
+            <h4>Runs to completion</h4>
+            <p>Once triggered, the whole command sequence plays out as a unit &mdash; like pressing &ldquo;go&rdquo; on a pre-recorded sequence.</p>
+          </div>
+          <div class="pn neg" style="border-top-color:#d9534f">
+            <div class="pnh" style="color:#d9534f">What it doesn&rsquo;t do</div>
+            <h4>No mid-course edits</h4>
+            <p>Peripheral feedback can&rsquo;t reach back in time to change the commands already in flight. There&rsquo;s no comparator correcting it.</p>
+          </div>
+        </div>
+        <p style="margin-top:16px">That&rsquo;s exactly why motor programs matter for <em>fast</em> actions: when there&rsquo;s no time to correct, a pre-structured program is the only way to control the movement.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 COMPONENTS + LOOP -->
+  <section class="screen" data-screen data-gate="comp">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What&rsquo;s inside</div>
+        <h2>Components of a simple motor program</h2>
+        <p>A simple motor program specifies <strong>four things</strong> about the movement. <strong>Click each to reveal it</strong> &mdash; all four to continue:</p>
+        <div class="compgrid" id="compGrid">
+          <div class="compcard">
+            <button class="compcard-head" aria-expanded="false" onclick="compTog(this)"><span class="cc-n">1</span><span class="cc-t">Order of muscle activation</span><span class="cc-plus">+</span></button>
+            <div class="compcard-body"><p>Which muscles fire, and in <strong>what sequence</strong> &mdash; the ordering of the whole chain of contractions.</p></div>
+          </div>
+          <div class="compcard">
+            <button class="compcard-head" aria-expanded="false" onclick="compTog(this)"><span class="cc-n">2</span><span class="cc-t">Timing (relative durations)</span><span class="cc-plus">+</span></button>
+            <div class="compcard-body"><p>How long each part lasts <strong>relative to the others</strong> &mdash; the rhythm of the movement.</p></div>
+          </div>
+          <div class="compcard">
+            <button class="compcard-head" aria-expanded="false" onclick="compTog(this)"><span class="cc-n">3</span><span class="cc-t">Force parameters</span><span class="cc-plus">+</span></button>
+            <div class="compcard-body"><p>The <strong>level of muscle activation</strong> &mdash; how strongly each muscle is driven to contract, which sets the force the movement produces.</p></div>
+          </div>
+          <div class="compcard">
+            <button class="compcard-head" aria-expanded="false" onclick="compTog(this)"><span class="cc-n">4</span><span class="cc-t">Specific muscles involved</span><span class="cc-plus">+</span></button>
+            <div class="compcard-body"><p><strong>Which muscles</strong> are selected to carry out the action in the first place.</p></div>
+          </div>
+        </div>
+        <p class="gate-note" id="compnote">Reveal all four components to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 THE FLOW DIAGRAM -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">How it flows</div>
+        <h2>From task goal to movement</h2>
+        <p>Putting it together: a task goal enters the executive, which builds and issues the motor program to the effectors, producing the outcome &mdash; one way, no feedback loop:</p>
+        <div class="mploop">
+          <svg viewBox="0 0 580 130" role="img" aria-label="A one-way flow: input task goal to the executive center, which issues a motor program to the effectors (muscles), producing the outcome.">
+            <defs><marker id="mpa" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 z" fill="#1a7f8e"/></marker></defs>
+            <!-- Task goal -->
+            <rect x="8" y="48" width="92" height="42" rx="7" fill="#eef2f4" stroke="#c3ced4"/><text x="54" y="67" text-anchor="middle" font-size="10.5" fill="#3d4d5c">Task goal</text><text x="54" y="80" text-anchor="middle" font-size="9" fill="#7a8a99">(input)</text>
+            <line x1="100" y1="69" x2="126" y2="69" stroke="#1a7f8e" stroke-width="2.5" marker-end="url(#mpa)"/>
+            <!-- Executive -->
+            <rect x="128" y="45" width="112" height="48" rx="8" fill="#1a7f8e"/><text x="184" y="65" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">Executive</text><text x="184" y="80" text-anchor="middle" font-size="9" fill="#cfeaee">brain / spinal cord</text>
+            <!-- Motor program arrow, with a labelled pill above a longer arrow -->
+            <rect x="248" y="22" width="96" height="22" rx="11" fill="#fff" stroke="#1a7f8e" stroke-width="1.6"/><text x="296" y="37" text-anchor="middle" font-size="10.5" font-weight="700" fill="#127080">motor program</text>
+            <line x1="296" y1="44" x2="296" y2="58" stroke="#1a7f8e" stroke-width="1.4"/>
+            <line x1="240" y1="69" x2="306" y2="69" stroke="#1a7f8e" stroke-width="2.5" marker-end="url(#mpa)"/>
+            <!-- Effectors -->
+            <rect x="308" y="45" width="112" height="48" rx="8" fill="#e0a458"/><text x="364" y="65" text-anchor="middle" font-size="11" font-weight="700" fill="#5a3d12">Effectors</text><text x="364" y="80" text-anchor="middle" font-size="9" fill="#7a5a24">muscles</text>
+            <line x1="420" y1="69" x2="446" y2="69" stroke="#1a7f8e" stroke-width="2.5" marker-end="url(#mpa)"/>
+            <!-- Outcome -->
+            <rect x="448" y="48" width="92" height="42" rx="7" fill="#eef2f4" stroke="#c3ced4"/><text x="494" y="73" text-anchor="middle" font-size="10.5" fill="#3d4d5c">Outcome</text>
+          </svg>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Notice what&rsquo;s missing</span>
+          <p>There&rsquo;s <strong>no return arrow</strong>. Compare this to the closed-loop diagram from Lesson 1 &mdash; the motor program is the open-loop path, with no comparator and no feedback correcting the movement in progress.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 BUILD THE PROGRAM -->
+  <section class="screen" data-screen data-gate="build">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Build one</div>
+        <h2>Assemble a motor program</h2>
+        <p>A motor program for one action has to specify all four components. <strong>Drag each chip</strong> into the matching slot to build the program. Fill all four to continue. <span class="build-hint">(On a touch screen, you can also just tap a chip.)</span></p>
+        <div class="buildtool">
+          <div class="build-slots" id="buildSlots">
+            <div class="build-slot" data-c="muscles"><span class="bs-lbl">Muscles</span><span class="bs-val"></span></div>
+            <div class="build-slot" data-c="order"><span class="bs-lbl">Order</span><span class="bs-val"></span></div>
+            <div class="build-slot" data-c="force"><span class="bs-lbl">Force</span><span class="bs-val"></span></div>
+            <div class="build-slot" data-c="timing"><span class="bs-lbl">Timing</span><span class="bs-val"></span></div>
+          </div>
+          <div class="build-bank" id="buildBank">
+            <button class="build-chip" draggable="true" data-c="order">activate in sequence: push, then snap</button>
+            <button class="build-chip" draggable="true" data-c="force">80% of max muscle activation</button>
+            <button class="build-chip" draggable="true" data-c="muscles">triceps, anterior deltoid</button>
+            <button class="build-chip" draggable="true" data-c="timing">push lasts twice as long as snap</button>
+          </div>
+        </div>
+        <p class="gate-note" id="buildnote">Place all four components to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 AUTOMATICITY: TYPING -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">In everyday skill &middot; 1</div>
+        <h2>Typing a common word</h2>
+        <p>Type the word <strong>&ldquo;the&rdquo;</strong> if you&rsquo;re a practiced typist, and notice: you don&rsquo;t place each finger deliberately. The sequence &mdash; right index, left index, right middle finger &mdash; fires as <strong>one pre-planned unit</strong>.</p>
+        <figure class="study-fig" style="max-width:420px;margin-left:auto;margin-right:auto">
+          <img src="images/mp2-typing.jpg" alt="Close-up of hands typing on a keyboard.">
+          <figcaption>A practiced word runs as a single automatic sequence &mdash; no finger-by-finger decisions.</figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Why this is a motor program</span>
+          <p>Even if you don&rsquo;t watch your hands &mdash; or get delayed visual feedback &mdash; the sequence <strong>continues without interruption</strong>. That&rsquo;s the signature: it was structured in advance and runs uninfluenced by feedback.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 AUTOMATICITY: SPEECH -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">In everyday skill &middot; 2</div>
+        <h2>Saying a word out loud</h2>
+        <p>Speech is one of the most finely controlled motor programs we have. Pronouncing a single word like <strong>&ldquo;apple&rdquo;</strong> requires precise coordination between the <strong>larynx</strong> (voice box), the <strong>tongue</strong>, and the <strong>lips</strong> &mdash; each moving in the right order, with the right timing, to shape the sound.</p>
+        <div class="statement gold" style="margin:6px 0"><p>&ldquo;ap&rdquo; &rarr; &ldquo;ple&rdquo;: the lips close and release, the tongue rises to the roof of the mouth, and the larynx switches voicing on and off &mdash; all in a fraction of a second.</p></div>
+        <div class="callout why">
+          <span class="clabel">Why this is a motor program</span>
+          <p>A fluent speaker doesn&rsquo;t consciously steer each articulator. The whole articulatory sequence is <strong>structured in advance</strong> and runs <strong>too fast for feedback</strong> to correct mid-word &mdash; which is exactly why a slip of the tongue usually plays all the way out before you can catch it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 AUTOMATICITY: PITCH -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">In everyday skill &middot; 3</div>
+        <h2>A well-trained baseball pitch</h2>
+        <p>The whole sequence &mdash; wind-up, stride, trunk rotation, arm acceleration, release &mdash; is <strong>planned before the movement begins</strong>.</p>
+        <figure class="study-fig" style="max-width:320px;margin-left:auto;margin-right:auto">
+          <img src="images/mp2-pitch.gif" alt="Animated clip of a baseball pitcher's full wind-up and throw.">
+          <figcaption>Wind-up to release, executed as one pre-structured sequence.</figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Too fast to adjust</span>
+          <p>Once the throw is initiated, it proceeds <strong>too quickly for feedback to adjust individual components</strong> mid-throw. Even with partly obscured vision or an unexpected noise, the throw continues as pre-structured muscle commands.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 CLASSIFY -->
+  <section class="screen" data-screen data-gate="sort">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Apply it</div>
+        <h2>Is it motor-program controlled?</h2>
+        <p>Motor programs best fit actions that are <strong>fast</strong> and run <strong>without needing feedback</strong>. For each action, decide: likely motor-program controlled, or likely feedback-controlled? Answer all to continue.</p>
+        <div id="sortStage"></div>
+        <p class="sort-progress" id="sortProg">0 of 4 classified</p>
+        <p class="gate-note" id="sortnote">Classify all four to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 KC -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q" style="font-size:17px;margin:4px 0 18px">According to Keele&rsquo;s definition, what makes a set of muscle commands a <em>motor program</em>?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="1">It&rsquo;s <strong>structured before</strong> the movement and runs <strong>uninfluenced by peripheral feedback</strong>.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">It&rsquo;s continuously <strong>corrected by feedback</strong> as the movement unfolds.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">It only applies to <strong>slow</strong> movements that last longer than 300 ms.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 WHY WE NEED THEM -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why it matters</div>
+        <h2>Why do we need motor programs?</h2>
+        <p>If feedback control is so flexible, why have programs at all? Because programs buy us something feedback can&rsquo;t: they allow <strong>fast and accurate execution with minimal involvement of attention</strong>. In this view, motor programs are tied closely to <strong>skill, practice, and efficient adaptation</strong>.</p>
+        <div class="statement gold" style="margin:12px 0"><p>Successful fast and accurate performance appears <strong>unexplainable</strong> unless it emerged from <em>anticipation</em> &mdash; anticipation that depends on knowing <strong>what to do and how to do it <u>before</u> the movement begins</strong> (Summers &amp; Anson, 2009).</p></div>
+        <p>That is the real argument for the motor program: a ball leaves the hand, a word leaves the mouth, a key is struck &mdash; all finished before feedback could possibly steer them. The only way to account for them being <em>right</em> is that the plan was in place first.</p>
+        <div class="callout">
+          <span class="clabel">One of motor control&rsquo;s most durable ideas</span>
+          <p>The notion of the &ldquo;motor program&rdquo; is among the <strong>most durable concepts in the field</strong>. It sits at the same level as the foundational ideas of <strong>memory, learning, serial order, pre-cueing, and feedback</strong> &mdash; it has coexisted with them for decades, and it isn&rsquo;t going away (Summers &amp; Anson, 2009).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Wrap up</div>
+        <h2>What you can now do</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t">Define a <strong>motor program</strong> (Keele) &mdash; structured before, runs without feedback.</span></li>
+          <li><span class="n">2</span><span class="t">List its <strong>components</strong>: muscles, order, force, timing.</span></li>
+          <li><span class="n">3</span><span class="t">Trace the <strong>one-way flow</strong>: goal &rarr; executive &rarr; program &rarr; effectors &rarr; outcome.</span></li>
+          <li><span class="n">4</span><span class="t">Recognize <strong>motor-program actions</strong> &mdash; fast, automatic, feedback-independent (typing, speech, a pitch).</span></li>
+          <li><span class="n">5</span><span class="t">Explain <strong>why</strong> we need programs &mdash; fast, accurate action with little attention, built on anticipation.</span></li>
+        </ul>
+        <div class="callout">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 3: Experimental Evidence</strong> &mdash; we will explore different lines of evidence for the existence of motor programs, from blocked movements to deafferentation.</p>
+        </div>
+        <div class="callout" style="margin-top:12px">
+          <span class="clabel">Dig deeper</span>
+          <p>Want to go further on the concept of the motor program? Read: Summers, J. J., &amp; Anson, J. G. (2009). Current status of the motor program: revisited. <em>Human Movement Science, 28</em>(5), 566&ndash;577. <a href="https://doi.org/10.1016/j.humov.2009.01.002" target="_blank" rel="noopener">https://doi.org/10.1016/j.humov.2009.01.002</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={comp:"Reveal all four components to continue",build:"Place all four components to continue",sort:"Classify all four to continue",kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+
+  // Components reveal (all 4 to continue)
+  var compSeen=new Set();
+  window.compTog=function(btn){
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded", open?"false":"true");
+    var body=btn.parentElement.querySelector(".compcard-body");
+    if(open){ body.classList.remove("open"); }
+    else { body.classList.add("open"); compSeen.add(btn); }
+    if(compSeen.size>=4 && !answered.comp){
+      openGate("comp"); document.getElementById("compnote").textContent="All revealed — you can continue.";
+    }
+  };
+
+  // Build-the-program (drag-and-drop, with pointer/touch drag and tap-to-place fallback)
+  (function(){
+    var bank=document.getElementById("buildBank"), slots=document.getElementById("buildSlots");
+    var filled=0, TOTC=4, selected=null;
+
+    function place(chip){
+      if(chip.disabled) return false;
+      var c=chip.dataset.c;
+      var slot=slots.querySelector('.build-slot[data-c="'+c+'"]');
+      if(slot && !slot.classList.contains("filled")){
+        slot.classList.add("filled");
+        slot.querySelector(".bs-val").textContent=chip.textContent;
+        chip.disabled=true;
+        filled++;
+        if(filled>=TOTC && !answered.build){
+          openGate("build"); document.getElementById("buildnote").textContent="Program complete — you can continue.";
+        }
+        return true;
+      } else if(slot){
+        // right category but slot already filled, or dropped on wrong slot: flash
+        chip.classList.add("wrong"); setTimeout(function(){chip.classList.remove("wrong");},350);
+      }
+      return false;
+    }
+    function clearSel(){ if(selected){selected.classList.remove("selected"); selected=null;} }
+
+    bank.querySelectorAll(".build-chip").forEach(function(chip){
+      // Native HTML5 drag (desktop)
+      chip.addEventListener("dragstart",function(e){
+        if(chip.disabled){e.preventDefault();return;}
+        e.dataTransfer.setData("text/plain",chip.dataset.c);
+        e.dataTransfer.effectAllowed="move";
+        chip.classList.add("dragging");
+      });
+      chip.addEventListener("dragend",function(){ chip.classList.remove("dragging"); });
+      // Tap / click to select, then tap a slot (also the full keyboard/touch fallback)
+      chip.addEventListener("click",function(){
+        if(chip.disabled) return;
+        if(selected===chip){ clearSel(); return; }
+        clearSel(); selected=chip; chip.classList.add("selected");
+      });
+    });
+
+    slots.querySelectorAll(".build-slot").forEach(function(slot){
+      slot.addEventListener("dragover",function(e){ e.preventDefault(); slot.classList.add("dragover"); });
+      slot.addEventListener("dragleave",function(){ slot.classList.remove("dragover"); });
+      slot.addEventListener("drop",function(e){
+        e.preventDefault(); slot.classList.remove("dragover");
+        var c=e.dataTransfer.getData("text/plain");
+        var chip=bank.querySelector('.build-chip[data-c="'+c+'"]');
+        if(chip) place(chip);
+      });
+      // Tap a slot after selecting a chip
+      slot.addEventListener("click",function(){
+        if(!selected) return;
+        var done=place(selected);
+        clearSel();
+      });
+    });
+  })();
+
+  // Classify sorter
+  (function(){
+    var OPTS=[{v:"mp",label:"Motor program"},{v:"fb",label:"Feedback-controlled"}];
+    var ITEMS=[
+      {scenario:"A <span class=\"q\">fast dart throw</span> at a board.",ans:"mp",why:"Fast and ballistic — over before feedback helps, so it runs from a motor program."},
+      {scenario:"<span class=\"q\">Slowly guiding a cup of coffee</span> to your lips without spilling.",ans:"fb",why:"Slow and vision-/touch-guided — continuously corrected, so feedback-controlled."},
+      {scenario:"A practiced <span class=\"q\">signature</span>, signed in one quick flourish.",ans:"mp",why:"Highly automatic and fast — a stored, pre-structured sequence (a motor program)."},
+      {scenario:"<span class=\"q\">Threading a needle</span> under close visual guidance.",ans:"fb",why:"Slow, precise, vision-dependent — corrected throughout, so feedback-controlled."}
+    ];
+    var stage=document.getElementById("sortStage"), done=0;
+    ITEMS.forEach(function(it){
+      var d=document.createElement("div");
+      d.className="match-item";
+      var btns=OPTS.map(function(o){return '<button data-v="'+o.v+'">'+o.label+'</button>';}).join("");
+      d.innerHTML='<div class="mi-scenario">'+it.scenario+'</div><div class="mi-btns" style="grid-template-columns:1fr 1fr">'+btns+'</div><div class="mi-fb" hidden></div>';
+      stage.appendChild(d);
+      d.querySelectorAll(".mi-btns button").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          d.querySelectorAll(".mi-btns button").forEach(function(x){x.disabled=true;});
+          var ok=btn.dataset.v===it.ans;
+          if(ok)btn.classList.add("correct");
+          else{btn.classList.add("wrong");d.querySelectorAll(".mi-btns button").forEach(function(x){if(x.dataset.v===it.ans)x.classList.add("correct");});}
+          var fb=d.querySelector(".mi-fb");
+          fb.innerHTML=(ok?"<strong>Correct.</strong> ":"<strong>Not quite.</strong> ")+it.why; fb.hidden=false;
+          done++; document.getElementById("sortProg").textContent=done+" of 4 classified";
+          if(done===4){ openGate("sort"); document.getElementById("sortnote").textContent="All classified — you can continue."; }
+        });
+      });
+    });
+  })();
+
+  function makeSingle(wrapId,fbId,noteId,gate,FBok,FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true;});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="✓";}
+        else{opt.classList.add("wrong");opt.querySelector(".mark").textContent="✕";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="✓";}});}
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        openGate(gate);
+      });
+    });
+  }
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> Keele&rsquo;s two defining features: the commands are <em>structured before</em> the movement begins, and the sequence runs <em>uninfluenced by peripheral feedback</em>.",
+    "<strong>Reconsider.</strong> A motor program is the <em>opposite</em> of continuous feedback correction, and it&rsquo;s most important for <em>fast</em> actions. Keele&rsquo;s definition: structured in advance, run without peripheral feedback.");
+
+  show(0);
+})();
+</script>
+</body>
+</html>
