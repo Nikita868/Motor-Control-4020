@@ -1236,6 +1236,21 @@
   .callout a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-word}
   .callout a:hover{text-decoration:underline}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  /* stop-the-target demo */
+  .st-demo{margin:18px 0 6px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .st-modes{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+  .st-mode{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.12s}
+  .st-mode:hover{border-color:var(--accent);background:#fafdfe}
+  .st-mode.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .st-track{position:relative;height:56px;background:#eef2f4;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .st-dot{position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%)}
+  .st-target{position:absolute;top:-4px;bottom:-4px;width:4px;background:#d9534f}
+  .st-targetlbl{position:absolute;top:-2px;font-size:10.5px;font-weight:800;color:#d9534f;transform:translateX(-50%)}
+  .st-controls{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .st-result{margin-top:12px;font-size:14.5px;color:#3d4d5c;text-align:center;min-height:40px}
+  .st-result.ok{color:#1d6b47;font-weight:700}
+  .st-result.no{color:#a3403c;font-weight:700}
+  .st-score{font-size:12.5px;color:var(--muted);font-weight:700;text-align:center;margin-top:6px}
 
 </style>
 </head>
@@ -1353,6 +1368,26 @@
           </div>
         </div>
         <p style="margin-top:16px">That&rsquo;s exactly why motor programs matter for <em>fast</em> actions: when there&rsquo;s no time to correct, a pre-structured program is the only way to control the movement.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6b A BIT OF HISTORY: LASHLEY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Where the idea came from</div>
+        <h2>A bit of history: Lashley&rsquo;s patient</h2>
+        <p>The idea that we hold a set of stored muscle commands, ready for action, has been around a long time. But the first important <strong>documentation</strong> that movement could be controlled <strong>centrally</strong> came from <strong>Lashley (1917)</strong>, describing a patient with a gunshot wound to the back.</p>
+        <div class="callout">
+          <span class="clabel">The case</span>
+          <p>The wound left the patient with <strong>no sensation from his lower limbs</strong> &mdash; but his <em>efferent</em> (outgoing, motor) pathways were intact, so he could still move. Even though he <strong>could not feel</strong> his leg moving, he could <strong>position it with surprising accuracy</strong>, much like a normal control subject.</p>
+        </div>
+        <div class="statement gold" style="margin:14px 0">
+          <p>If he couldn&rsquo;t feel the limb, he couldn&rsquo;t have been using feedback to guide it. Lashley argued the movement must have been <strong>controlled centrally</strong> &mdash; an early case for the motor program.</p>
+        </div>
+        <p>You&rsquo;ll see this same logic return in Lesson 3, in the deafferentation studies that put Lashley&rsquo;s idea to a controlled test.</p>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Recounted in Schmidt, R. A. (1975), <em>Psychological Review, 82</em>(4), p. 231 (citing Lashley, 1917).</p>
       </div>
     </div>
   </section>
@@ -1501,6 +1536,38 @@
     </div>
   </section>
 
+  <!-- 13b STOP THE TARGET DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself</div>
+        <h2>Fast vs. slow: can you stop in time?</h2>
+        <p>&ldquo;Too fast to adjust&rdquo; is easy to say &mdash; here&rsquo;s a way to <em>feel</em> it. A dot sweeps toward the red line. Hit <strong>Stop</strong> right as it reaches the line. Try it <strong>slow</strong> first, then <strong>fast</strong>.</p>
+        <div class="st-demo" id="stDemo">
+          <div class="st-modes">
+            <button class="st-mode on" data-sp="slow">Slow target</button>
+            <button class="st-mode" data-sp="fast">Fast target</button>
+          </div>
+          <div class="st-track" id="stTrack">
+            <div class="st-target" id="stTarget" style="left:80%"></div>
+            <div class="st-targetlbl" id="stTargetLbl" style="left:80%">stop here</div>
+            <div class="st-dot" id="stDot" style="left:0%"></div>
+          </div>
+          <div class="st-controls">
+            <button class="btn btn-next" id="stGo" style="min-width:130px">Start</button>
+            <button class="btn" id="stStop" disabled style="min-width:130px;background:#d9534f;color:#fff">Stop!</button>
+          </div>
+          <p class="st-result" id="stResult">Press <strong>Start</strong>, then hit <strong>Stop</strong> the moment the dot reaches the red line.</p>
+          <p class="st-score" id="stScore"></p>
+        </div>
+        <div class="callout why">
+          <span class="clabel">What you just felt</span>
+          <p>On the <strong>slow</strong> target you can watch, judge, and correct your timing &mdash; closed-loop control works. On the <strong>fast</strong> target, the dot is past the line before you can react; feedback is too slow, so the only way to be accurate is to have <strong>planned the stop in advance</strong>. That&rsquo;s exactly when a <strong>motor program</strong> takes over.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 14 CLASSIFY -->
   <section class="screen" data-screen data-gate="sort">
     <div class="inner">
@@ -1630,6 +1697,55 @@
     if(e.key==="ArrowLeft")go(-1);
   });
   function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+
+  // Stop-the-target demo (fast vs slow)
+  (function(){
+    var track=document.getElementById("stTrack"), dot=document.getElementById("stDot");
+    var target=document.getElementById("stTarget"), go=document.getElementById("stGo"), stop=document.getElementById("stStop");
+    var result=document.getElementById("stResult"), score=document.getElementById("stScore");
+    if(!track) return;
+    var speed="slow", raf=null, running=false, t0=0, W=0, DUR=0, targetPct=0.80;
+    var tries=0, good=0;
+    function setResult(cls,html){ result.className="st-result"+(cls?" "+cls:""); result.innerHTML=html; }
+    function frame(ts){
+      if(!t0) t0=ts; var el=ts-t0; var pct=el/DUR;
+      if(pct>=1){ pct=1; dot.style.left="100%";
+        running=false; stop.disabled=true; go.disabled=false; go.textContent="Try again";
+        tries++; setResult("no","&#10007; <strong>Ran off the end.</strong> You didn&rsquo;t stop it in time &mdash; especially tough on the fast target.");
+        score.textContent="Stops: "+good+" / "+tries; return;
+      }
+      dot.style.left=(pct*100)+"%";
+      raf=requestAnimationFrame(frame);
+    }
+    function start(){
+      if(running) return; running=true; t0=0; dot.style.left="0%";
+      // slow: 2.6 s to cross; fast: 0.7 s to cross
+      DUR = speed==="slow" ? 2600 : 700;
+      go.disabled=true; stop.disabled=false;
+      setResult("", speed==="slow" ? "Watch it approach the line&hellip; hit Stop right on the red mark." : "It&rsquo;s fast &mdash; you&rsquo;ll have to anticipate!");
+      raf=requestAnimationFrame(frame);
+    }
+    function doStop(){
+      if(!running) return; running=false; cancelAnimationFrame(raf); stop.disabled=true; go.disabled=false; go.textContent="Try again";
+      var pct=(performance.now()-t0)/DUR;
+      var errPct = Math.abs(pct - targetPct);
+      var errMs = Math.round(errPct*DUR);
+      tries++;
+      if(errPct <= 0.06){ good++; setResult("ok","&#10003; <strong>Right on the line!</strong> Off by only ~"+errMs+" ms."); }
+      else { var side = pct<targetPct ? "early" : "late"; setResult("no","&#10007; <strong>Stopped "+side+"</strong> by ~"+errMs+" ms. "+(speed==="fast"?"The fast target gives no time to correct.":"Try to anticipate the line.")); }
+      score.textContent="Stops: "+good+" / "+tries;
+    }
+    go.addEventListener("click",start);
+    stop.addEventListener("click",doStop);
+    document.querySelectorAll("#stDemo .st-mode").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        if(running) return;
+        speed=btn.dataset.sp;
+        document.querySelectorAll("#stDemo .st-mode").forEach(function(x){x.classList.toggle("on",x===btn);});
+        go.textContent="Start"; setResult("", "Press <strong>Start</strong>, then hit <strong>Stop</strong> the moment the dot reaches the red line.");
+      });
+    });
+  })();
 
   // Components reveal (all 4 to continue)
   var compSeen=new Set();

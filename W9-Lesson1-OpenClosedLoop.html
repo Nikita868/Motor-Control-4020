@@ -1195,6 +1195,33 @@
   .flip2 .fc-front.gold .fc-sym{color:var(--gold)}
   .flip2 .fc-front .fc-sym.teal{color:var(--accent)}
 
+  /* reaching demo (open vs closed loop) */
+  .tb-demo{margin:18px 0 6px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .tb-modes{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+  .tb-mode{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.12s}
+  .tb-mode:hover{border-color:var(--accent);background:#fafdfe}
+  .tb-mode.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .tb-instr{font-size:14px;line-height:1.5;color:#245a63;background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:9px;padding:12px 15px;margin-bottom:12px}
+  .tb-instr.open{color:#7a5a24;background:#fdf4e6;border-color:#e8cfa6}
+  .tb-stage{position:relative;height:260px;background:#eef2f4;border:1px solid var(--line);border-radius:10px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair}
+  .tb-stage.nocursor{cursor:none}
+  .tb-home{position:absolute;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--accent);transform:translate(-50%,-50%);z-index:1}
+  .tb-homelbl{position:absolute;font-size:10px;font-weight:800;color:var(--accent-dark);transform:translate(-50%,-50%);letter-spacing:.5px}
+  .tb-target{position:absolute;width:48px;height:48px;border-radius:50%;background:rgba(224,164,88,.30);border:3px solid #e0a458;transform:translate(-50%,-50%);z-index:1}
+  .tb-targetlbl{position:absolute;font-size:10px;font-weight:800;color:#b5822f;transform:translate(-50%,-50%);letter-spacing:.5px}
+  .tb-hand{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.25);display:none;z-index:3}
+  .tb-hand.show{display:block}
+  .tb-landing{position:absolute;width:22px;height:22px;border-radius:50%;transform:translate(-50%,-50%);z-index:2;border:2px solid #fff}
+  .tb-landing.ok{background:#2e9e6b}
+  .tb-landing.no{background:#d9534f}
+  .tb-flash{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .15s}
+  .tb-flash.ok{background:rgba(46,158,107,.20);opacity:1}
+  .tb-flash.no{background:rgba(217,83,79,.16);opacity:1}
+  .tb-result{margin-top:12px;font-size:14.5px;color:#3d4d5c;text-align:center;min-height:40px}
+  .tb-result.ok{color:#1d6b47;font-weight:700}
+  .tb-result.no{color:#a3403c;font-weight:700}
+  .tb-score{font-size:12.5px;color:var(--muted);font-weight:700;text-align:center;margin-top:6px}
+
 </style>
 </head>
 <body>
@@ -1473,6 +1500,49 @@
     </div>
   </section>
 
+  <!-- 10b REACHING DEMO: open vs closed loop -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself</div>
+        <h2>Reach to the target &mdash; with and without vision</h2>
+        <p>The clearest way to feel open- vs. closed-loop control is to <em>reach</em>. Drag from <strong>HOME</strong> to the gold <strong>target</strong>. Try each mode a few times and notice how different they feel.</p>
+        <div class="tb-demo" id="tbDemo">
+          <div class="tb-modes">
+            <button class="tb-mode on" data-mode="closed">Closed-loop &mdash; vision ON</button>
+            <button class="tb-mode" data-mode="open">Open-loop &mdash; vision OFF</button>
+          </div>
+          <div class="tb-instr" id="tbInstr">
+            <strong>Closed-loop (vision ON):</strong> Press and <strong>hold on HOME</strong>, then drag at a <strong>comfortable speed</strong> to the gold target and release. You can see your hand the whole way &mdash; correct your path as you go.
+          </div>
+          <div class="tb-stage" id="tbStage">
+            <div class="tb-home" id="tbHome"></div>
+            <div class="tb-homelbl">HOME</div>
+            <div class="tb-target" id="tbTarget"></div>
+            <div class="tb-targetlbl" id="tbTargetLbl">target</div>
+            <div class="tb-hand" id="tbHand"></div>
+            <div class="tb-landing" id="tbLanding" hidden></div>
+            <div class="tb-flash" id="tbFlash"></div>
+          </div>
+          <p class="tb-result" id="tbResult">Press and <strong>hold</strong> on HOME, drag to the target, and release. Closed-loop: you can see your hand the whole way.</p>
+          <p class="tb-score" id="tbScore"></p>
+        </div>
+        <div class="pn-row" style="margin-top:18px">
+          <div class="pn pos">
+            <div class="pnh">Vision ON &rarr; closed-loop</div>
+            <h4>You correct as you go</h4>
+            <p>Move at a <strong>comfortable speed</strong> and you can <strong>watch your hand approach</strong> the target and fine-tune the whole way &mdash; feedback steers you in.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:#e0a458">
+            <div class="pnh" style="color:#b9802f">Vision OFF &rarr; open-loop</div>
+            <h4>Reach fast, see it only after</h4>
+            <p>Your hand <em>and the cursor</em> are <strong>hidden during the reach</strong> &mdash; you only see where you landed <em>after</em> you stop (terminal feedback). With no vision mid-movement, accuracy depends on the <strong>plan you launched with</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 11 CLASSIFY SORTER -->
   <section class="screen" data-screen data-gate="sort">
     <div class="inner">
@@ -1652,6 +1722,114 @@
 
   window.doFlip=function(card){ card.classList.toggle("flipped"); };
   window.doFlipResult=function(box){ box.classList.toggle("flipped"); };
+
+  // Reaching demo: open- vs closed-loop, 2D (hand + cursor hidden mid-reach in open-loop)
+  (function(){
+    var stage=document.getElementById("tbStage");
+    var home=document.getElementById("tbHome"), homeLbl=document.querySelector("#tbDemo .tb-homelbl");
+    var target=document.getElementById("tbTarget"), targetLbl=document.getElementById("tbTargetLbl");
+    var hand=document.getElementById("tbHand"), landing=document.getElementById("tbLanding"), flash=document.getElementById("tbFlash");
+    var result=document.getElementById("tbResult"), score=document.getElementById("tbScore");
+    var instr=document.getElementById("tbInstr");
+    if(!stage) return;
+    var mode="closed", reaching=false;
+    var radius=26;                 // hit if release within this many px of target centre
+    var homeXY={x:0,y:0}, targetXY={x:0,y:0};
+    var tries=0, hits=0;
+    function updateInstr(){
+      if(mode==="closed"){
+        instr.className="tb-instr";
+        instr.innerHTML="<strong>Closed-loop (vision ON):</strong> Press and <strong>hold on HOME</strong>, then drag at a <strong>comfortable speed</strong> to the gold target and release. You can see your hand the whole way &mdash; correct your path as you go.";
+      } else {
+        instr.className="tb-instr open";
+        instr.innerHTML="<strong>Open-loop (vision OFF):</strong> Press and <strong>hold on HOME</strong>, then reach <strong>as fast as you can</strong> to where you think the target is and release. Your hand <em>and the cursor disappear</em> during the reach &mdash; you only see where you landed after you stop.";
+      }
+    }
+    function setResult(cls,html){ result.className="tb-result"+(cls?" "+cls:""); result.innerHTML=html; }
+    function doFlash(cls){ flash.className="tb-flash "+cls; setTimeout(function(){flash.className="tb-flash";},400); }
+    function place(el,x,y){ el.style.left=x+"px"; el.style.top=y+"px"; }
+    function layout(){
+      var W=stage.clientWidth, H=stage.clientHeight;
+      // HOME fixed near the left-centre
+      homeXY={x:46, y:H/2};
+      place(home, homeXY.x, homeXY.y);
+      place(homeLbl, homeXY.x, homeXY.y+26);
+      // place target at a random spot in the right ~65% of the field, with vertical spread
+      var tx = W*(0.52 + Math.random()*0.40);
+      var ty = H*(0.18 + Math.random()*0.64);
+      targetXY={x:tx, y:ty};
+      place(target, tx, ty);
+      place(targetLbl, tx, ty+34);
+    }
+    function pos(e){ var r=stage.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top, w:r.width, h:r.height}; }
+    function clamp(v,max){ return Math.max(0,Math.min(max,v)); }
+    function newTrial(keepMsg){
+      reaching=false;
+      updateInstr();
+      stage.classList.remove("nocursor");
+      hand.classList.remove("show");
+      landing.hidden=true; landing.className="tb-landing";
+      layout(); // new target each trial
+      place(hand, homeXY.x, homeXY.y);
+      if(!keepMsg){ setResult("", mode==="closed"
+        ? "<strong>Vision ON.</strong> Hold on HOME and guide your hand to the target at a comfortable speed."
+        : "<strong>Vision OFF.</strong> Hold on HOME, then reach fast to where you think the target is."); }
+      score.textContent = tries? ("Hits: "+hits+" / "+tries) : "";
+    }
+    function nearHome(pt){ var dx=pt.x-homeXY.x, dy=pt.y-homeXY.y; return Math.sqrt(dx*dx+dy*dy) <= 42; }
+    function onDown(e){
+      var pt=pos(e);
+      if(!nearHome(pt)){ setResult("no","Start <em>on HOME</em> (the teal circle on the left)."); return; }
+      e.preventDefault();
+      reaching=true;
+      place(hand, homeXY.x, homeXY.y);
+      if(mode==="closed"){ hand.classList.add("show"); stage.classList.remove("nocursor"); }
+      else { hand.classList.remove("show"); stage.classList.add("nocursor"); }
+      landing.hidden=true;
+      setResult("", mode==="closed" ? "Guide your hand to the target&hellip;" : "Reach fast &mdash; you can&rsquo;t see your hand or the cursor!");
+    }
+    function onMove(e){
+      if(!reaching) return;
+      var pt=pos(e); var x=clamp(pt.x,pt.w), y=clamp(pt.y,pt.h);
+      place(hand,x,y);
+      if(mode==="open"){ hand.classList.remove("show"); } // stay hidden during open-loop reach
+    }
+    function onUp(e){
+      if(!reaching) return; reaching=false;
+      var pt=pos(e); var x=clamp(pt.x,pt.w), y=clamp(pt.y,pt.h);
+      stage.classList.remove("nocursor");
+      hand.classList.remove("show");
+      place(landing,x,y); landing.hidden=false;
+      var dx=x-targetXY.x, dy=y-targetXY.y; var err=Math.round(Math.sqrt(dx*dx+dy*dy));
+      tries++; var hit = err <= radius;
+      if(hit){ hits++; landing.className="tb-landing ok"; doFlash("ok"); }
+      else { landing.className="tb-landing no"; doFlash("no"); }
+      if(mode==="closed"){
+        setResult(hit?"ok":"no", hit
+          ? "&#10003; <strong>On target.</strong> With vision the whole way, you could steer your hand in as it approached &mdash; closed-loop control."
+          : "&#10007; <strong>Off by ~"+err+" px.</strong> You could still <em>see</em> to adjust on the way &mdash; closed-loop. More practice sharpens it.");
+      } else {
+        setResult(hit?"ok":"no", hit
+          ? "&#10003; <strong>Nice reach!</strong> You hit it in 2D <em>without</em> seeing your hand &mdash; accuracy came from the plan you launched with. The landing dot is <strong>terminal feedback</strong> only."
+          : "&#10007; <strong>Missed by ~"+err+" px.</strong> No vision mid-reach, so you couldn&rsquo;t correct &mdash; open-loop. Use the landing dot (terminal feedback) to adjust your <em>next</em> reach.");
+      }
+      score.textContent="Hits: "+hits+" / "+tries;
+      setTimeout(function(){ newTrial(true); }, 1100);
+    }
+    stage.addEventListener("pointerdown",onDown);
+    stage.addEventListener("pointermove",onMove);
+    window.addEventListener("pointerup",onUp);
+    document.getElementById("tbDemo").querySelectorAll(".tb-mode").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        mode=btn.dataset.mode;
+        document.querySelectorAll("#tbDemo .tb-mode").forEach(function(x){x.classList.toggle("on",x===btn);});
+        newTrial();
+      });
+    });
+    var io=new MutationObserver(function(){ if(stage.closest(".screen").classList.contains("active")){ layout(); place(hand,homeXY.x,homeXY.y); } });
+    io.observe(stage.closest(".screen"),{attributes:true,attributeFilter:["class"]});
+    setTimeout(function(){ newTrial(); }, 300);
+  })();
 
   // Ball-in-cup reflection gate (per-browser save)
   (function(){

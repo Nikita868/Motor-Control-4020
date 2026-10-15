@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+  HLSC 4025  |  Module 8 / Lesson 4 - Generalized Motor Programs & Schema Theory
+  Last edited: (update this date when you change something)
+===============================================================================
+
+  HOW TO EDIT THIS FILE
+  ---------------------
+  Everything students read lives between tags, like this:
+
+      <p>This sentence is safe to rewrite.</p>
+       ^^^                              ^^^^
+       leave these alone      edit freely in between
+
+  SAFE TO CHANGE:  any words between > and <
+  DO NOT TOUCH:    anything inside < >, anything starting with data-,
+                   and the <script> block at the very bottom.
+
+  WHERE THINGS ARE (search for the ALL-CAPS words below)
+  ------------------------------------------------------
+  COLORS ............ search ":root"  -- change --accent to restyle the
+                      whole lesson at once.
+  SCREENS ........... search "data-screen" -- each one is a screen.
+                      Copy a whole <section>...</section> to add one;
+                      delete it to remove. The 1/14 counter and the dots
+                      update themselves automatically.
+  QUIZ ANSWER ....... search "data-c=" -- data-c="1" is the CORRECT option,
+                      data-c="0" is wrong. Change these to move the answer.
+  QUIZ FEEDBACK ..... search "KFB" (near the bottom, in the script)
+  IMAGES ............ search "images/" -- swap the filename to change a
+                      picture. Put new files in the images/ folder.
+
+  SPECIAL CHARACTERS
+  ------------------
+  You'll see things like &mdash; (an em dash), &rsquo; (a curly apostrophe),
+  and &nbsp; (a non-breaking space). Typing a real - or ' instead is fine.
+  Just never leave a bare & on its own -- write &amp; if you need one.
+
+  IF YOU BREAK SOMETHING
+  ----------------------
+  GitHub keeps every previous version. Go to the repo, click the file,
+  then "History" -- you can restore any earlier version in two clicks.
+  Nothing you do here is permanent.
+
+===============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4 · Generalized Motor Programs &amp; Schema Theory</title>
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  .card.flush{padding:0;overflow:hidden}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center 40%;color:#fff;text-align:center;padding:60px 30px}
+  .title-screen::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,42,56,.5),rgba(14,44,58,.9))}
+  .title-inner{position:relative;z-index:2;max-width:660px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:54px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:23px;font-weight:600;line-height:1.42;margin:0}
+  .statement.gold{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .statement.gold .eyebrow{color:#f7e3c6}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* tabs */
+  .tabs{margin-top:18px}
+  .tab-heads{display:flex;gap:4px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+  .tab-head{padding:11px 18px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border:none;
+    background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-family:inherit}
+  .tab-head[aria-selected="true"]{color:var(--accent-dark);border-bottom-color:var(--accent)}
+  .tab-head:hover{color:var(--ink)}
+  .tab-panel{padding:22px 2px 2px;animation:fade .3s}
+  .tab-panel[hidden]{display:none}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* accordion */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+  .acc-item{border-bottom:1px solid var(--line)}
+  .acc-item:last-child{border-bottom:none}
+  .acc-head{width:100%;text-align:left;background:var(--bg);border:none;cursor:pointer;padding:17px 20px;
+    font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:13px;
+    transition:background .15s;font-family:inherit}
+  .acc-head:hover{background:var(--accent-soft)}
+  .acc-icon{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:16px;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s;line-height:1}
+  .acc-head[aria-expanded="true"] .acc-icon{transform:rotate(45deg)}
+  .acc-tag{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:#b5822f;background:#fdf5e9;padding:3px 8px;border-radius:4px;flex:none}
+  .acc-body{padding:0 20px 20px 57px}
+  .acc-body[hidden]{display:none}
+  .acc-body p{margin:0;font-size:15px}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* scenario */
+  .sc-stage{font-size:11.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .choice-btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:16px 18px;margin-bottom:11px;font-size:15.5px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:#fafdfe;transform:translateX(3px)}
+  .choice-btn:disabled{cursor:default;opacity:.5}
+  .choice-btn.chosen{border-color:var(--accent);background:var(--accent-soft);opacity:1}
+  .conseq{padding:18px 20px;border-radius:8px;margin-top:14px;font-size:15.5px;line-height:1.55}
+  .conseq[hidden]{display:none}
+  .conseq.good{background:#eafaf1;border:1px solid #bfe6cf}
+  .conseq.mixed{background:#fff6e6;border:1px solid #f0dcb0}
+  .conseq h4{font-size:16px;margin-bottom:7px;color:var(--ink)}
+
+  /* split image */
+  .split{display:grid;grid-template-columns:1fr 1fr}
+  .split .txt-side{padding:34px 34px}
+  .split .img-side{background-size:cover;background-position:center;min-height:280px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}.split .img-side{min-height:200px}}
+
+  /* trait cards with diagrams (screen 10) */
+  .trait-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+  @media(max-width:760px){.trait-row{grid-template-columns:1fr}}
+  .trait{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;transition:.18s}
+  .trait:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07);transform:translateY(-2px)}
+  .trait-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:12px 10px 4px;border-bottom:1px solid var(--line)}
+  .trait-viz svg{width:100%;height:auto;display:block}
+  .trait-body{padding:16px 18px 18px}
+  .trait-body .tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:6px}
+  .trait-body h4{font-size:15.5px;margin:0 0 6px;line-height:1.3}
+  .trait-body p{font-size:13.8px;margin:0;color:#556}
+  .trait-body .ex{font-size:12.8px;color:var(--muted);margin-top:10px;padding-top:10px;
+    border-top:1px dashed var(--line);line-height:1.5}
+
+  .portrait-row{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+  @media(max-width:560px){.portrait-row{grid-template-columns:1fr}.portrait-row img{max-width:150px}}
+
+  .sum-list{list-style:none;margin-top:6px}
+  .sum-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .sum-list li:last-child{border-bottom:none}
+  .sum-list .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sum-list span.t{font-size:15.5px;color:#3d4d5c}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* video embed */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-cap .vlink a:hover{text-decoration:underline}
+
+  /* comparison table (performance vs learning) */
+  .cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+  .cmp thead th{background:var(--accent-dark);color:#fff;font-size:14px;font-weight:750}
+  .cmp tbody th{background:var(--accent-soft);color:var(--accent-dark);font-weight:700;width:34%}
+  .cmp td{color:#3d4d5c}
+  .cmp tr:nth-child(even) td{background:#fafbfc}
+
+  /* process pillars (neural/perceptual/cognitive/neuromotor) */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .pillar .ptag{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .pillar ul{list-style:none;margin:0;padding:0}
+  .pillar li{position:relative;padding:5px 0 5px 18px;font-size:14.5px;color:#3d4d5c;line-height:1.45}
+  .pillar li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* numbered characteristic cards */
+  .char-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:22px}
+  @media(max-width:760px){.char-row{grid-template-columns:1fr 1fr}}
+  @media(max-width:440px){.char-row{grid-template-columns:1fr}}
+  .char{border:1px solid var(--line);border-radius:9px;padding:16px 14px;background:#fafbfc;text-align:center}
+  .char .cn{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+  .char h4{font-size:14.5px;margin:0 0 5px}
+  .char p{font-size:12.8px;color:#556;margin:0;line-height:1.45}
+
+  /* Lordahl rpm groups */
+  .rpm-groups{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .rpm-g{border:1px solid var(--line);border-radius:9px;padding:16px;text-align:center;background:#fafbfc}
+  .rpm-g .rpm-n{display:block;font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1}
+  .rpm-g .rpm-u{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+  /* promoting factors */
+  .pf-list{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .pf{display:grid;grid-template-columns:44px 1fr;gap:15px;align-items:start;
+    border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+  .pf-n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:18px;display:flex;align-items:center;justify-content:center}
+  .pf-b h4{font-size:15.5px;margin:2px 0 5px}
+  .pf-b p{font-size:14px;color:#556;margin:0;line-height:1.5}
+
+  /* setup images two-up */
+  .setup-imgs{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.setup-imgs{grid-template-columns:1fr}}
+  .setup-imgs .study-fig{margin:0}
+  .setup-imgs img{height:200px;object-fit:cover}
+
+  /* study figures */
+  .study-fig{margin:18px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .study-fig img{width:100%;height:auto;display:block}
+  .study-fig figcaption{font-size:12.5px;color:#556;padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);line-height:1.5}
+  a.cite-link{color:var(--accent-dark);font-weight:700;text-decoration:none;white-space:nowrap}
+  a.cite-link:hover{text-decoration:underline}
+  .refblock{font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed var(--line);line-height:1.65}
+  .study-fig .fig-src{color:var(--muted);font-style:italic}
+  .pval-list{list-style:none;margin:12px 0 0;padding:0}
+  .pval-list li{position:relative;padding:8px 0 8px 20px;font-size:14px;color:#245a63;line-height:1.5;border-top:1px solid rgba(26,127,142,.12)}
+  .pval-list li:first-child{border-top:none}
+  .pval-list li::before{content:"";position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* reflection prompt */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect p:last-child{margin-bottom:0}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* analogy two-up */
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:560px){.analogy{grid-template-columns:1fr}}
+  .ana{border:1px solid var(--line);border-radius:9px;padding:20px;background:#fff}
+  .ana.temp{border-top:3px solid #d9a24f}
+  .ana.perm{border-top:3px solid var(--accent)}
+  .ana h4{font-size:16px;margin:0 0 6px}
+  .ana .verdict{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .ana.temp .verdict{color:#b5822f}
+  .ana.perm .verdict{color:var(--accent-dark)}
+  .ana p{font-size:14px;color:#556;margin:0}
+
+
+  /* curve cards */
+  .curve-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  @media(max-width:640px){.curve-row{grid-template-columns:1fr}}
+  .curve{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;transition:.18s}
+  .curve:hover{border-color:#bcd7dd;box-shadow:0 4px 16px rgba(40,60,80,.07)}
+  .curve-viz{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border-bottom:1px solid var(--line);padding:8px}
+  .curve-viz svg{width:100%;height:auto;display:block}
+  .curve-body{padding:16px 18px 18px}
+  .curve-body h4{font-size:16px;margin:0 0 6px}
+  .curve-body p{font-size:14px;color:#556;margin:0}
+  .curve-body .tagline{font-size:12.5px;color:var(--accent-dark);font-weight:700;margin-top:8px}
+
+  /* single big curve for the intro */
+  .bigcurve{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .bigcurve svg{width:100%;height:auto;display:block}
+
+  /* juggling study intro layout */
+  .jstudy{display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:18px;
+    padding:18px;background:#fafbfc;border:1px solid var(--line);border-radius:10px}
+  @media(max-width:560px){.jstudy{grid-template-columns:1fr;justify-items:center;text-align:center}}
+  .jgif img{width:150px;height:150px;object-fit:cover;object-position:center 42%;border-radius:10px;border:1px solid var(--line);background:#111}
+  .jstudy-text p{font-size:14.5px;color:#3d4d5c;margin:0 0 10px}
+  .jstudy-text .jcite{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0;
+    padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* juggling result bars */
+  .jbars{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+  .jbar{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:12px}
+  .jbar .jlabel{font-size:13.5px;font-weight:700;color:var(--ink);text-align:right}
+  .jbar .jtrack{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+  .jbar .jfill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .jbar .jpct{font-size:13px;font-weight:800;color:var(--muted)}
+  .jbar.reveal-on .jfill{}
+
+  /* prediction chips */
+  .predict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  @media(max-width:560px){.predict{grid-template-columns:1fr}}
+  .pchip{border:2px solid var(--line);border-radius:8px;padding:14px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:15px;color:var(--ink);text-align:left;transition:.15s}
+  .pchip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .pchip:disabled{cursor:default}
+  .pchip.right{border-color:#2e9e6b;background:#eafaf1}
+  .pchip.dim{opacity:.55}
+
+  /* limitations click-to-reveal */
+  .lim-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .limc{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+    padding:0;cursor:pointer;font-family:inherit;transition:.16s;overflow:hidden;display:block}
+  .limc:hover{border-color:var(--accent);background:#fafdfe}
+  .limc[aria-expanded="true"]{border-color:var(--accent)}
+  .limc-head{display:flex;align-items:center;gap:13px;padding:15px 18px}
+  .lnum{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .limc-teaser{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .limc-plus{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-size:18px;font-weight:400;line-height:1;display:flex;align-items:center;
+    justify-content:center;transition:transform .25s}
+  .limc[aria-expanded="true"] .limc-plus{transform:rotate(45deg)}
+  .limc-body{display:block;font-size:14.5px;color:#3d4d5c;line-height:1.55;padding:0 18px 0 59px;
+    max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+  .limc[aria-expanded="true"] .limc-body{max-height:220px;padding-bottom:16px}
+
+
+  /* order-the-phases interaction */
+  .order-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:ord}
+  .order-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;
+    background:#fff;border:2px solid var(--line);border-radius:9px;cursor:grab;transition:border-color .15s,background .15s,box-shadow .15s;
+    font-size:15.5px;font-weight:600;color:var(--ink);user-select:none;position:relative}
+  .order-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .order-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .order-item.dragging{opacity:.5;cursor:grabbing}
+  .order-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 12px rgba(26,127,142,.18)}
+  .order-item.over{border-color:var(--accent);border-style:dashed}
+  .order-item .grip{flex:none;color:#b7c2ca;font-size:18px;line-height:1;letter-spacing:-2px}
+  .order-item .pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .order-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .order-item.bad{border-color:#d9534f;background:#fdeeee}
+  .check-btn{margin-top:8px;background:var(--accent);color:#fff;padding:11px 24px;border:none;border-radius:7px;
+    font-family:inherit;font-weight:700;font-size:14.5px;cursor:pointer;transition:.15s}
+  .check-btn:hover{background:var(--accent-dark)}
+  .order-fb{margin-top:14px;padding:14px 18px;border-radius:8px;font-size:14.5px}
+  .order-fb[hidden]{display:none}
+  .order-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .order-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+
+  /* golf aid images */
+  .aid-imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media(max-width:560px){.aid-imgs{grid-template-columns:1fr}}
+  .aid-imgs figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .aid-imgs img{width:100%;height:190px;object-fit:cover;display:block}
+  .aid-imgs figcaption{font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fafbfc;border-top:1px solid var(--line);text-align:center}
+
+  /* experiment setup two-up */
+  .exp-groups{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.exp-groups{grid-template-columns:1fr}}
+  .exp-g{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:#fff}
+  .exp-g.aid{border-top:3px solid var(--accent)}
+  .exp-g.noaid{border-top:3px solid var(--gold)}
+  .exp-g h4{font-size:15.5px;margin:0 0 6px}
+  .exp-g .gk{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .exp-g.aid .gk{color:var(--accent-dark)}
+  .exp-g.noaid .gk{color:#b5822f}
+  .exp-g p{font-size:13.8px;color:#556;margin:0}
+
+  /* interactive situation chart */
+  .sit-chart{background:linear-gradient(160deg,#f7fbfc,#eef5f7);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:18px}
+  .sit-chart svg{width:100%;height:auto;display:block}
+  .sit-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  @media(max-width:640px){.sit-controls{grid-template-columns:1fr 1fr}}
+  .sitbtn{border:2px solid var(--line);border-radius:8px;padding:11px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);text-align:center;transition:.15s;line-height:1.3}
+  .sitbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .sitbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .sit-readout{margin-top:16px;padding:18px 20px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:96px}
+  .sit-readout .sr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sit-readout h4{font-size:16.5px;margin:5px 0 7px}
+  .sit-readout p{font-size:14.5px;color:#3d4d5c;margin:0}
+  .sit-readout.warn{background:#fff6e6;border-color:#f0dcb0}
+  .sit-readout.warn .sr-tag{color:#b5822f}
+
+  /* design timeline / phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:20px;position:relative}
+  .phase{display:grid;grid-template-columns:40px 1fr;gap:16px;padding-bottom:22px;position:relative}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:"";position:absolute;left:19px;top:34px;bottom:-4px;width:2px;background:var(--line)}
+  .phase:last-child::before{display:none}
+  .phase .pdot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+  .phase.rest .pdot{background:var(--gold)}
+  .phase.test .pdot{background:var(--accent-dark)}
+  .phase .pbody h4{font-size:16px;margin:6px 0 4px}
+  .phase .pbody p{font-size:14px;color:#556;margin:0}
+
+  /* measures two-up */
+  .meas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.meas{grid-template-columns:1fr}}
+  .meas-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meas-col .mh{padding:14px 18px;color:#fff;font-weight:750;font-size:15.5px}
+  .meas-col.outcome .mh{background:var(--accent)}
+  .meas-col.production .mh{background:var(--accent-dark)}
+  .meas-col .mc{padding:16px 18px}
+  .meas-col .mc p.def{font-size:13.8px;color:#556;margin:0 0 12px}
+  .meas-col ul{list-style:none;margin:0 0 12px;padding:0}
+  .meas-col li{position:relative;padding:5px 0 5px 18px;font-size:14px;color:#3d4d5c}
+  .meas-col li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .meas-col .note{font-size:12.5px;color:var(--muted);font-style:italic;border-top:1px dashed var(--line);padding-top:10px}
+
+
+  /* near/far spectrum */
+  .nf-bar{position:relative;height:46px;margin:22px 0 8px;border-radius:23px;
+    background:linear-gradient(90deg,#eafaf1,#fef0e0);border:1px solid var(--line)}
+  .nf-bar .nf-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .nf-bar .nf-end.l{left:18px;color:#2e9e6b}
+  .nf-bar .nf-end.r{right:18px;color:#b5822f}
+  .nf-sub{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:0 6px}
+
+  /* transfer example cards (near vs far) */
+  .tx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:600px){.tx-cols{grid-template-columns:1fr}}
+  .tx-col{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tx-col .th{padding:13px 18px;color:#fff;font-weight:750;font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .tx-col.near .th{background:#2e9e6b}
+  .tx-col.far .th{background:#c98a3c}
+  .tx-col .tc{padding:14px 18px}
+  .tx-col .tc p.d{font-size:13.8px;color:#556;margin:0 0 12px}
+  .tx-col ul{list-style:none;margin:0;padding:0}
+  .tx-col li{position:relative;padding:6px 0 6px 18px;font-size:14px;color:#3d4d5c;line-height:1.45}
+  .tx-col li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%}
+  .tx-col.near li::before{background:#2e9e6b}
+  .tx-col.far li::before{background:#c98a3c}
+
+  /* positive/negative transfer */
+  .pn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+  @media(max-width:560px){.pn-row{grid-template-columns:1fr}}
+  .pn{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+  .pn.pos{border-top:3px solid #2e9e6b}
+  .pn.neg{border-top:3px solid #d9534f}
+  .pn .pnh{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+  .pn.pos .pnh{color:#2e9e6b}
+  .pn.neg .pnh{color:#d9534f}
+  .pn h4{font-size:16px;margin:0 0 6px}
+  .pn p{font-size:14px;color:#556;margin:0}
+
+  /* VR study bars */
+  .vr-bars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  .vr-group{}
+  .vr-group .vgl{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .vr-pair{display:flex;flex-direction:column;gap:7px}
+  .vr-bar{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:10px}
+  .vr-bar .vbl{font-size:12px;color:var(--muted);text-align:right;font-weight:600}
+  .vr-track{height:20px;background:var(--line);border-radius:6px;overflow:hidden}
+  .vr-fill{height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .vr-bar .vpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* massed vs distributed block diagram */
+  .sched-viz{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+  .sched-row{border:1px solid var(--line);border-radius:10px;padding:15px 18px;background:#fff}
+  .sched-row .sr-label{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .sched-row.massed .sr-label{color:var(--accent-dark)}
+  .sched-row.dist .sr-label{color:#b5822f}
+  .sched-track{display:flex;align-items:center;gap:4px;height:34px}
+  .blk{height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .blk.practice{background:var(--accent)}
+  .sched-row.dist .blk.practice{background:var(--gold)}
+  .blk.rest{background:repeating-linear-gradient(45deg,#eef2f4,#eef2f4 4px,#e3e9ec 4px,#e3e9ec 8px);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sched-cap{font-size:12.5px;color:var(--muted);margin-top:9px}
+
+  /* mechanism reveal cards (reuse limc pattern, 2-col) */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:600px){.mech-grid{grid-template-columns:1fr}}
+  .mech{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;transition:.16s;display:block;width:100%}
+  .mech:hover{border-color:var(--accent);background:#fafdfe}
+  .mech[aria-expanded="true"]{border-color:var(--accent)}
+  .mech-head{display:flex;align-items:center;gap:11px;padding:15px 16px}
+  .mech-ic{flex:none;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .mech-t{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .mech-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .mech[aria-expanded="true"] .mech-plus{transform:rotate(45deg)}
+  .mech-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px;
+    font-size:13.8px;color:#3d4d5c;line-height:1.55}
+  .mech[aria-expanded="true"] .mech-body{max-height:260px;padding:0 16px 15px}
+
+  /* schedule ranking (Luz) */
+  .rank-list{list-style:none;margin:20px 0 0;padding:0;counter-reset:rk}
+  .rank-item{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-bottom:10px;background:#fff;
+    border:2px solid var(--line);border-radius:9px;cursor:grab;user-select:none;font-size:15px;font-weight:600;color:var(--ink);transition:.15s}
+  .rank-item:hover{border-color:#bcd7dd;background:#fafdfe}
+  .rank-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rank-item.dragging{opacity:.5;cursor:grabbing}
+  .rank-item.over{border-color:var(--accent);border-style:dashed}
+  .rank-item.selected{border-color:var(--accent);background:var(--accent-soft)}
+  .rank-item .rk-grip{flex:none;color:#b7c2ca;font-size:17px;letter-spacing:-2px}
+  .rank-item .rk-pos{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent-dark);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .rank-item.ok{border-color:#2e9e6b;background:#eafaf1}
+  .rank-item.bad{border-color:#d9534f;background:#fdeeee}
+  .rank-item .rk-tag{margin-left:auto;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#eef2f4;color:var(--muted)}
+
+  /* prediction result bars (generic, reusable) */
+  .rbars{margin-top:20px;display:flex;flex-direction:column;gap:13px}
+  .rbar{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:11px}
+  @media(max-width:520px){.rbar{grid-template-columns:110px 1fr 38px}}
+  .rbar .rbl{font-size:13px;font-weight:700;color:var(--ink);text-align:right;line-height:1.2}
+  .rbar .rtrack{height:24px;background:var(--line);border-radius:6px;overflow:hidden}
+  .rbar .rfill{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.3,.7,.3,1)}
+  .rbar .rpct{font-size:12.5px;font-weight:800;color:var(--muted)}
+
+
+  /* ===== Lesson 2 additions ===== */
+  /* schedule visualizer */
+  .sv-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+  @media(max-width:560px){.sv-controls{grid-template-columns:1fr}}
+  .svbtn{border:2px solid var(--line);border-radius:9px;padding:13px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;text-align:center;transition:.15s}
+  .svbtn:hover{border-color:var(--accent);background:#fafdfe}
+  .svbtn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+  .svbtn .svb-t{font-size:15px;font-weight:800;display:block}
+  .svbtn .svb-s{font-size:11.5px;opacity:.8;display:block;margin-top:2px}
+  .sv-stage{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(160deg,#f7fbfc,#eef5f7);padding:20px}
+  .sv-track{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;min-height:44px;align-items:center}
+  .sv-cell{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+  .sv-cell.show{opacity:1;transform:none}
+  .sv-c1{background:#1a7f8e}.sv-c2{background:#e0a458}.sv-c3{background:#6a8caf}.sv-c4{background:#c46b6b}
+  .sv-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;font-size:12.5px;color:#3d4d5c}
+  .sv-legend span{display:inline-flex;align-items:center;gap:6px}
+  .sv-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sv-readout{margin-top:16px;padding:16px 18px;border-radius:9px;background:var(--accent-soft);border:1px solid #cfe6ea;min-height:70px}
+  .sv-readout .svr-tag{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent-dark)}
+  .sv-readout h4{font-size:16px;margin:5px 0 6px}
+  .sv-readout p{font-size:14px;color:#3d4d5c;margin:0}
+  .sv-ci{display:inline-block;margin-top:9px;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px}
+  .sv-ci.low{background:#eafaf1;color:#1d6b47}
+  .sv-ci.med{background:#fff6e6;color:#b5822f}
+  .sv-ci.high{background:#fdeeee;color:#a3403c}
+
+  /* CI continuum */
+  .ci-bar{position:relative;height:54px;margin:24px 0 10px;border-radius:27px;
+    background:linear-gradient(90deg,#eafaf1,#fff6e6,#fdeeee);border:1px solid var(--line)}
+  .ci-bar .ci-end{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .ci-bar .ci-end.l{left:20px;color:#1d6b47}
+  .ci-bar .ci-end.r{right:20px;color:#a3403c}
+  .ci-marks{display:flex;justify-content:space-between;margin-top:14px;gap:8px}
+  .ci-mark{flex:1;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .ci-mark h4{font-size:14px;margin:0 0 3px}
+  .ci-mark .cim-seq{font-family:monospace;font-size:12px;color:var(--accent-dark);letter-spacing:1px;margin:4px 0}
+  .ci-mark p{font-size:12px;color:#556;margin:4px 0 0;line-height:1.4}
+
+  /* factors accordion (block-safe reveal, from limc pattern) */
+  .fac-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .fac{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer;
+    text-align:left;font-family:inherit;width:100%;transition:.16s;display:block}
+  .fac:hover{border-color:var(--accent);background:#fafdfe}
+  .fac[aria-expanded="true"]{border-color:var(--accent)}
+  .fac-head{display:flex;align-items:center;gap:12px;padding:15px 17px}
+  .fac-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .fac-t{font-size:15px;font-weight:700;color:var(--ink)}
+  .fac-plus{margin-left:auto;flex:none;color:var(--accent);font-size:20px;transition:transform .25s}
+  .fac[aria-expanded="true"] .fac-plus{transform:rotate(45deg)}
+  .fac-body{display:block;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;
+    padding:0 17px;font-size:14px;color:#3d4d5c;line-height:1.55}
+  .fac[aria-expanded="true"] .fac-body{max-height:320px;padding:0 17px 16px}
+
+
+  /* ===== AFB Lesson 1 additions ===== */
+  /* video embed / placeholder */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+  /* KR/KP sorter */
+  .krkp-intro{display:flex;gap:12px;margin:16px 0}
+  .krkp-key{flex:1;border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fff}
+  .krkp-key.kr{border-top:3px solid var(--accent)}
+  .krkp-key.kp{border-top:3px solid var(--gold)}
+  .krkp-key h4{margin:0 0 4px;font-size:14px}
+  .krkp-key.kr h4{color:var(--accent-dark)}
+  .krkp-key.kp h4{color:#b5822f}
+  .krkp-key p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  .sortq{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fff;margin-bottom:12px}
+  .sortq .sq-txt{font-size:14.5px;color:var(--ink);margin-bottom:11px;line-height:1.5}
+  .sortq .sq-txt .ctx{font-weight:700;color:var(--accent-dark)}
+  .sq-btns{display:flex;gap:9px}
+  .sq-btns button{flex:1;border:2px solid var(--line);border-radius:8px;padding:9px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .sq-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .sq-btns button:disabled{cursor:default}
+  .sq-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .sq-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .sq-fb{font-size:12.5px;margin-top:9px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .sq-fb[hidden]{display:none}
+
+  /* two-axis classify (KR/KP x during/after) */
+  .classify-item{border:1px solid var(--line);border-radius:10px;padding:15px 17px;background:#fff;margin-bottom:14px}
+  .ci-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:13px}
+  .ci-scenario b{color:var(--accent-dark)}
+  .ci-axes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.ci-axes{grid-template-columns:1fr}}
+  .ci-axis .ax-label{font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .ci-axis .ax-btns{display:flex;gap:7px}
+  .ci-axis .ax-btns button{flex:1;border:2px solid var(--line);border-radius:7px;padding:8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s}
+  .ci-axis .ax-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .ci-axis .ax-btns button:disabled{cursor:default}
+  .ci-axis .ax-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .ci-axis .ax-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .ci-fb{font-size:12.5px;margin-top:11px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .ci-fb[hidden]{display:none}
+  .ci-img{margin:4px 0 12px}
+  .ci-img img{max-width:220px;width:100%;height:auto;border-radius:8px;border:1px solid var(--line)}
+  .ci-img svg{border-radius:8px;border:1px solid var(--line)}
+
+
+  /* ===== AFB Lesson 2 additions ===== */
+  /* four-roles overview grid */
+  .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.roles-grid{grid-template-columns:1fr}}
+  .role-card{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fff;position:relative}
+  .role-card .rc-tag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:9px}
+  .role-card.good .rc-tag{background:#eafaf1;color:#1d6b47}
+  .role-card.risk .rc-tag{background:#fdeeee;color:#a3403c}
+  .role-card h4{margin:0 0 5px;font-size:15.5px;color:var(--ink)}
+  .role-card p{margin:0;font-size:13px;color:#556;line-height:1.5}
+
+  /* error-loop svg holder */
+  .loopfig{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .loopfig svg{width:100%;max-width:560px;height:auto}
+  .loopfig .lf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic}
+
+  /* role sorter */
+  .rolesort-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .rsi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .rsi-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:520px){.rsi-btns{grid-template-columns:1fr}}
+  .rsi-btns button{border:2px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s;text-align:left}
+  .rsi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .rsi-btns button:disabled{cursor:default}
+  .rsi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .rsi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .rsi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .rsi-fb[hidden]{display:none}
+
+
+  /* ===== AFB Lesson 3 additions ===== */
+  /* group badge pill (wider than obj-num, for percentages) */
+  .grp-badge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:26px;padding:0 10px;
+    border-radius:14px;color:#fff;font-weight:800;font-size:13px;flex:none;margin-right:2px;letter-spacing:.3px}
+  /* study chart holder */
+  .chartfig{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .chartfig svg{width:100%;max-width:520px;height:auto}
+  .chartfig .cf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic;text-align:left}
+
+  /* bandwidth interactive */
+  .bw-tool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .bw-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .bw-controls label{font-size:14px;font-weight:700;color:var(--ink)}
+  .bw-controls input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+  .bw-val{font-size:15px;font-weight:800;color:var(--accent-dark);min-width:56px;text-align:right}
+  .bw-stage{margin-top:6px}
+  .bw-readout{margin-top:12px;display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px}
+  .bw-readout .ro{padding:8px 14px;border-radius:8px;background:var(--accent-soft);font-weight:700;color:#245a63}
+  .bw-readout .ro b{color:var(--accent-dark)}
+  .bw-hint{font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* full-width flip result box */
+  .flipresult{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;width:100%;margin:6px 0;display:block}
+  .flipresult .fr-inner{position:relative;display:block;width:100%;min-height:148px;transition:transform .55s;transform-style:preserve-3d}
+  .flipresult.flipped .fr-inner{transform:rotateY(180deg)}
+  .fr-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px 22px;box-sizing:border-box}
+  .fr-front{background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff}
+  .fr-front .fr-q{font-size:14.5px;font-weight:700;line-height:1.4}
+  .fr-front .fr-hint{font-size:12px;opacity:.85;margin-top:7px}
+  .fr-front .fr-hint::before{content:"\21BB  "}
+  .fr-back{background:#fdf3e0;border:1px solid #e0a458;transform:rotateY(180deg);color:#5a3d12;font-size:15px;line-height:1.55}
+  .fr-back strong{color:#b5822f}
+
+  /* flippable cards */
+  .flip-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:600px){.flip-grid{grid-template-columns:1fr}}
+  .flipcard{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1000px;height:130px;width:100%;display:block}
+  .flipcard .fc-inner{position:relative;display:block;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+  .fc-face{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px 16px;box-sizing:border-box}
+  .fc-front{background:#fff}
+  .fc-front .tm-n{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .fc-front .fc-title{font-size:16px;font-weight:800;color:var(--ink)}
+  .fc-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:8px}
+  .fc-back{background:var(--accent-soft);transform:rotateY(180deg);font-size:14px;color:#245a63;line-height:1.5}
+  .flipcard.flipped .fc-front{border-color:#2e9e6b}
+  /* taller flip cards for comparison content (heading + sentences) */
+  .flip2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .flip3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:18px}
+  @media(max-width:640px){.flip3{grid-template-columns:1fr}}
+  .flip4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+  @media(max-width:700px){.flip4{grid-template-columns:1fr 1fr}}
+  @media(max-width:420px){.flip4{grid-template-columns:1fr}}
+  .flip4 .flipcard{height:190px}
+  @media(max-width:560px){.flip2{grid-template-columns:1fr}}
+  .flip2 .flipcard{height:210px}
+  .flip2 .fc-face{align-items:stretch;justify-content:flex-start;text-align:left;padding:16px 18px}
+  .flip2 .fc-front{background:#fff}
+  .flip2 .fc-front .fc-eyebrow{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--accent-dark)}
+  .flip2 .fc-front.risk .fc-eyebrow{color:#d9534f}
+  .flip2 .fc-front .fc-prompt{font-size:15px;font-weight:700;color:var(--ink);margin-top:8px;line-height:1.4}
+  .flip2 .fc-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:auto}
+  .flip2 .fc-front .fc-hint::before{content:"\21BB  "}
+  .flip2 .fc-back{background:var(--accent-soft);color:#245a63;font-size:13.5px;line-height:1.5}
+  .flip2 .fc-back.risk{background:#fdeeee;color:#a3403c}
+  .flip2 .fc-back h4{margin:0 0 6px;font-size:15px;color:var(--accent-dark)}
+  .flip2 .fc-back.risk h4{color:#a3403c}
+
+  /* technique overview list */
+  .tech-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:600px){.tech-list{grid-template-columns:1fr}}
+  .tech-mini{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff}
+  .tech-mini .tm-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .tech-mini h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+  .tech-mini p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+
+
+  /* ===== AFB Lesson 4 additions ===== */
+  /* KP case number badge in headings */
+  .kp-num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
+    background:var(--accent);color:#fff;font-size:18px;font-weight:800;margin-right:12px;vertical-align:middle;flex:none}
+  /* match/sort item (reuse rolesort look) */
+  .match-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .mi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .mi-scenario .q{font-weight:700;color:var(--accent-dark)}
+  .mi-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  @media(max-width:520px){.mi-btns{grid-template-columns:1fr}}
+  .mi-btns button{border:2px solid var(--line);border-radius:8px;padding:10px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s;text-align:left}
+  .mi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .mi-btns button:disabled{cursor:default}
+  .mi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .mi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .mi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .mi-fb[hidden]{display:none}
+  /* video placeholder (reuse from L1 pattern) */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:7px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
+  .video-ph{position:relative;width:100%;padding-top:56.25%;background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .video-ph .vp-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+  .video-ph .vp-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .video-ph .vp-play::after{content:"";border-style:solid;border-width:12px 0 12px 20px;border-color:transparent transparent transparent #fff;margin-left:5px}
+  .video-ph .vp-t{font-weight:700;font-size:15px}
+  .video-ph .vp-s{font-size:13px;opacity:.85;margin-top:6px;max-width:400px}
+
+
+  /* ===== Theory Lesson 1 additions ===== */
+  /* figure holder for SVGs */
+  .svgfig{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .svgfig svg{width:100%;max-width:560px;height:auto}
+  .svgfig .sf-cap{font-size:13px;color:var(--muted);margin-top:10px;font-style:italic;text-align:left}
+  /* three-criteria (theory tests) */
+  .crit-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+  @media(max-width:600px){.crit-list{grid-template-columns:1fr}}
+  .crit{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fff;border-top:3px solid var(--accent)}
+  .crit .cn{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .crit h4{margin:0 0 4px;font-size:14.5px;color:var(--ink)}
+  .crit p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  /* practitioner 4-step (identify/create/predict/evaluate) */
+  .why-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+  @media(max-width:640px){.why-steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:400px){.why-steps{grid-template-columns:1fr}}
+  .why-step{border:1px solid var(--line);border-radius:10px;padding:13px 14px;background:#fff}
+  .why-step .ws-n{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--accent-dark);text-transform:uppercase}
+  .why-step h4{margin:5px 0 5px;font-size:14.5px;color:var(--ink)}
+  .why-step p{margin:0;font-size:12px;color:#556;line-height:1.45}
+  /* name card (in place of a portrait) */
+  .namecard{display:flex;align-items:center;gap:16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:16px 18px;background:#fafdfe;margin:18px 0}
+  .namecard .nc-badge{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+  .namecard .nc-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--accent)}
+  .namecard .nc-body h4{margin:0 0 3px;font-size:15.5px;color:var(--ink)}
+  .namecard .nc-body p{margin:0;font-size:12.5px;color:#556;line-height:1.45}
+  /* DOF counter interactive */
+  .dof-tool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .dof-joints{display:flex;flex-direction:column;gap:10px}
+  .dof-joint{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:9px;padding:11px 15px;background:#fafbfc}
+  .dof-joint .dj-name{font-size:14px;font-weight:700;color:var(--ink)}
+  .dof-joint .dj-name small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .dof-joint .dj-btns{display:flex;gap:6px;flex:none}
+  .dof-joint .dj-btns button{width:34px;height:34px;border:2px solid var(--line);border-radius:7px;background:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;color:var(--ink);transition:.15s}
+  .dof-joint .dj-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .dof-joint .dj-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .dof-joint .dj-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .dof-joint .dj-btns button:disabled{cursor:default}
+  .dof-total{margin-top:14px;text-align:center;font-size:15px;font-weight:700;color:var(--accent-dark);padding:12px;border-radius:9px;background:var(--accent-soft)}
+  .dof-total b{font-size:22px}
+
+
+  /* ===== Theory Lesson 2 additions ===== */
+  /* hierarchy diagram tiers */
+  .hier{display:flex;flex-direction:column;align-items:center;gap:0;margin:6px auto;max-width:340px}
+  .hier .tier{width:100%;text-align:center;border-radius:9px;padding:12px 14px;color:#fff;font-weight:700;font-size:14px}
+  .hier .tier small{display:block;font-weight:400;font-size:11.5px;opacity:.9;margin-top:2px}
+  .hier .arrow{font-size:20px;color:#b7c2ca;line-height:1;margin:4px 0}
+  /* pipeline (modular) */
+  .pipe{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
+  .pipe .stage{flex:1;min-width:120px;border:1px solid var(--line);border-radius:9px;padding:12px 13px;background:#fff;text-align:center}
+  .pipe .stage .pn-num{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--accent-dark);text-transform:uppercase}
+  .pipe .stage h4{margin:5px 0 4px;font-size:14px;color:var(--ink)}
+  .pipe .stage p{margin:0;font-size:12px;color:#556;line-height:1.4}
+  .pipe .parrow{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:20px;font-weight:700;padding:0 4px}
+  @media(max-width:600px){.pipe{flex-direction:column}.pipe .parrow{transform:rotate(90deg);padding:4px 0}}
+  /* flippable pipeline */
+  .pipe-flip{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:nowrap}
+  .pipe-flip .flipcard{flex:1;height:150px}
+  .pipe-flip .parrow{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:20px;font-weight:700;padding:0 5px;flex:none}
+  @media(max-width:600px){.pipe-flip{flex-direction:column}.pipe-flip .flipcard{width:100%}.pipe-flip .parrow{transform:rotate(90deg);padding:4px 0}}
+
+
+  /* ===== Theory Lesson 3 additions ===== */
+  /* constraints sorter (reuse match-item look) */
+  .match-item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;margin-bottom:13px}
+  .mi-scenario{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+  .mi-scenario .q{font-weight:700;color:var(--accent-dark)}
+  .mi-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  @media(max-width:560px){.mi-btns{grid-template-columns:1fr}}
+  .mi-btns button{border:2px solid var(--line);border-radius:8px;padding:9px 8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);transition:.15s;text-align:center}
+  .mi-btns button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .mi-btns button:disabled{cursor:default}
+  .mi-btns button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .mi-btns button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .mi-fb{font-size:12.5px;margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--accent-soft);color:#245a63}
+  .mi-fb[hidden]{display:none}
+  /* three-constraint cards */
+  .con3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+  @media(max-width:640px){.con3{grid-template-columns:1fr}}
+  .con-card{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fff;border-top:3px solid var(--accent)}
+  .con-card.env{border-top-color:var(--gold)}
+  .con-card.task{border-top-color:#6a8caf}
+  .con-card h4{margin:0 0 6px;font-size:14.5px;color:var(--accent-dark)}
+  .con-card.env h4{color:#b5822f}
+  .con-card.task h4{color:#40638a}
+  .con-card p{margin:0;font-size:12.5px;color:#556;line-height:1.5}
+  .con-card .ex{display:block;margin-top:7px;font-size:12px;color:#7a8a99;font-style:italic}
+
+
+  /* ===== Theory Lesson 4 additions ===== */
+  /* stage progression (3-stage horizontal) */
+  .stages3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:640px){.stages3{grid-template-columns:1fr}}
+  .stage-card{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fff;border-top:3px solid var(--accent)}
+  .stage-card .sc-n{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--accent-dark);text-transform:uppercase}
+  .stage-card h4{margin:5px 0 6px;font-size:15px;color:var(--ink)}
+  .stage-card p{margin:0;font-size:12.5px;color:#556;line-height:1.5}
+  /* video embed (reuse) */
+  .videobox{margin-top:18px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .videobox .frame{position:relative;width:100%;padding-top:56.25%}
+  .videobox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{font-size:13px;color:var(--muted);padding:11px 16px;background:#fafbfc;border-top:1px solid var(--line);font-style:italic}
+  .video-cap .vlink{display:inline-block;margin-top:6px;font-style:normal;font-size:12.5px}
+  .video-cap .vlink a{color:var(--accent);font-weight:700;text-decoration:none}
+  /* vereijken results two-panel */
+  .ver-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  @media(max-width:560px){.ver-row{grid-template-columns:1fr}}
+  .ver-panel{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:#fafbfc}
+  .ver-panel h4{margin:0 0 10px;font-size:14px;color:var(--accent-dark)}
+  .ver-day{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}
+  .ver-day .dlab{font-weight:800;font-size:12px;color:#fff;background:var(--muted);border-radius:5px;padding:2px 8px;flex:none}
+  .ver-day .dlab.d7{background:var(--accent)}
+  .ver-day .dtxt{font-size:12.5px;color:#3d4d5c;line-height:1.4}
+  /* two coaches synthesis */
+  .coach-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:640px){.coach-wrap{grid-template-columns:1fr}}
+  .coach{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+  .coach .ch-head{padding:12px 16px;font-weight:800;font-size:15px;color:#fff}
+  .coach.mp .ch-head{background:#1a7f8e}
+  .coach.cla .ch-head{background:#b5822f}
+  .coach .ch-body{padding:14px 16px}
+  .coach .ch-body p{margin:0 0 10px;font-size:13px;color:#3d4d5c;line-height:1.5}
+  .coach .ch-reveal{margin-top:8px}
+  .coach .ch-q{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:10px}
+
+
+  /* ===== IP Lesson 1 additions ===== */
+  /* input-process-output model */
+  .ipo{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
+  .ipo .box{flex:1;min-width:140px;border-radius:10px;padding:14px 15px;text-align:center;color:#fff}
+  .ipo .box.in{background:#1a7f8e}
+  .ipo .box.proc{background:#12333f}
+  .ipo .box.out{background:#e0a458;color:#5a3d12}
+  .ipo .box h4{margin:0 0 5px;font-size:14.5px}
+  .ipo .box p{margin:0;font-size:12.5px;line-height:1.45}
+  .ipo .box.in p,.ipo .box.proc p{color:#eaf4f6}
+  .ipo .box.out p{color:#4a3208}
+  .ipo .ar{display:flex;align-items:center;justify-content:center;color:#b7c2ca;font-size:22px;font-weight:700;padding:0 6px;flex:none}
+  @media(max-width:600px){.ipo{flex-direction:column}.ipo .ar{transform:rotate(90deg);padding:4px 0}}
+  /* goal-zone interactive */
+  .goaltool{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .goalgrid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,52px);gap:7px;max-width:380px;margin:0 auto;padding:12px;background:#2e7d46;border-radius:8px;border:4px solid #e9eef0}
+  .gz{border:2px solid rgba(255,255,255,.6);border-radius:6px;background:rgba(255,255,255,.12);cursor:pointer;transition:.15s;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;font-family:inherit}
+  .gz:hover{background:rgba(255,255,255,.26)}
+  .gz.on{background:#e0a458;border-color:#fff;color:#5a3d12}
+  .goal-read{margin-top:14px;text-align:center}
+  .goal-read .gr-eq{font-size:15px;color:var(--ink);font-weight:700}
+  .goal-read .gr-eq b{color:var(--accent-dark);font-size:20px}
+  .goal-read .gr-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+  /* bits meter */
+  .bitmeter{height:14px;border-radius:7px;background:#eef2f4;overflow:hidden;margin:10px auto 0;max-width:380px}
+  .bitmeter .fill{height:100%;background:linear-gradient(90deg,#6fb3bd,#1a7f8e);transition:width .35s}
+  /* cone calculator */
+  .cone-tool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:11px;background:#fafbfc;text-align:center}
+  .cone-row{display:flex;justify-content:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .cone{width:40px;height:44px;position:relative;cursor:default}
+  .cone svg{width:100%;height:100%}
+  .cone-opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .cone-opts button{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);transition:.15s}
+  .cone-opts button:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .cone-opts button:disabled{cursor:default}
+  .cone-opts button.correct{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  .cone-opts button.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .cone-fb{font-size:13px;margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);color:#245a63}
+  .cone-fb[hidden]{display:none}
+
+
+  /* ===== RT Lesson 2 additions ===== */
+  /* interactive RT timeline */
+  .rttool{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .rttool svg{width:100%;max-width:640px;height:auto;display:block;margin:0 auto}
+  .rt-seg{cursor:pointer;transition:.15s}
+  .rt-seg:hover{opacity:.82}
+  .rt-readout{margin-top:14px;min-height:58px;padding:12px 14px;border-radius:9px;background:var(--accent-soft);color:#245a63;font-size:13.5px;line-height:1.5}
+  .rt-readout b{color:var(--accent-dark)}
+  .rt-readout.empty{background:#f4f7f8;color:var(--muted);font-style:italic}
+  .rt-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+  .rt-chip{border:2px solid var(--line);border-radius:20px;padding:6px 15px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.15s}
+  .rt-chip:hover{border-color:var(--accent);background:#fafdfe}
+  .rt-chip.done{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47}
+  /* fractionation legend */
+  .frac-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12.5px}
+  .frac-legend span{display:inline-flex;align-items:center;gap:6px;color:#3d4d5c}
+  .frac-legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+
+
+  /* ===== PC Lesson 3 additions ===== */
+  /* foreperiod window interactive */
+  .fptool{margin:18px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .fptool svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+  .fp-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+  .fp-controls label{font-size:14px;font-weight:700;color:var(--ink)}
+  .fp-controls input[type=range]{flex:1;min-width:180px;max-width:320px;accent-color:var(--accent)}
+  .fp-val{font-size:16px;font-weight:800;color:var(--accent-dark);min-width:64px;text-align:right}
+  .fp-readout{margin-top:12px;text-align:center;font-size:14px;font-weight:700;padding:11px;border-radius:9px}
+  .fp-readout.good{background:#eafaf1;color:#1d6b47}
+  .fp-readout.meh{background:#fdf3e0;color:#9a6a1a}
+  /* sensory vs motor set */
+  .setcompare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  @media(max-width:560px){.setcompare{grid-template-columns:1fr}}
+  .setcard{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fff}
+  .setcard.sens{border-top:3px solid var(--accent)}
+  .setcard.mot{border-top:3px solid var(--gold)}
+  .setcard h4{margin:0 0 6px;font-size:15px}
+  .setcard.sens h4{color:var(--accent-dark)}
+  .setcard.mot h4{color:#b5822f}
+  .setcard p{margin:0;font-size:13px;color:#3d4d5c;line-height:1.5}
+
+
+  /* ===== TS Lesson 4 additions ===== */
+  /* tennis zones interactive */
+  .tennis-tool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .tennis-court{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:460px;margin:0 auto;padding:12px;background:#2e7d46;border-radius:8px}
+  .tz{height:54px;border:2px solid rgba(255,255,255,.55);border-radius:6px;background:rgba(255,255,255,.12);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;text-align:center;transition:.15s}
+  .tz:hover{background:rgba(255,255,255,.28)}
+  .tz.off{opacity:.3;text-decoration:line-through}
+  .tennis-read{margin-top:12px;text-align:center;font-size:14px}
+  .tennis-read b{color:var(--accent-dark);font-size:18px}
+  /* Hick chart */
+  .hicktool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .hicktool svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+  .hick-toggle{display:flex;gap:8px;justify-content:center;margin-top:12px}
+  .hick-toggle button{border:2px solid var(--line);border-radius:8px;padding:8px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .hick-toggle button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  /* stove burners */
+  .stove{margin:16px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .stove svg{width:100%;max-width:440px;height:auto;display:block;margin:0 auto}
+  .stove-controls{display:flex;gap:10px;justify-content:center;margin-top:12px}
+  .stove-controls button{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .stove-controls button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .stove-read{margin-top:12px;text-align:center;font-size:13.5px;padding:10px;border-radius:8px}
+  .stove-read.good{background:#eafaf1;color:#1d6b47}
+  .stove-read.bad{background:#fdeeee;color:#a3403c}
+  /* stroop */
+  .stroop{margin:16px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;text-align:center}
+  .stroop-word{font-size:46px;font-weight:800;letter-spacing:1px;margin:6px 0 14px;min-height:56px}
+  .stroop-opts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .stroop-opts button{border:2px solid var(--line);border-radius:8px;padding:9px 18px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);transition:.12s}
+  .stroop-opts button:hover{border-color:var(--accent)}
+  .stroop-score{margin-top:12px;font-size:13px;color:var(--muted)}
+  .stroop-begin{border:2px solid var(--accent);border-radius:9px;padding:12px 32px;background:var(--accent);color:#fff;
+    cursor:pointer;font-family:inherit;font-size:16px;font-weight:800;transition:.15s}
+  .stroop-begin:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+  /* choice-RT demo */
+  .crt{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;text-align:center}
+  .crt-stage{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .crt-lights{display:flex;gap:14px;justify-content:center}
+  .crt-light{width:34px;height:34px;border-radius:50%;background:#1f3a52;border:2px solid #16314a;transition:background .05s}
+  .crt-light.on{background:#ffd23f;border-color:#e0a458;box-shadow:0 0 14px rgba(255,210,63,.7)}
+  .crt-keys{display:flex;gap:14px;justify-content:center}
+  .crt-key{width:46px;height:46px;border-radius:9px;border:2px solid var(--line);background:#fff;cursor:pointer;
+    font-family:inherit;font-size:16px;font-weight:800;color:var(--ink);transition:.12s}
+  .crt-key:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .crt-key:disabled{cursor:default;opacity:.55}
+  .crt-prompt{font-size:14px;font-weight:700;color:var(--accent-dark);min-height:22px}
+  .crt-begin{border:2px solid var(--accent);border-radius:9px;padding:11px 28px;background:var(--accent);color:#fff;
+    cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;transition:.15s}
+  .crt-begin:hover{background:var(--accent-dark)}
+  .crt-chart{margin-top:14px}
+  .crt-chart svg{width:100%;max-width:440px;height:auto}
+  .crt-results{margin-top:12px;font-size:13.5px}
+  .crt-results table{margin:8px auto 0;border-collapse:collapse;font-size:13px}
+  .crt-results td,.crt-results th{padding:5px 14px;border-bottom:1px solid var(--line);text-align:center}
+  .crt-results th{color:var(--accent-dark);font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  /* precue demo */
+  .pcd{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;text-align:center}
+  .pcd-targets{display:flex;gap:16px;justify-content:center;margin:8px 0}
+  .pcd-tg{width:70px;height:70px;border-radius:10px;border:3px solid var(--line);background:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:800;font-size:14px;color:#8a98a2;transition:.12s}
+  .pcd-tg:hover:not(:disabled){border-color:var(--accent)}
+  .pcd-tg.cue{border-color:var(--gold);background:#fdf3e0;color:#9a6a1a}
+  .pcd-tg.go{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47;box-shadow:0 0 12px rgba(46,158,107,.4)}
+  .pcd-tg:disabled{cursor:default}
+  .pcd-prompt{font-size:14px;font-weight:700;color:var(--accent-dark);min-height:22px;margin-top:4px}
+  .pcd-results{margin-top:12px;font-size:13.5px}
+  .pcd-results .pr-row{display:flex;justify-content:space-between;max-width:360px;margin:0 auto 6px;font-size:14px}
+  .pcd-results .pr-row b{font-size:16px;color:var(--accent-dark)}
+  .pcd-results .pr-diff{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-weight:700;color:#245a63;max-width:360px;margin-left:auto;margin-right:auto}
+  .stroop-results{margin-top:14px;padding:14px 16px;border-radius:9px;background:var(--accent-soft);text-align:left}
+  .stroop-results .sr-row{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:6px}
+  .stroop-results .sr-row b{font-size:17px;color:var(--accent-dark)}
+  .stroop-results .sr-row.incomp b{color:#a3403c}
+  .stroop-results .sr-diff{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13.5px;font-weight:700;color:#245a63}
+  .stroop-fb{margin-top:10px;font-size:13.5px;font-weight:700;min-height:20px}
+  /* PRP timeline */
+  .prptool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .prptool svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+
+
+  /* ===== APA Lesson 5 additions ===== */
+  /* EMG firing-order interactive */
+  .emgtool{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .emgtool svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+  .emg-reveal{display:flex;justify-content:center;margin-top:14px}
+  .emg-reveal button{border:2px solid var(--accent);border-radius:9px;padding:10px 24px;background:var(--accent);color:#fff;
+    cursor:pointer;font-family:inherit;font-size:14.5px;font-weight:800;transition:.15s}
+  .emg-reveal button:hover{background:var(--accent-dark)}
+  .emg-trace{opacity:0;transition:opacity .5s}
+  .emg-trace.show{opacity:1}
+  /* muscle timing bars (Mercer & Sahrmann) */
+  .msbars{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .msbars svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+
+
+  /* ===== Open/Closed-loop Lesson 1 additions ===== */
+  .loop-tool{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .loop-tool svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+  .loop-controls{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .loop-controls button{border:2px solid var(--line);border-radius:8px;padding:9px 18px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.15s}
+  .loop-controls button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .loop-read{margin-top:12px;text-align:center;font-size:13.5px;padding:11px;border-radius:9px;background:var(--accent-soft);color:#245a63;line-height:1.5}
+  .fb-path{opacity:0;transition:opacity .5s}
+  .fb-path.show{opacity:1}
+  /* speed trade-off bar */
+  .spdbar{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .spdbar svg{width:100%;max-width:540px;height:auto;display:block;margin:0 auto}
+  /* vertical example reveal cards (page 2) */
+  .exrow{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+  .excard{border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden;text-align:left}
+  .excard-head{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:#fff;border:0;
+    cursor:pointer;font-family:inherit;text-align:left;transition:.15s}
+  .excard-head:hover{background:#fafdfe}
+  .excard-head .ex-ico{width:38px;height:38px;border-radius:9px;background:var(--accent-soft);display:flex;align-items:center;
+    justify-content:center;flex:none;color:var(--accent-dark)}
+  .excard-head .ex-ico svg{width:22px;height:22px}
+  .excard-head .ex-ttl{flex:1}
+  .excard-head .ex-ttl b{display:block;font-size:15.5px;color:var(--ink)}
+  .excard-head .ex-ttl span{font-size:12.5px;color:var(--muted)}
+  .excard-head .ex-plus{font-size:20px;font-weight:800;color:var(--accent);flex:none;transition:transform .2s}
+  .excard-head[aria-expanded="true"] .ex-plus{transform:rotate(45deg)}
+  .excard-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .excard-body.open{max-height:900px}
+  .excard-body .ex-inner{padding:0 16px 16px}
+  .excard-body p{margin:0 0 12px;font-size:13.5px;color:#3d4d5c;line-height:1.55}
+  .excard-body .ex-media{width:100%;max-width:360px;border-radius:9px;border:1px solid var(--line);display:block;margin:0 auto}
+  /* symbol on flip-card fronts (page 4) */
+  .flip2 .fc-front .fc-sym{font-size:34px;line-height:1;margin-bottom:8px}
+  .flip2 .fc-front.gold .fc-sym{color:var(--gold)}
+  .flip2 .fc-front .fc-sym.teal{color:var(--accent)}
+
+
+  /* ===== Motor Program Lesson 2 additions ===== */
+  /* components loop diagram */
+  .mploop{margin:16px 0;padding:18px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .mploop svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+  /* component reveal chips */
+  .compgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  @media(max-width:560px){.compgrid{grid-template-columns:1fr}}
+  .compcard{border:1px solid var(--line);border-radius:10px;padding:0;background:#fff;overflow:hidden}
+  .compcard-head{display:flex;align-items:center;gap:11px;width:100%;padding:13px 15px;background:#fff;border:0;
+    cursor:pointer;font-family:inherit;text-align:left;transition:.15s}
+  .compcard-head:hover{background:#fafdfe}
+  .compcard-head .cc-n{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;
+    font-size:14px;display:flex;align-items:center;justify-content:center;flex:none}
+  .compcard-head .cc-t{flex:1;font-size:14.5px;font-weight:700;color:var(--ink)}
+  .compcard-head .cc-plus{font-size:19px;font-weight:800;color:var(--accent);transition:transform .2s;flex:none}
+  .compcard-head[aria-expanded="true"] .cc-plus{transform:rotate(45deg)}
+  .compcard-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .compcard-body.open{max-height:300px}
+  .compcard-body p{margin:0;padding:0 15px 15px;font-size:13px;color:#3d4d5c;line-height:1.5}
+  /* build-the-program drag/assemble */
+  .buildtool{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .build-slots{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .build-slot{display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px dashed var(--line);border-radius:9px;background:#fff;min-height:20px}
+  .build-slot.filled{border-style:solid;border-color:#2e9e6b;background:#eafaf1}
+  .build-slot .bs-lbl{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;flex:none;width:92px}
+  .build-slot .bs-val{font-size:13.5px;color:var(--ink);font-weight:600}
+  .build-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .build-chip{border:2px solid var(--line);border-radius:8px;padding:9px 14px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);transition:.12s}
+  .build-chip:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .build-chip:disabled{opacity:.4;cursor:default}
+  .build-chip.wrong{border-color:#d9534f;background:#fdeeee;color:#a3403c;animation:shake .3s}
+  .build-chip{touch-action:none}
+  .build-chip.dragging{opacity:.5;border-color:var(--accent)}
+  .build-chip.selected{border-color:var(--accent);background:#eef8fa;box-shadow:0 0 0 2px rgba(26,127,142,.2)}
+  .build-slot.dragover{border-color:var(--accent);background:#eef8fa}
+  .build-hint{font-size:12.5px;color:var(--muted);font-weight:400}
+  .callout a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-word}
+  .callout a:hover{text-decoration:underline}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .sort-progress{font-size:13px;font-weight:700;color:var(--muted);margin-top:14px}
+  .ex-trio{display:grid;gap:12px;margin-top:16px}
+  @media(max-width:560px){.ex-trio{grid-template-columns:1fr!important}}
+  /* bio box */
+  .biobox{display:flex;gap:16px;align-items:center;margin:16px 0 6px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .biobox img{width:92px;height:92px;object-fit:cover;border-radius:10px;flex:none;border:1px solid var(--line)}
+  .biobox .bio-t{font-size:15px}
+  .biobox .bio-t strong{display:block;color:var(--ink);font-size:15.5px;margin-bottom:3px}
+  .biobox .bio-t span{font-size:13.5px;color:#556}
+  .biobox .bio-t a{color:var(--accent);font-weight:700;text-decoration:none}
+  .biobox .bio-t a:hover{text-decoration:underline}
+  @media(max-width:480px){.biobox{flex-direction:column;text-align:center}}
+  /* invariant/parameter flip cards */
+  .ip-card{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;height:240px;width:100%;display:block}
+  .ip-card .fc-inner{position:relative;display:block;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .ip-card.flipped .fc-inner{transform:rotateY(180deg)}
+  .ip-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:18px;text-align:left}
+  .ip-front{background:#fff}
+  .ip-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;margin-bottom:10px}
+  .ip-term{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:8px}
+  .ip-def{font-size:14px;color:#3d4d5c;line-height:1.5}
+  .ip-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:auto;padding-top:10px}
+  .ip-front .fc-hint::before{content:"\21BB  "}
+  .ip-back{background:var(--accent-soft);color:#245a63;transform:rotateY(180deg);font-size:14.5px;line-height:1.55;justify-content:center}
+  .ip-back h4{margin:0 0 8px;font-size:16px;color:var(--accent-dark)}
+  /* numbered flow steps */
+  .flow-steps{list-style:none;margin:16px 0 4px;padding:0;display:flex;flex-direction:column;gap:12px}
+  .flow-steps li{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .flow-steps .fs-badge{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .flow-steps .fs-body{font-size:15px;color:#3d4d5c;line-height:1.5}
+  /* full-width flip card (click to flip) */
+  .wflip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block;margin:14px 0}
+  .wflip .wf-inner{position:relative;display:block;width:100%;height:188px;transition:transform .55s;transform-style:preserve-3d}
+  .wflip.flipped .wf-inner{transform:rotateY(180deg)}
+  .wflip .wf-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;padding:18px 20px;text-align:left;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;overflow:auto}
+  .wflip .wf-back{transform:rotateY(180deg)}
+  .wflip .wf-lbl{font-weight:800;font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px}
+  .wflip .wf-hint{display:block;font-size:12px;font-weight:700;margin-top:10px}
+  .wflip .wf-hint::before{content:"\21BB  "}
+  @media(max-width:600px){.wflip .wf-inner{height:230px}}
+  /* teal variant */
+  .wflip.teal .wf-front{background:var(--accent-soft);border:1px solid #cfe6ea}
+  .wflip.teal .wf-face .wf-lbl{color:var(--accent-dark)}
+  .wflip.teal .wf-face p{color:#245a63;margin:0;font-size:15px;line-height:1.55}
+  .wflip.teal .wf-front .wf-hint{color:var(--accent-dark)}
+  .wflip.teal .wf-back{background:linear-gradient(135deg,var(--accent),var(--accent-dark))}
+  .wflip.teal .wf-back .wf-lbl,.wflip.teal .wf-back p{color:#fff}
+  .wflip.teal .wf-back p{font-size:16px;line-height:1.5}
+  /* gold variant */
+  .wflip.gold .wf-front{background:linear-gradient(135deg,#c98a3c,#a56a24)}
+  .wflip.gold .wf-front .wf-lbl{color:#f7e3c6}
+  .wflip.gold .wf-front p{color:#fff;margin:0;font-size:17px;font-weight:600;line-height:1.45}
+  .wflip.gold .wf-front .wf-hint{color:#f7e3c6}
+  .wflip.gold .wf-back{background:#fdf4e6;border:1px solid #e8cfa6}
+  .wflip.gold .wf-back .wf-lbl{color:#9a6a24}
+  .wflip.gold .wf-back p{color:#7a5a24;margin:0;font-size:15px;line-height:1.55}
+  /* context-conditioned variability flip cards */
+  .ccv-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  @media(max-width:600px){.ccv-grid{grid-template-columns:1fr}}
+  .ccv-card{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;height:280px;width:100%;display:block}
+  .ccv-card .fc-inner{position:relative;display:block;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .ccv-card.flipped .fc-inner{transform:rotateY(180deg)}
+  .ccv-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center}
+  .ccv-front{background:#fff}
+  .ccv-front img{max-height:190px;width:auto;margin:0 auto 8px;display:block}
+  .ccv-cap{font-size:14.5px;color:var(--ink);font-weight:600}
+  .ccv-front .fc-hint{font-size:12px;color:var(--accent);font-weight:700;margin-top:8px}
+  .ccv-front .fc-hint::before{content:"\21BB  "}
+  .ccv-back{background:var(--accent-soft);color:#245a63;transform:rotateY(180deg);font-size:14.5px;line-height:1.5}
+  .ccv-back h4{margin:0 0 8px;font-size:17px;color:var(--accent-dark)}
+  /* Slater-Hammel demo */
+  .shdemo{margin:18px 0 6px;padding:20px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .sh-track{position:relative;height:46px;background:#eef2f4;border-radius:8px;overflow:visible;border:1px solid var(--line)}
+  .sh-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#1a7f8e,#2e9e6b);border-radius:8px 0 0 8px}
+  .sh-target{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--ink);transform:translateX(-1px)}
+  .sh-targetlbl{position:absolute;right:0;top:-22px;font-size:11.5px;font-weight:800;color:var(--ink)}
+  .sh-stop{position:absolute;top:-6px;bottom:-6px;width:3px;background:#d9534f}
+  .sh-controls{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+  .sh-controls .btn:disabled{opacity:.45;cursor:default}
+  .sh-result{margin-top:14px;font-size:14.5px;color:#3d4d5c;text-align:center;min-height:42px}
+  .sh-result.ok{color:#1d6b47;font-weight:700}
+  .sh-result.no{color:#a3403c;font-weight:700}
+  .sh-plotwrap{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+  .sh-plot-title{font-size:12.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;text-align:center;margin-bottom:8px}
+  #shPlot{width:100%;max-width:460px;height:auto;display:block;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+  .sh-plot-note{font-size:12.5px;color:var(--muted);text-align:center;margin-top:8px}
+
+
+  /* GMP name-writing timing demo */
+  .nw-demo{margin:18px 0 6px;padding:20px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .nw-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+  .nw-btn{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.12s}
+  .nw-btn:hover{border-color:var(--accent);background:#fafdfe}
+  .nw-btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .nw-stage{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-end;min-height:140px}
+  .nw-samp{text-align:center}
+  .nw-samp svg{display:block;background:#fff;border:1px solid var(--line);border-radius:8px}
+  .nw-samp .nw-lbl{font-size:12px;color:var(--muted);font-weight:700;margin-top:6px}
+  .nw-bars{display:flex;gap:4px;justify-content:center;align-items:flex-end;height:46px;margin-top:10px}
+  .nw-bar{width:16px;background:var(--accent);border-radius:3px 3px 0 0;opacity:.85}
+  .nw-bar.b2{background:var(--gold)}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 8 &nbsp;&rsaquo;&nbsp; <b>Lesson 4: Generalized Motor Programs &amp; Schema Theory</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">13</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen" style="background:linear-gradient(140deg,#12333f,#1a7f8e)">
+      <div class="title-inner">
+        <div class="eyebrow">Module 8 &middot; Lesson 4</div>
+        <h1>Generalized Motor Programs &amp; Schema Theory</h1>
+        <p>Almost as soon as Keele published his definition of the motor program, a lively debate broke out over its limitations &mdash; and that debate led directly to the idea of a <em>generalized</em> motor program.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> ~25 min</span>
+          <span><span class="dot"></span> Motor programs &middot; 4 of 4</span>
+          <span><span class="dot"></span> Schmidt (1975)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Where we are</div>
+        <h2>From a rigid program to a flexible one</h2>
+        <p>Last lesson, we saw that the motor program has <strong>some empirical support</strong>. But the <em>simple</em> program (Keele&rsquo;s version) runs into trouble the moment we ask it to handle the variety of real movement. By the end of this lesson you should be able to:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Describe the <strong>problems</strong> with the simple motor program: storage, novelty, and context-conditioned variability.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Define a <strong>generalized motor program (GMP)</strong> and explain invariant features vs. parameters.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain Schmidt&rsquo;s <strong>schema theory</strong> &mdash; recall and recognition schemas.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Evaluate how far the GMP + schema account resolves the three problems &mdash; and what it leaves open.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 THE PROBLEMS (gated accordion) -->
+  <section class="screen" data-screen data-gate="prob">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The trouble with simple programs</div>
+        <h2>Three problems</h2>
+        <p>If every movement needs its own stored program, we run into real difficulties. <strong>Open each one</strong> &mdash; all three to continue.</p>
+        <div class="fac-list" id="probList">
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">1</span><span class="fac-t">The storage problem</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">It&rsquo;s implausible to store a <strong>separate program for every variation</strong> of every movement. Think about walking: a unique program for every combination of speed, surface, slope, and load would require an <strong>astronomical</strong> number of stored programs. Memory just isn&rsquo;t that big &mdash; or that wasteful.</span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">2</span><span class="fac-t">The novelty problem</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">How do we perform a movement we&rsquo;ve <strong>never made before</strong>, if we don&rsquo;t already have a program for it? And since <em>no two movements are ever exactly identical</em>, almost every movement is &ldquo;novel&rdquo; in some small way. With Keele&rsquo;s simple definition, how does a child ever play a new piece on the violin? There&rsquo;s no clear answer.</span>
+          </button>
+          <button class="fac" aria-expanded="false" onclick="facTog(this)">
+            <span class="fac-head"><span class="fac-n">3</span><span class="fac-t">Context-conditioned variability</span><span class="fac-plus">+</span></span>
+            <span class="fac-body">The <strong>same muscle command can produce a different movement</strong> depending on body position and context. So a program can&rsquo;t just be a fixed list of muscle commands &mdash; the <em>outcome</em> of those commands depends on the starting conditions. (More on the next page.)</span>
+          </button>
+        </div>
+        <p class="gate-note" id="probnote">Open all three to continue.</p>
+        <p style="font-size:13px;color:#7a8a99;margin-top:12px">The storage and novelty problems are discussed in Schmidt, R. A. (1975), <em>Psychological Review, 82</em>(4), pp. 229&ndash;230. <a href="https://psycnet.apa.org/fulltext/1975-26710-001.pdf" target="_blank" rel="noopener">PDF</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 CONTEXT-CONDITIONED VARIABILITY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A closer look at problem 3</div>
+        <h2>Context-conditioned variability: same command, two different movements</h2>
+        <p>Here&rsquo;s why a motor program can&rsquo;t just be a fixed set of muscle commands. The <strong>role of a muscle depends on the limb&rsquo;s starting position</strong>.</p>
+        <p>Take contraction of the <strong>pectoralis major</strong>. Let&rsquo;s imagine that the brain sends a motor command to this muscle to activate to a certain level (say <strong>60% of max activation</strong>). The resulting movement of the arm depends on the angle between its line of pull and the joint axis. <strong>Flip each card</strong> to see the outcome:</p>
+        <div class="ccv-grid">
+          <button class="flipcard ccv-card" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front ccv-front">
+                <img src="images/gmp-pec-adduct.png" alt="Line drawing of the pectoralis major with the arm hanging at the side; an arrow points inward across the body.">
+                <span class="ccv-cap">Arm starts <strong>at your side</strong></span>
+                <span class="fc-hint">Flip for the outcome</span>
+              </span>
+              <span class="fc-face fc-back ccv-back"><h4>Same command &rarr; <em>adduction</em></h4><span style="display:block">From a neutral hanging position, 60% pec activation pulls the arm <strong>inward across the body</strong>.</span></span>
+            </span>
+          </button>
+          <button class="flipcard ccv-card" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front ccv-front">
+                <img src="images/gmp-pec-abduct.png" alt="Line drawing of the pectoralis major with the arm raised overhead; an arrow points further upward.">
+                <span class="ccv-cap">Arm raised <strong>past 90&deg;</strong></span>
+                <span class="fc-hint">Flip for the outcome</span>
+              </span>
+              <span class="fc-face fc-back ccv-back" style="background:#fdf4e6;color:#7a5a24"><h4>Same command &rarr; <em>abduction</em></h4><span style="display:block">From an overhead position, the <strong>identical</strong> 60% command lifts the arm <strong>further up</strong> &mdash; the opposite outcome.</span></span>
+            </span>
+          </button>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Why this matters</span>
+          <p>If one command yields opposite movements depending on context, then storing &ldquo;fixed commands&rdquo; can&rsquo;t be enough. The program has to be <strong>more abstract</strong> than a literal muscle-by-muscle script. That&rsquo;s the opening for the generalized motor program.</p>
+        </div>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Context-conditioned variability: Turvey, Fitch, &amp; Tuller, in <em>Human Motor Behavior: An Introduction</em> (J.A.S. Kelso, Ed., 1982). <a href="https://books.google.com/books?id=6I8CZqoQ60QC&pg=PA239" target="_blank" rel="noopener">Google Books</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 THE GMP IDEA -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The proposed solution</div>
+        <h2>The generalized motor program</h2>
+        <div class="statement gold" style="margin:6px 0">
+          <p>A <strong>generalized motor program (GMP)</strong> is the memory representation of a <em>class of actions</em> that share common <strong>invariant characteristics</strong> (Schmidt, 1975).</p>
+        </div>
+        <p><strong>Richard Schmidt (1975)</strong> proposed the notion of a generalized motor program (GMP) as an <strong>abstract memory structure</strong>. Instead of storing a separate program for every individual movement, you store <strong>one flexible pattern per class of actions</strong> &mdash; with slots you fill in differently each time. That single move dissolves the storage and novelty problems at once.</p>
+        <p>A &ldquo;class of actions&rdquo; might be:</p>
+        <div class="ex-trio" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="ana" style="text-align:center"><strong>Overhand throwing</strong><br><span style="font-size:13px;color:#667">to any distance, any ball</span></div>
+          <div class="ana" style="text-align:center"><strong>Kicking</strong><br><span style="font-size:13px;color:#667">lace, inside, outside</span></div>
+          <div class="ana" style="text-align:center"><strong>Walking / running</strong><br><span style="font-size:13px;color:#667">any speed or surface</span></div>
+        </div>
+        <p style="margin-top:14px">All the throws share something that makes them recognizably &ldquo;a throw&rdquo; &mdash; even though speed, force, and the arm used all change. That shared signature is the heart of the GMP.</p>
+        <div class="biobox">
+          <img src="images/gmp-schmidt.png" alt="Portrait of Richard A. Schmidt.">
+          <div class="bio-t">
+            <strong>Richard A. Schmidt (1941&ndash;2015)</strong>
+            <span>The motor-learning researcher behind schema theory and the generalized motor program, whose work shaped how the field thinks about skill, practice, and transfer. <a href="https://www.tandfonline.com/doi/full/10.1080/00222895.2016.1124687" target="_blank" rel="noopener">In Memoriam &rarr;</a></span>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Schmidt, R. A. (1975). A schema theory of discrete motor skill learning. <em>Psychological Review, 82</em>(4), 225&ndash;260. <a href="https://psycnet.apa.org/fulltext/1975-26710-001.pdf" target="_blank" rel="noopener">PDF</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 INVARIANT VS PARAMETERS -->
+  <section class="screen" data-screen data-gate="comp">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What's stored, what's filled in</div>
+        <h2>Invariant features vs. parameters</h2>
+        <p>Every GMP has <strong>two parts</strong>. Read the definition on each card, then <strong>flip it</strong> for examples &mdash; flip both to continue:</p>
+        <div class="flip2" id="compGrid">
+          <button class="flipcard ip-card" onclick="ipFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front ip-front">
+                <span class="ip-badge" style="background:var(--accent-soft);color:var(--accent-dark)">A</span>
+                <span class="ip-term">Invariant features</span>
+                <span class="ip-def">The characteristics that <strong>stay the same</strong> across every performance within the class &mdash; the program&rsquo;s <strong>signature</strong>, and what&rsquo;s actually stored in memory.</span>
+                <span class="fc-hint">Flip for examples</span>
+              </span>
+              <span class="fc-face fc-back ip-back"><h4>Examples</h4><span style="display:block"><strong>Relative timing</strong> (the <em>proportions</em> of total duration taken by each part), plus <strong>sequencing</strong> and <strong>relative force</strong>.</span></span>
+            </span>
+          </button>
+          <button class="flipcard ip-card" onclick="ipFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front ip-front">
+                <span class="ip-badge" style="background:#f6ead6;color:#9a6a24">B</span>
+                <span class="ip-term">Parameters</span>
+                <span class="ip-def">The features you <strong>adjust from one performance to the next</strong> &mdash; the &ldquo;dials&rdquo; you set each time.</span>
+                <span class="fc-hint">Flip for examples</span>
+              </span>
+              <span class="fc-face fc-back ip-back" style="background:#fdf4e6;color:#7a5a24"><h4>Examples</h4><span style="display:block"><strong>Overall duration</strong> (how fast), <strong>overall force</strong>, <strong>movement amplitude</strong>, and which <strong>effectors</strong> (e.g., left vs. right arm).</span></span>
+            </span>
+          </button>
+        </div>
+        <p class="gate-note" id="compnote">Flip both cards to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 INVARIANT FEATURES IN DEPTH -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A closer look</div>
+        <h2>What stays fixed: relative timing</h2>
+        <p>The single most-studied invariant feature is <strong>relative timing</strong> &mdash; the <em>proportion</em> of the total movement time spent on each part of the action. The key claim: you can change the <strong>overall speed</strong> (a parameter), and the <strong>proportions stay the same</strong>.</p>
+        <div class="study-fig">
+          <img src="images/gmp-reltiming-bars.png" alt="Three horizontal bars for the same action performed at normal (10 s), faster (5 s), and slower (15 s) speeds. In every case the four segments keep the same proportions: 30%, 20%, 40%, 10%.">
+          <figcaption>The same action at three speeds. The <strong>total duration changes</strong> (10 s &rarr; 5 s &rarr; 15 s), but each segment keeps the <strong>same proportion</strong> of the whole (30%, 20%, 40%, 10%). That stable proportional pattern is the invariant feature.</figcaption>
+        </div>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Invariant (stored)</div>
+            <h4>Relative timing &amp; sequencing</h4>
+            <p>The order of the segments and their <strong>proportions</strong> &mdash; what makes the action recognizably itself. (Relative force and sequencing are also commonly identified invariants.)</p>
+          </div>
+          <div class="pn pos" style="border-top-color:#e0a458">
+            <div class="pnh" style="color:#b9802f">Parameters (set each time)</div>
+            <h4>Overall duration, force, amplitude, effector</h4>
+            <p>Scale the whole thing faster/slower, harder/softer, bigger/smaller, or run it with a different limb &mdash; the proportions are untouched.</p>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The deep idea</span>
+          <p>A GMP stores a <em>pattern of proportions</em>, not a fixed set of durations. That&rsquo;s exactly why one program can generate an endless family of movements.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 RHYTHM VS TEMPO ANALOGY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">An analogy that will help</div>
+        <h2>Rhythm vs. tempo</h2>
+        <p>Music gives the cleanest picture of the invariant/parameter split. <strong>Rhythm</strong> is the <strong>sequencing of beats per measure</strong> &mdash; and it stays the same no matter how slow or fast you play, or which instruments play it. <strong>Flip each card.</strong></p>
+        <div class="flip2" id="rt">
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="fc-sym teal">&#9833;</span><span class="fc-eyebrow">Rhythm</span><span class="fc-prompt">= invariant feature</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>Stays the same</h4><span style="display:block">A waltz is in <strong>3/4 time</strong> &mdash; the 1-2-3 pattern of beats. That rhythm is <em>invariant</em>: it&rsquo;s what makes a waltz a waltz, no matter how it&rsquo;s played.</span></span>
+            </span>
+          </button>
+          <button class="flipcard" onclick="doFlip(this)">
+            <span class="fc-inner">
+              <span class="fc-face fc-front"><span class="fc-sym" style="color:var(--gold)">&#9201;</span><span class="fc-eyebrow">Tempo</span><span class="fc-prompt">= parameter</span><span class="fc-hint">Flip</span></span>
+              <span class="fc-face fc-back"><h4>You can dial it</h4><span style="display:block">You can waltz <strong>fast or slow</strong> &mdash; that&rsquo;s the <em>tempo</em>, a parameter. Change it all you like; the underlying 1-2-3 rhythm (the invariant) doesn&rsquo;t change.</span></span>
+            </span>
+          </button>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Map it back</span>
+          <p>Rhythm &rarr; <strong>relative timing</strong> (invariant feature). Tempo &rarr; <strong>overall duration</strong> (a parameter). One stored pattern, endlessly re-parameterized.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 WRITE-YOUR-NAME DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself</div>
+        <h2>Your signature is one GMP</h2>
+        <p>Here&rsquo;s a quick way to feel the invariant features of your own GMP for signing your name.</p>
+        <div class="callout">
+          <span class="clabel">Activity &middot; do this on paper</span>
+          <p><strong>Grab a piece of paper and a pen.</strong> Write your name three ways:</p>
+          <p style="margin:6px 0 0">1&nbsp;&middot;&nbsp; <strong>small</strong>, then <strong>large</strong> &nbsp;&bull;&nbsp; 2&nbsp;&middot;&nbsp; <strong>slowly</strong>, then <strong>quickly</strong> &nbsp;&bull;&nbsp; 3&nbsp;&middot;&nbsp; with your <strong>dominant</strong>, then <strong>non-dominant</strong> hand.</p>
+          <p style="margin:8px 0 0">Now compare them. The size, speed, and the muscles used all changed &mdash; yet each is still unmistakably <em>your</em> signature. <strong>What stayed the same?</strong> Those are the <strong>invariant features</strong>; what you varied are the <strong>parameters</strong>.</p>
+        </div>
+        <p style="margin-top:14px">The toggles below simulate the same idea &mdash; watch the relative timing stay fixed as the parameters change:</p>
+        <div class="nw-demo" id="nwDemo">
+          <div class="nw-controls">
+            <button class="nw-btn on" data-k="size" data-v="small">Small</button>
+            <button class="nw-btn" data-k="size" data-v="large">Large</button>
+            <span style="width:14px"></span>
+            <button class="nw-btn on" data-k="speed" data-v="slow">Slow</button>
+            <button class="nw-btn" data-k="speed" data-v="fast">Fast</button>
+            <span style="width:14px"></span>
+            <button class="nw-btn on" data-k="hand" data-v="dom">Dominant hand</button>
+            <button class="nw-btn" data-k="hand" data-v="non">Non-dominant hand</button>
+          </div>
+          <div class="nw-stage">
+            <div class="nw-samp">
+              <svg id="nwSig" width="300" height="120" viewBox="0 0 300 120" role="img" aria-label="A stylized cursive signature reading 'Alex' that changes size and slant with the controls while keeping the same overall letter shapes."></svg>
+              <div class="nw-lbl" id="nwLbl">small &middot; slow &middot; dominant</div>
+            </div>
+            <div class="nw-samp">
+              <div class="nw-lbl" style="margin-top:0;margin-bottom:8px">Relative timing within the letter &ldquo;a&rdquo;</div>
+              <div class="nw-bars" id="nwBars"></div>
+              <div class="nw-lbl" id="nwTotal">total time: 1.0 s</div>
+            </div>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Key idea</span>
+          <p>Some invariant features here are the <strong>relative timing of writing each letter</strong>. For example, the letter &ldquo;a&rdquo; is typically written in two strokes (the <em>circle</em>, then the <em>tail</em>) &mdash; and their relative timing stays roughly constant: about <strong>60% of the time for the circle, 40% for the tail</strong>. Another invariant is the <strong>shapes of the letters</strong> themselves. The <strong>size, speed, and effector</strong> (which hand) are just examples of <strong>parameters</strong> you reset. This is one example of a GMP.</p>
+        </div>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Handwriting as a model for motor programming: Teulings, H.-L., Mullins, P. A., &amp; Stelmach, G. E. (1986). The elementary units of programming in handwriting. In <em>Advances in Psychology</em> (Vol. 37, pp. 21&ndash;32). North-Holland. &nbsp;&middot;&nbsp; Plamondon, R., Stelmach, G. E., &amp; Teasdale, N. (1990). Motor program coding representation from a handwriting generator model: The production of line responses. <em>Biological Cybernetics, 63</em>(6), 443&ndash;451. <a href="https://link.springer.com/article/10.1007/BF00199576" target="_blank" rel="noopener">Springer</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 OVERARM THROW EXAMPLE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A worked example</div>
+        <h2>One GMP for all your throws</h2>
+        <p>Overarm throwing can be done at countless angles, speeds, and amplitudes, with different objects &mdash; yet GMP theory says this entire class is represented by a <strong>single program</strong>.</p>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Invariant feature (stored)</div>
+            <h4>Relative timing</h4>
+            <p>The <strong>relative timing of the arm/shoulder muscle activations</strong> &mdash; the proportional sequence that makes it a &ldquo;throw.&rdquo;</p>
+          </div>
+          <div class="pn pos" style="border-top-color:#e0a458">
+            <div class="pnh" style="color:#b9802f">Parameters (set each time)</div>
+            <h4>Duration, force, amplitude, limb</h4>
+            <p>Overall <strong>movement time</strong>, <strong>force</strong>, <strong>amplitude</strong>, and the <strong>effector</strong> (left vs. right arm) &mdash; dialed to the situation.</p>
+          </div>
+        </div>
+        <div class="callout">
+          <span class="clabel">So what</span>
+          <p>A soft lob to a child and a hard throw to home plate are the <em>same GMP</em> with different parameters &mdash; not two separate stored programs. In this example, the GMP solves the <strong>storage problem</strong>: you keep one program instead of a program for every possible throw.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 RESEARCH LINES (Summers 2009) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What the GMP launched</div>
+        <h2>A new research program</h2>
+        <p>Redefining the motor program as a <em>generalized</em> one did more than fix problems &mdash; it <strong>set an agenda</strong>. It provoked a flurry of research in two directions: (1) <strong>identifying the invariant properties</strong> contained in the abstract representation of a movement class, and (2) pinning down the <strong>mutable parameters</strong> specified just before execution.</p>
+        <div class="study-fig">
+          <img src="images/gmp-summers-text.png" alt="Excerpt from Summers and Anson (2009) describing how redefinitions of the motor program concept provoked research into invariant properties and mutable parameters, with handwriting as an archetypal task, and sequencing, relative timing, and relative force identified as invariants.">
+          <figcaption>Summers &amp; Anson (2009) on the research the GMP set in motion &mdash; and on <strong>handwriting</strong> becoming the archetypal task for studying motor programs.</figcaption>
+        </div>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Identified as invariant</div>
+            <h4>Sequencing, relative timing, relative force</h4>
+            <p>The abstract &ldquo;signature&rdquo; of a movement class &mdash; what&rsquo;s stored.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:#e0a458">
+            <div class="pnh" style="color:#b9802f">Identified as parameters</div>
+            <h4>Overall duration, overall force, effectors</h4>
+            <p>The dials set just before each performance.</p>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Summers, J. J., &amp; Anson, J. G. (2009). Current status of the motor program: revisited. <em>Human Movement Science, 28</em>(5), 566&ndash;577. <a href="https://doi.org/10.1016/j.humov.2009.01.002" target="_blank" rel="noopener">https://doi.org/10.1016/j.humov.2009.01.002</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 WHAT IS A SCHEMA -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">How the dials get set</div>
+        <h2>First, what is a schema?</h2>
+        <p>A GMP needs a way to <strong>choose the right parameters</strong> for each new situation. Schmidt&rsquo;s (1975) answer is the <strong>schema</strong> &mdash; a <strong>rule, built from past experience</strong>. The idea didn&rsquo;t start in motor control at all: it was first proposed in psychology to explain <strong>perception</strong>. <strong>Flip each card</strong> below.</p>
+        <button class="wflip teal" onclick="wFlip(this)">
+          <span class="wf-inner">
+            <span class="wf-face wf-front">
+              <span class="wf-lbl">The classic example: recognizing a &ldquo;dog&rdquo;</span>
+              <p>How can you recognize an animal you&rsquo;ve <em>never seen before</em> as a &ldquo;dog&rdquo;? Flip for the answer.</p>
+              <span class="wf-hint">Flip</span>
+            </span>
+            <span class="wf-face wf-back">
+              <span class="wf-lbl">The answer</span>
+              <p>Through past experience seeing dogs, we <strong>abstract those stimuli into a concept</strong>. That concept is the basis of a <strong>schema</strong> &mdash; a rule for deciding whether a <em>new</em> set of stimuli belongs in the category &ldquo;dog.&rdquo; So we classify an animal we&rsquo;ve never seen as a dog.</p>
+            </span>
+          </span>
+        </button>
+        <button class="wflip gold" onclick="wFlip(this)">
+          <span class="wf-inner">
+            <span class="wf-face wf-front">
+              <span class="wf-lbl">So, in one sentence&hellip;</span>
+              <p>What <em>is</em> a schema, exactly? Flip for the definition.</p>
+              <span class="wf-hint">Flip</span>
+            </span>
+            <span class="wf-face wf-back">
+              <span class="wf-lbl">A schema is&hellip;</span>
+              <p>A set of <strong>rules</strong> abstracted from many experiences &mdash; rules for producing or classifying a &ldquo;prototype.&rdquo; Its power is that it <strong>generalizes to cases you&rsquo;ve never encountered</strong>.</p>
+            </span>
+          </span>
+        </button>
+        <p style="margin-top:14px">Hold onto that: a schema lets you handle a <em>novel</em> instance by applying a learned rule. Next, we apply exactly this idea to movement.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 MOTOR RESPONSE SCHEMA -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Applying the schema to movement</div>
+        <h2>The motor response schema</h2>
+        <p>In motor control, the schema is the rule that tells a GMP <strong>which parameters to use</strong>. Schmidt (1975) splits it into two complementary parts:</p>
+        <div class="pn-row">
+          <div class="pn pos">
+            <div class="pnh">Before the movement</div>
+            <h4>Recall schema</h4>
+            <p>Picks the <strong>parameters</strong> for the GMP, based on past experience: &ldquo;to throw this far, use about <em>this</em> much force and duration.&rdquo;</p>
+          </div>
+          <div class="pn pos" style="border-top-color:#2e9e6b">
+            <div class="pnh" style="color:#2e9e6b">During &amp; after the movement</div>
+            <h4>Recognition schema</h4>
+            <p>Compares the <strong>actual sensory feedback</strong> with what was <em>expected</em> given the chosen parameters &mdash; both <strong>during</strong> the action (does it <em>feel</em> right as it unfolds?) and <strong>after</strong> it (did the outcome match?), then <strong>updates the rule</strong>.</p>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">What the recognition schema compares</span>
+          <p>It works on <strong>two levels</strong>: (1) <strong>during the task</strong> &mdash; how the <em>sensory feedback feels</em> moment-to-moment versus what was expected for the parameters chosen; and (2) <strong>after the task</strong> &mdash; how the <em>outcome</em> relates to the expected outcome. Each attempt stores the link between the <strong>parameters used</strong>, the <strong>sensory consequences</strong>, and the <strong>outcome</strong>, building a reliable <em>rule</em> that generalizes to <strong>new</strong> situations &mdash; just like the &ldquo;dog&rdquo; schema.</p>
+        </div>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Schmidt, R. A. (1975). A schema theory of discrete motor skill learning. <em>Psychological Review, 82</em>(4), 225&ndash;260. <a href="https://psycnet.apa.org/fulltext/1975-26710-001.pdf" target="_blank" rel="noopener">PDF</a><br>Schmidt, R. A. (2003). Motor schema theory after 27 years: Reflections and implications for a new theory. <em>Research Quarterly for Exercise and Sport, 74</em>(4), 366&ndash;375.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 14 TWO SCHEMAS IN ACTION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Putting it together</div>
+        <h2>The two schemas in action</h2>
+        <p>Let&rsquo;s consider how the two schemas are used according to Schmidt&rsquo;s theory, in a real skill: a basketball player taking a <strong>free throw from an unfamiliar distance</strong> (say, a longer college line they&rsquo;ve never shot from). They already have a <strong>GMP for shooting</strong> &mdash; the invariant relative timing of the shot. What has to be decided is the <em>parameters</em>.</p>
+        <ol class="flow-steps">
+          <li>
+            <span class="fs-badge">1</span>
+            <div class="fs-body"><strong>Read the situation.</strong> The shooter perceives the <em>desired outcome</em> and the current conditions &mdash; the distance to the hoop, the ball&rsquo;s weight, their own fatigue.</div>
+          </li>
+          <li>
+            <span class="fs-badge" style="background:var(--accent);color:#fff">2</span>
+            <div class="fs-body"><strong>Recall schema selects the parameters.</strong> Drawing on past shots at <em>other</em> distances, the recall schema estimates the <strong>force and overall duration</strong> needed for <em>this</em> never-practiced distance &mdash; interpolating from the learned rule. These parameters are fed into the shooting GMP.</div>
+          </li>
+          <li>
+            <span class="fs-badge" style="background:var(--gold);color:#5a3d12">3</span>
+            <div class="fs-body"><strong>Execute.</strong> The GMP runs with those parameters &mdash; the shot goes up. For a fast, ballistic action like this, most of it runs <em>open-loop</em>.</div>
+          </li>
+          <li>
+            <span class="fs-badge" style="background:#2e9e6b;color:#fff">4</span>
+            <div class="fs-body"><strong>Recognition schema evaluates the result.</strong> The shooter compares the <em>expected</em> sensory consequences (&ldquo;how it should have felt&rdquo;) with what actually happened and the outcome (short? long? swish?). The ball lands two inches short.</div>
+          </li>
+          <li>
+            <span class="fs-badge" style="background:#6b7883;color:#fff">5</span>
+            <div class="fs-body"><strong>Update the rule.</strong> That error refines both schemas, so the next shot from this distance uses slightly more force. Repeat, and the rule sharpens &mdash; that&rsquo;s learning.</div>
+          </li>
+        </ol>
+        <div class="callout why">
+          <span class="clabel">The loop in one line</span>
+          <p><strong>Recall schema &rarr; set parameters &rarr; GMP executes &rarr; recognition schema &rarr; update.</strong> Every practice attempt tightens the rule that lets you handle the <em>next</em> novel shot.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 HOW SCHEMA SOLVES IT -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Problems, revisited</div>
+        <h2>Which problems does GMP + schema fix?</h2>
+        <p>The GMP + schema account makes real progress &mdash; but it&rsquo;s a mixed scorecard.</p>
+        <div class="pn pos" style="margin-top:14px">
+          <div class="pnh" style="color:#2e9e6b">Solved</div>
+          <h4>Storage</h4>
+          <p>Each GMP only needs to store the <strong>invariant features</strong> plus a rule for setting <strong>parameters</strong> &mdash; one program per class of actions, not a separate program for every movement. The storage problem goes away.</p>
+        </div>
+        <div class="pn" style="border-top:3px solid #e0a458;margin-top:14px">
+          <div class="pnh" style="color:#b9802f">Only partly</div>
+          <h4>Novelty</h4>
+          <p>For a movement that belongs to a GMP you <em>already</em> have, the recall schema sets new parameters &mdash; so a never-practiced throw is fine. But how a <strong>totally new GMP</strong> first <em>emerges</em> is still not clear. One indication is that it involves <strong>variable practice conditions</strong> (next page).</p>
+        </div>
+        <div class="pn neg" style="border-top-color:#d9534f;margin-top:14px">
+          <div class="pnh" style="color:#d9534f">Still unresolved</div>
+          <h4>Context-conditioned variability</h4>
+          <p>The GMP + schema idea doesn&rsquo;t really solve <strong>context-conditioned variability</strong> &mdash; the problem that the <em>same</em> command produces different movements depending on body position and context. That challenge pushed later theorists toward <strong>dynamical-systems</strong> accounts of coordination (a topic for later in the course).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 16 LEARNING IMPLICATIONS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why this theory matters for teaching</div>
+        <h2>Implications for learning: variable practice</h2>
+        <p>Schema theory makes a strong, testable prediction about <em>how to practice</em>. If the recall schema is a <strong>rule</strong> built from experienced parameter&ndash;outcome pairs, then practicing <strong>many different parameter combinations</strong> should build a stronger, more general rule than drilling the same movement over and over.</p>
+        <div class="pn-row">
+          <div class="pn neg" style="border-top-color:#9aa7b1">
+            <div class="pnh" style="color:#6b7883">Constant practice</div>
+            <h4>One parameter set, repeated</h4>
+            <p>You get very good at <em>that exact</em> movement &mdash; but the schema stays narrow.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:#2e9e6b">
+            <div class="pnh" style="color:#2e9e6b">Variable practice</div>
+            <h4>Many parameter sets</h4>
+            <p>You sample the whole relationship, so you can better <strong>estimate parameters for a new, unpracticed situation</strong> &mdash; that&rsquo;s adaptability, and that&rsquo;s learning.</p>
+          </div>
+        </div>
+        <div class="study-fig" style="margin-top:16px">
+          <img src="images/gmp-variability-graph.png" alt="A graph of parameter value (e.g., force) against distance thrown. Practiced points scattered along a line let the learner interpolate the correct parameter for a new, never-practiced distance.">
+          <figcaption>Practicing a <strong>range</strong> of parameter&ndash;outcome pairs lets you draw the underlying rule (the line) &mdash; so when a new distance (X&#8322;) comes up, you can read off the right parameter (Y&#8322;) even though you never practiced it.</figcaption>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Does the evidence agree?</span>
+          <p>Yes &mdash; and we saw it earlier in the course. <strong>Shoenfelt et al. (2002)</strong> had participants practice basketball free throws under constant vs. three variable conditions, then tested retention from the free-throw line. The <strong>variable-practice groups improved as much or more</strong>, even though they never drilled the exact test shot.</p>
+        </div>
+        <div class="ex-trio" style="grid-template-columns:1fr 1fr;gap:12px">
+          <figure style="margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff">
+            <img src="images/gmp-schoenfelt-title.png" alt="Title page of Shoenfelt et al. (2002), Comparison of constant and variable practice conditions on free-throw shooting." style="width:100%;height:auto;display:block">
+          </figure>
+          <figure style="margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff">
+            <img src="images/gmp-schoenfelt-results.png" alt="Shoenfelt results: percent improvement by condition. Constant 1.0%, Variable Front-Back 2.4%, Variable Combination 10.9%, Variable Random 7.4%." style="width:100%;height:auto;display:block">
+          </figure>
+        </div>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Shoenfelt, E. L., Snyder, L. A., Maue, A. E., McDowell, C. P., &amp; Woolard, C. D. (2002). Comparison of constant and variable practice conditions on free-throw shooting. <em>Perceptual and Motor Skills, 94</em>, 1113&ndash;1123. &nbsp;&middot;&nbsp; We&rsquo;ll return to variable practice in depth in the <strong>motor learning</strong> modules.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 SORTER -->
+  <section class="screen" data-screen data-gate="sort">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Check yourself</div>
+        <h2>Invariant feature or parameter?</h2>
+        <p>For each one, decide whether it&rsquo;s part of the GMP&rsquo;s stored <strong>invariant features</strong> or a <strong>parameter</strong> you set each time. Answer all four to continue.</p>
+        <div id="sortStage"></div>
+        <p class="sort-progress" id="sortProg">0 of 4 classified</p>
+        <p class="gate-note" id="sortnote">Classify all four to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 KC -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <p class="kc-q">A pitcher throws the same type of pitch harder to second base than to first. In GMP terms, what changed?</p>
+        <div id="kcopts">
+          <button class="kc-opt" data-c="1">Only the <strong>parameters</strong> (force, duration) &mdash; the invariant relative timing stayed the same.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">The <strong>invariant features</strong> changed &mdash; it&rsquo;s a completely different motor program.<span class="mark"></span></button>
+          <button class="kc-opt" data-c="0">Nothing changed &mdash; GMPs can&rsquo;t be adjusted once stored.<span class="mark"></span></button>
+        </div>
+        <div class="kc-fb" id="kcfb" role="status" hidden></div>
+        <p class="gate-note" id="kcnote">Answer to continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 MODULE WRAP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Module 8 complete</div>
+        <h2>The whole arc, in one view</h2>
+        <ul class="sum-list">
+          <li><span class="n">1</span><span class="t"><strong>Lesson 1</strong> &mdash; open- vs. closed-loop control: does the movement use feedback?</span></li>
+          <li><span class="n">2</span><span class="t"><strong>Lesson 2</strong> &mdash; the simple motor program: structured before, runs without feedback.</span></li>
+          <li><span class="n">3</span><span class="t"><strong>Lesson 3</strong> &mdash; the empirical support for motor programs (Wadman, Taub, Slater-Hammel, StartReact, CPGs).</span></li>
+          <li><span class="n">4</span><span class="t"><strong>Lesson 4</strong> &mdash; the GMP + schema theory: one flexible program per class, parameters set by learned rules.</span></li>
+        </ul>
+        <div class="statement gold" style="margin:16px 0">
+          <p>A skilled mover doesn&rsquo;t store a million movements. They store a <strong>handful of generalized programs</strong> and a set of <strong>rules</strong> for tuning them &mdash; and practice sharpens both.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={prob:"Open all three to continue",comp:"Reveal both to continue",sort:"Classify all four to continue",kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+  window.wFlip=function(card){ card.classList.toggle("flipped"); };
+
+  // Problems accordion (all 3)
+  var probSeen=new Set();
+  window.facTog=function(btn){
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded", open?"false":"true");
+    if(!open && btn.closest("#probList")){ probSeen.add(btn); }
+    if(probSeen.size>=3 && !answered.prob){
+      openGate("prob"); document.getElementById("probnote").textContent="All three opened — you can continue.";
+    }
+  };
+
+  // Invariant/parameter flip cards (flip both to continue)
+  var compSeen=new Set();
+  window.ipFlip=function(card){
+    card.classList.toggle("flipped");
+    if(card.classList.contains("flipped")) compSeen.add(card);
+    if(compSeen.size>=2 && !answered.comp){
+      openGate("comp"); document.getElementById("compnote").textContent="Both flipped — you can continue.";
+    }
+  };
+
+  // Name-writing demo
+  (function(){
+    var sig=document.getElementById("nwSig"), bars=document.getElementById("nwBars");
+    var lbl=document.getElementById("nwLbl"), total=document.getElementById("nwTotal");
+    if(!sig) return;
+    var state={size:"small",speed:"slow",hand:"dom"};
+    // A legible cursive "Alex" (invariant letter shapes). Baseline ~ y=78, x-height top ~ y=52.
+    // A (capital, two strokes + crossbar), l (loop), e (loop), x (two strokes).
+    var letters=[
+      // Capital A: left diagonal, right diagonal, crossbar
+      'M18 86 L34 40 L50 86 M24 70 L44 70',
+      // l : tall loop
+      'M64 40 q 10 2 6 24 q -4 20 -2 24 q 2 4 10 0',
+      // e : small loop with crossbar opening
+      'M86 70 q 16 -2 10 -12 q -8 -10 -14 2 q -6 14 10 14 q 8 0 12 -6',
+      // x : two crossing strokes
+      'M120 58 L140 84 M140 58 L120 84'
+    ];
+    function draw(){
+      var scale = state.size==="large"?1.35:0.82;
+      var non = state.hand==="non";
+      var tx = state.size==="large"? 20 : 60;
+      var ty = state.size==="large"? 4 : 24;
+      var slant = non ? -0.04 : 0.12;          // dominant leans right; non-dominant slightly back
+      var sw = non ? 4.0 : 3.0;                 // non-dominant a touch heavier/wobblier
+      var wob = non ? ' stroke-dasharray="0" transform="rotate(0)"' : '';
+      var g='<g transform="translate('+tx+','+ty+') matrix('+scale+',0,'+slant+','+scale+',0,0)">';
+      letters.forEach(function(d){
+        g+='<path d="'+d+'" fill="none" stroke="#1a7f8e" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round" opacity="'+(non?0.92:1)+'"/>';
+      });
+      g+='</g>';
+      sig.innerHTML=g;
+      lbl.textContent=state.size+" · "+state.speed+" · "+(state.hand==="dom"?"dominant":"non-dominant");
+      // Letter "a" relative timing: circle 60%, tail 40% (INVARIANT). Only total time changes (a parameter).
+      var props=[0.60,0.40];
+      var totalT = state.speed==="fast"?0.4:1.0;
+      var maxH=44;
+      var strokeNames=["circle (60%)","tail (40%)"];
+      var b='';
+      props.forEach(function(p,i){
+        var h=Math.max(10, p*maxH/0.6);
+        b+='<div class="nw-bar'+(i===1?' b2':'')+'" style="height:'+h+'px;width:40px" title="'+strokeNames[i]+'"></div>';
+      });
+      bars.innerHTML=b;
+      total.textContent="total time: "+totalT.toFixed(1)+" s  (a parameter)";
+    }
+    document.querySelectorAll("#nwDemo .nw-btn").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        var k=btn.dataset.k, v=btn.dataset.v;
+        state[k]=v;
+        document.querySelectorAll('#nwDemo .nw-btn[data-k="'+k+'"]').forEach(function(x){x.classList.toggle("on", x===btn);});
+        draw();
+      });
+    });
+    draw();
+  })();
+
+  // Sorter: invariant vs parameter
+  (function(){
+    var OPTS=[{v:"inv",label:"Invariant feature"},{v:"par",label:"Parameter"}];
+    var ITEMS=[
+      {scenario:"The <span class=\"q\">relative timing</span> of the muscle bursts in a throw.",ans:"inv",why:"Relative timing is the classic invariant feature — it defines the class of action."},
+      {scenario:"<span class=\"q\">Overall speed</span> — writing your name slowly vs. quickly.",ans:"par",why:"Overall duration is a parameter you set each time; the proportions stay fixed."},
+      {scenario:"<span class=\"q\">Which arm</span> you use to throw (left vs. right).",ans:"par",why:"The effector is a parameter — the same GMP can drive either arm."},
+      {scenario:"The <span class=\"q\">order and proportion</span> of sub-movements that make a signature yours.",ans:"inv",why:"The sequencing and proportions are invariant — that's what makes it recognizably your signature."}
+    ];
+    var stage=document.getElementById("sortStage"), done=0;
+    ITEMS.forEach(function(it){
+      var d=document.createElement("div");
+      d.className="match-item";
+      var btns=OPTS.map(function(o){return '<button data-v="'+o.v+'">'+o.label+'</button>';}).join("");
+      d.innerHTML='<div class="mi-scenario">'+it.scenario+'</div><div class="mi-btns" style="grid-template-columns:1fr 1fr">'+btns+'</div><div class="mi-fb" hidden></div>';
+      stage.appendChild(d);
+      d.querySelectorAll(".mi-btns button").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          d.querySelectorAll(".mi-btns button").forEach(function(x){x.disabled=true;});
+          var ok=btn.dataset.v===it.ans;
+          if(ok)btn.classList.add("correct");
+          else{btn.classList.add("wrong");d.querySelectorAll(".mi-btns button").forEach(function(x){if(x.dataset.v===it.ans)x.classList.add("correct");});}
+          var fb=d.querySelector(".mi-fb");
+          fb.innerHTML=(ok?"<strong>Correct.</strong> ":"<strong>Not quite.</strong> ")+it.why; fb.hidden=false;
+          done++; document.getElementById("sortProg").textContent=done+" of 4 classified";
+          if(done===4){ openGate("sort"); document.getElementById("sortnote").textContent="All classified — you can continue."; }
+        });
+      });
+    });
+  })();
+
+  function makeSingle(wrapId,fbId,noteId,gate,FBok,FBno){
+    var wrap=document.getElementById(wrapId);
+    wrap.querySelectorAll(".kc-opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        wrap.querySelectorAll(".kc-opt").forEach(function(o){o.disabled=true;});
+        var ok=opt.dataset.c==="1";
+        if(ok){opt.classList.add("correct");opt.querySelector(".mark").textContent="✓";}
+        else{opt.classList.add("wrong");opt.querySelector(".mark").textContent="✕";
+          wrap.querySelectorAll(".kc-opt").forEach(function(o){if(o.dataset.c==="1"){o.classList.add("correct");o.querySelector(".mark").textContent="✓";}});}
+        var fb=document.getElementById(fbId);
+        fb.className="kc-fb "+(ok?"ok":"no"); fb.innerHTML=ok?FBok:FBno; fb.hidden=false;
+        openGate(gate);
+      });
+    });
+  }
+  makeSingle("kcopts","kcfb","kcnote","kc",
+    "<strong>Correct.</strong> Same GMP, different parameters. The relative timing (invariant) is unchanged; force and duration are dialed up for the longer throw.",
+    "<strong>Reconsider.</strong> It&rsquo;s the <em>same</em> class of action &mdash; the same GMP &mdash; with adjusted parameters (force, duration). The invariant relative timing doesn&rsquo;t change.");
+
+  show(0);
+})();
+</script>
+</body>
+</html>
