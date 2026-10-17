@@ -1337,6 +1337,20 @@
   .nw-bars{display:flex;gap:4px;justify-content:center;align-items:flex-end;height:46px;margin-top:10px}
   .nw-bar{width:16px;background:var(--accent);border-radius:3px 3px 0 0;opacity:.85}
   .nw-bar.b2{background:var(--gold)}
+  /* variable practice transfer demo */
+  .vp-demo{margin:18px 0 6px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .vp-modes{display:flex;gap:8px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+  .vp-mode{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.12s}
+  .vp-mode:hover{border-color:var(--accent);background:#fafdfe}
+  .vp-mode.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .vp-note{font-size:13px;color:var(--muted);text-align:center;margin:0 0 10px;min-height:18px}
+  .vp-plotwrap{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}
+  #vpPlot{width:100%;max-width:480px;height:auto;display:block;margin:0 auto}
+  .vp-controls{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .vp-controls .btn:disabled{opacity:.45;cursor:default}
+  .vp-result{margin-top:12px;font-size:14.5px;color:#3d4d5c;text-align:center;min-height:42px}
+  .vp-result.ok{color:#1d6b47;font-weight:700}
+  .vp-result.no{color:#a3403c;font-weight:700}
 
 </style>
 </head>
@@ -1460,7 +1474,7 @@
         <div class="statement gold" style="margin:6px 0">
           <p>A <strong>generalized motor program (GMP)</strong> is the memory representation of a <em>class of actions</em> that share common <strong>invariant characteristics</strong> (Schmidt, 1975).</p>
         </div>
-        <p>To address the storage problem, <strong>Richard Schmidt (1975)</strong> proposed the notion of a generalized motor program (GMP) as an <strong>abstract memory structure</strong>. Instead of storing a separate program for every individual movement, you store <strong>one flexible pattern per class of actions</strong> &mdash; with slots you fill in differently each time. That single move dissolves the storage and novelty problems at once.</p>
+        <p><strong>Richard Schmidt (1975)</strong> proposed the notion of a generalized motor program (GMP) as an <strong>abstract memory structure</strong>. Instead of storing a separate program for every individual movement, you store <strong>one flexible pattern per class of actions</strong> &mdash; with slots you fill in differently each time. That single move dissolves the storage and novelty problems at once.</p>
         <p>A &ldquo;class of actions&rdquo; might be:</p>
         <div class="ex-trio" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
           <div class="ana" style="text-align:center"><strong>Overhand throwing</strong><br><span style="font-size:13px;color:#667">to any distance, any ball</span></div>
@@ -1554,6 +1568,10 @@
         <div class="eyebrow">An analogy that will help</div>
         <h2>Rhythm vs. tempo</h2>
         <p>Music gives the cleanest picture of the invariant/parameter split. <strong>Rhythm</strong> is the <strong>sequencing of beats per measure</strong> &mdash; and it stays the same no matter how slow or fast you play, or which instruments play it. <strong>Flip each card.</strong></p>
+        <figure class="study-fig" style="margin:6px 0 2px">
+          <img src="images/gmp-music-score.png" alt="A musical staff in 4/4 time showing a sequence of notes.">
+          <figcaption>The <strong>written score</strong> fixes the sequence and relative timing of the notes (the invariant); a performer still chooses the <strong>tempo</strong> and the <strong>instrument</strong> (parameters).</figcaption>
+        </figure>
         <div class="flip2" id="rt">
           <button class="flipcard" onclick="doFlip(this)">
             <span class="fc-inner">
@@ -1586,7 +1604,9 @@
         <div class="callout">
           <span class="clabel">Activity &middot; do this on paper</span>
           <p><strong>Grab a piece of paper and a pen.</strong> Write your name three ways:</p>
-          <p style="margin:6px 0 0">1&nbsp;&middot;&nbsp; <strong>small</strong>, then <strong>large</strong> &nbsp;&bull;&nbsp; 2&nbsp;&middot;&nbsp; <strong>slowly</strong>, then <strong>quickly</strong> &nbsp;&bull;&nbsp; 3&nbsp;&middot;&nbsp; with your <strong>dominant</strong>, then <strong>non-dominant</strong> hand.</p>
+          <p style="margin:6px 0 0">1&nbsp;&middot;&nbsp; <strong>small</strong>, then <strong>large</strong></p>
+          <p style="margin:4px 0 0">2&nbsp;&middot;&nbsp; <strong>slowly</strong>, then <strong>quickly</strong></p>
+          <p style="margin:4px 0 0">3&nbsp;&middot;&nbsp; with your <strong>dominant</strong>, then <strong>non-dominant</strong> hand</p>
           <p style="margin:8px 0 0">Now compare them. The size, speed, and the muscles used all changed &mdash; yet each is still unmistakably <em>your</em> signature. <strong>What stayed the same?</strong> Those are the <strong>invariant features</strong>; what you varied are the <strong>parameters</strong>.</p>
         </div>
         <p style="margin-top:14px">The toggles below simulate the same idea &mdash; watch the relative timing stay fixed as the parameters change:</p>
@@ -1617,7 +1637,7 @@
           <span class="clabel">Key idea</span>
           <p>Some invariant features here are the <strong>relative timing of writing each letter</strong>. For example, the letter &ldquo;a&rdquo; is typically written in two strokes (the <em>circle</em>, then the <em>tail</em>) &mdash; and their relative timing stays roughly constant: about <strong>60% of the time for the circle, 40% for the tail</strong>. Another invariant is the <strong>shapes of the letters</strong> themselves. The <strong>size, speed, and effector</strong> (which hand) are just examples of <strong>parameters</strong> you reset. This is one example of a GMP.</p>
         </div>
-        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Handwriting as a model for motor programming: Teulings, H.-L., Mullins, P. A., &amp; Stelmach, G. E. (1986). The elementary units of programming in handwriting. In <em>Advances in Psychology</em> (Vol. 37, pp. 21&ndash;32). North-Holland. &nbsp;&middot;&nbsp; Plamondon, R., Stelmach, G. E., &amp; Teasdale, N. (1990). Motor program coding representation from a handwriting generator model: The production of line responses. <em>Biological Cybernetics, 63</em>(6), 443&ndash;451. <a href="https://link.springer.com/article/10.1007/BF00199576" target="_blank" rel="noopener">Springer</a></p>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Handwriting as a model for motor programming:<br>Teulings, H.-L., Mullins, P. A., &amp; Stelmach, G. E. (1986). The elementary units of programming in handwriting. In <em>Advances in Psychology</em> (Vol. 37, pp. 21&ndash;32). North-Holland.<br>Plamondon, R., Stelmach, G. E., &amp; Teasdale, N. (1990). Motor program coding representation from a handwriting generator model: The production of line responses. <em>Biological Cybernetics, 63</em>(6), 443&ndash;451. <a href="https://link.springer.com/article/10.1007/BF00199576" target="_blank" rel="noopener">Springer</a></p>
       </div>
     </div>
   </section>
@@ -1655,11 +1675,7 @@
       <div class="card">
         <div class="eyebrow">What the GMP launched</div>
         <h2>A new research program</h2>
-        <p>Redefining the motor program as a <em>generalized</em> one did more than fix problems &mdash; it <strong>set an agenda</strong>. It provoked a flurry of research in two directions: (1) <strong>identifying the invariant properties</strong> contained in the abstract representation of a movement class, and (2) pinning down the <strong>mutable parameters</strong> specified just before execution.</p>
-        <div class="study-fig">
-          <img src="images/gmp-summers-text.png" alt="Excerpt from Summers and Anson (2009) describing how redefinitions of the motor program concept provoked research into invariant properties and mutable parameters, with handwriting as an archetypal task, and sequencing, relative timing, and relative force identified as invariants.">
-          <figcaption>Summers &amp; Anson (2009) on the research the GMP set in motion &mdash; and on <strong>handwriting</strong> becoming the archetypal task for studying motor programs.</figcaption>
-        </div>
+        <p>Redefining the motor program as a <em>generalized</em> one did more than fix problems &mdash; it <strong>set an agenda</strong>. It provoked a flurry of research in two directions: (1) <strong>identifying the invariant properties</strong> contained in the abstract representation of a movement class, and (2) identifying the <strong>parameters</strong> that can be specified just before execution (Summers &amp; Anson, 2009).</p>
         <div class="pn-row">
           <div class="pn pos">
             <div class="pnh">Identified as invariant</div>
@@ -1682,8 +1698,8 @@
     <div class="inner">
       <div class="card">
         <div class="eyebrow">How the dials get set</div>
-        <h2>First, what is a schema?</h2>
-        <p>A GMP needs a way to <strong>choose the right parameters</strong> for each new situation. Schmidt&rsquo;s (1975) answer is the <strong>schema</strong> &mdash; a <strong>rule, built from past experience</strong>. The idea didn&rsquo;t start in motor control at all: it was first proposed in psychology to explain <strong>perception</strong>. <strong>Flip each card</strong> below.</p>
+        <h2>How to set the parameters of a GMP?</h2>
+        <p>A GMP needs a way to <strong>choose the right parameters</strong> for each new situation. In addition to introducing the concept of a generalized motor program, <strong>Schmidt (1975)</strong> also introduced the concept of a <strong>schema</strong> to allow setting GMP parameters &mdash; a <strong>rule, built from past experience</strong>. The idea didn&rsquo;t start in motor control at all: it was first proposed in psychology to explain <strong>perception</strong>. <strong>Flip each card</strong> below.</p>
         <button class="wflip teal" onclick="wFlip(this)">
           <span class="wf-inner">
             <span class="wf-face wf-front">
@@ -1721,7 +1737,7 @@
       <div class="card">
         <div class="eyebrow">Applying the schema to movement</div>
         <h2>The motor response schema</h2>
-        <p>In motor control, the schema is the rule that tells a GMP <strong>which parameters to use</strong>. Schmidt (1975) splits it into two complementary parts:</p>
+        <p>In motor control, the schema is the rule that tells a GMP <strong>which parameters to use</strong> &mdash; which is why Schmidt&rsquo;s (1975) theory of motor control is called <strong>&ldquo;schema theory.&rdquo;</strong> He splits the schema into two complementary parts:</p>
         <div class="pn-row">
           <div class="pn pos">
             <div class="pnh">Before the movement</div>
@@ -1750,7 +1766,7 @@
       <div class="card">
         <div class="eyebrow">Putting it together</div>
         <h2>The two schemas in action</h2>
-        <p>Let&rsquo;s consider how the two schemas are used according to Schmidt&rsquo;s theory, in a real skill: a basketball player taking a <strong>free throw from an unfamiliar distance</strong> (say, a longer college line they&rsquo;ve never shot from). They already have a <strong>GMP for shooting</strong> &mdash; the invariant relative timing of the shot. What has to be decided is the <em>parameters</em>.</p>
+        <p>Let&rsquo;s consider how the two schemas are used according to schema theory, in a real skill: a basketball player taking a <strong>free throw from an unfamiliar distance</strong> (say, a longer college line they&rsquo;ve never shot from). They already have a <strong>GMP for shooting</strong> &mdash; the invariant relative timing of the shot. What has to be decided is the <em>parameters</em>.</p>
         <ol class="flow-steps">
           <li>
             <span class="fs-badge">1</span>
@@ -1828,13 +1844,50 @@
           </div>
         </div>
         <div class="study-fig" style="margin-top:16px">
-          <img src="images/gmp-variability-graph.png" alt="A graph of parameter value (e.g., force) against distance thrown. Practiced points scattered along a line let the learner interpolate the correct parameter for a new, never-practiced distance.">
-          <figcaption>Practicing a <strong>range</strong> of parameter&ndash;outcome pairs lets you draw the underlying rule (the line) &mdash; so when a new distance (X&#8322;) comes up, you can read off the right parameter (Y&#8322;) even though you never practiced it.</figcaption>
+          <img src="images/gmp-variability-graph2.png" alt="A graph of parameter value (e.g., force) against distance thrown. Practiced points scattered along a line let the learner interpolate the correct parameter for a new, never-practiced distance.">
+          <figcaption>Each practiced attempt is a point relating a <strong>parameter</strong> (e.g., force) to an <strong>outcome</strong> (distance thrown). Sampling a <strong>range</strong> of them lets you draw the underlying rule (the line) &mdash; so when a new distance (X&#8322;) comes up, you can read off the right parameter (Y&#8322;) even though you never practiced it. Practice over a narrow range, and that line is hard to pin down.</figcaption>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 VARIABLE PRACTICE DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself</div>
+        <h2>Practice, then transfer to a novel distance</h2>
+        <p>This is a <strong>demonstration with simulated experiment data</strong> &mdash; a hands-on way to see the graph from the previous page in action. Each &ldquo;throw&rdquo; is a made-up data point relating a <strong>parameter</strong> (force) to an <strong>outcome</strong> (distance), drawn from a hidden rule plus a bit of noise, just like a real learner&rsquo;s attempts. You&rsquo;ll &ldquo;practice&rdquo; the skill, then get tested on a <strong>new distance you never practiced</strong> &mdash; once after <strong>constant</strong> practice, once after <strong>variable</strong> practice. Which builds the better rule?</p>
+        <div class="vp-demo" id="vpDemo">
+          <div class="vp-modes">
+            <button class="vp-mode on" data-mode="constant">Constant practice</button>
+            <button class="vp-mode" data-mode="variable">Variable practice</button>
+          </div>
+          <p class="vp-note" id="vpNote"></p>
+          <div class="vp-plotwrap">
+            <svg id="vpPlot" viewBox="0 0 460 300" role="img" aria-label="A graph of force parameter versus distance. Practice points appear as you practice; a fitted rule line is drawn through them; a transfer test at a novel distance shows your estimate versus the true value."></svg>
+          </div>
+          <div class="vp-controls">
+            <button class="btn btn-next" id="vpPractice" style="min-width:150px">Practice (10 throws)</button>
+            <button class="btn" id="vpTest" disabled style="min-width:170px;background:#e0a458;color:#5a3d12">Transfer test &rarr;</button>
+          </div>
+          <p class="vp-result" id="vpResult">Pick a practice type, then press <strong>Practice</strong>.</p>
         </div>
         <div class="callout why">
-          <span class="clabel">Does the evidence agree?</span>
-          <p>Yes &mdash; and we saw it earlier in the course. <strong>Shoenfelt et al. (2002)</strong> had participants practice basketball free throws under constant vs. three variable conditions, then tested retention from the free-throw line. The <strong>variable-practice groups improved as much or more</strong>, even though they never drilled the exact test shot.</p>
+          <span class="clabel">What to notice</span>
+          <p>After <strong>constant</strong> practice all your points pile up at one distance &mdash; the fitted rule is barely constrained, so the novel-distance test can land <em>way off</em>. After <strong>variable</strong> practice the points span the range, the rule is well-defined, and your estimate at the <strong>novel</strong> distance lands close. Same number of throws; very different transfer.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 SHOENFELT EVIDENCE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Does the evidence agree?</div>
+        <h2>A real study: Shoenfelt et al. (2002)</h2>
+        <p>Yes &mdash; and we saw this study earlier in the course. <strong>Shoenfelt and colleagues (2002)</strong> had participants practice basketball free throws under a <strong>constant</strong> condition (always from the free-throw line) vs. three <strong>variable</strong> conditions (shots from varied positions), then tested <strong>retention from the free-throw line</strong>. The <strong>variable-practice groups improved as much or more</strong> &mdash; even though they never drilled the exact test shot.</p>
         <div class="ex-trio" style="grid-template-columns:1fr 1fr;gap:12px">
           <figure style="margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff">
             <img src="images/gmp-schoenfelt-title.png" alt="Title page of Shoenfelt et al. (2002), Comparison of constant and variable practice conditions on free-throw shooting." style="width:100%;height:auto;display:block">
@@ -1843,12 +1896,16 @@
             <img src="images/gmp-schoenfelt-results.png" alt="Shoenfelt results: percent improvement by condition. Constant 1.0%, Variable Front-Back 2.4%, Variable Combination 10.9%, Variable Random 7.4%." style="width:100%;height:auto;display:block">
           </figure>
         </div>
-        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Shoenfelt, E. L., Snyder, L. A., Maue, A. E., McDowell, C. P., &amp; Woolard, C. D. (2002). Comparison of constant and variable practice conditions on free-throw shooting. <em>Perceptual and Motor Skills, 94</em>, 1113&ndash;1123. &nbsp;&middot;&nbsp; We&rsquo;ll return to variable practice in depth in the <strong>motor learning</strong> modules.</p>
+        <div class="callout">
+          <span class="clabel">Looking ahead</span>
+          <p>This is a preview &mdash; we&rsquo;ll return to <strong>variable practice</strong> (and the contextual-interference effect) in depth in the <strong>motor learning</strong> modules.</p>
+        </div>
+        <p style="font-size:13px;color:#7a8a99;margin-top:10px">Shoenfelt, E. L., Snyder, L. A., Maue, A. E., McDowell, C. P., &amp; Woolard, C. D. (2002). Comparison of constant and variable practice conditions on free-throw shooting. <em>Perceptual and Motor Skills, 94</em>, 1113&ndash;1123.</p>
       </div>
     </div>
   </section>
 
-  <!-- 17 SORTER -->
+  <!-- 19 SORTER -->
   <section class="screen" data-screen data-gate="sort">
     <div class="inner">
       <div class="card">
@@ -1862,7 +1919,7 @@
     </div>
   </section>
 
-  <!-- 18 KC -->
+  <!-- 20 KC -->
   <section class="screen" data-screen data-gate="kc">
     <div class="inner">
       <div class="kc-card">
@@ -1879,7 +1936,7 @@
     </div>
   </section>
 
-  <!-- 19 MODULE WRAP -->
+  <!-- 21 MODULE WRAP -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
@@ -2086,6 +2143,123 @@
   makeSingle("kcopts","kcfb","kcnote","kc",
     "<strong>Correct.</strong> Same GMP, different parameters. The relative timing (invariant) is unchanged; force and duration are dialed up for the longer throw.",
     "<strong>Reconsider.</strong> It&rsquo;s the <em>same</em> class of action &mdash; the same GMP &mdash; with adjusted parameters (force, duration). The invariant relative timing doesn&rsquo;t change.");
+
+  // Variable-practice transfer demo
+  (function(){
+    var plot=document.getElementById("vpPlot"), note=document.getElementById("vpNote");
+    var practiceBtn=document.getElementById("vpPractice"), testBtn=document.getElementById("vpTest");
+    var result=document.getElementById("vpResult");
+    if(!plot) return;
+    var A=8, B=1.7, NOISE=5;
+    var mode="constant", pts=[], fit=null, novelX=null, trained=false, gapCenter=null;
+    var DMIN=5, DMAX=45, FMIN=0, FMAX=90;
+    var L=46,R=16,T=14,Bm=40, W=460,H=300, pw=W-L-R, ph=H-T-Bm;
+    function xp(d){ return L + (d-DMIN)/(DMAX-DMIN)*pw; }
+    function yp(f){ return T + (1-(f-FMIN)/(FMAX-FMIN))*ph; }
+    function trueF(d){ return A + B*d; }
+    function setResult(cls,html){ result.className="vp-result"+(cls?" "+cls:""); result.innerHTML=html; }
+    function fitLine(points){
+      var n=points.length, sx=0,sy=0,sxx=0,sxy=0;
+      points.forEach(function(p){ sx+=p.d; sy+=p.f; sxx+=p.d*p.d; sxy+=p.d*p.f; });
+      var denom=(n*sxx - sx*sx);
+      if(Math.abs(denom)<1e-6){ var mean=sy/n; return {b:0, a:mean}; }
+      var b=(n*sxy - sx*sy)/denom; var a=(sy - b*sx)/n; return {a:a,b:b};
+    }
+    function draw(){
+      var s='';
+      s+='<line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(T+ph)+'" stroke="#c3ced4" stroke-width="1.3"/>';
+      s+='<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(L+pw)+'" y2="'+(T+ph)+'" stroke="#c3ced4" stroke-width="1.3"/>';
+      s+='<text transform="translate(13,'+(T+ph/2)+') rotate(-90)" text-anchor="middle" font-size="11" fill="#556">Force (parameter)</text>';
+      s+='<text x="'+(L+pw/2)+'" y="'+(T+ph+34)+'" text-anchor="middle" font-size="11" fill="#556">Distance thrown (m)</text>';
+      [5,15,25,35,45].forEach(function(d){ s+='<text x="'+xp(d)+'" y="'+(T+ph+16)+'" text-anchor="middle" font-size="9.5" fill="#7a8a99">'+d+'</text>'; });
+      s+='<line x1="'+xp(DMIN)+'" y1="'+yp(trueF(DMIN))+'" x2="'+xp(DMAX)+'" y2="'+yp(trueF(DMAX))+'" stroke="#c3ced4" stroke-width="1.5" stroke-dasharray="4 3"/>';
+      s+='<text x="'+(xp(DMIN)+6)+'" y="'+(yp(trueF(DMIN))-6)+'" text-anchor="start" font-size="9" fill="#9aa7b1">true rule</text>';
+      pts.forEach(function(p){ s+='<circle cx="'+xp(p.d)+'" cy="'+yp(p.f)+'" r="4.5" fill="#1a7f8e" opacity="0.8"/>'; });
+      if(fit){
+        var f1=fit.a+fit.b*DMIN, f2=fit.a+fit.b*DMAX;
+        s+='<line x1="'+xp(DMIN)+'" y1="'+yp(f1)+'" x2="'+xp(DMAX)+'" y2="'+yp(f2)+'" stroke="#1a7f8e" stroke-width="2.4"/>';
+      }
+      if(novelX!==null && fit){
+        var est=fit.a+fit.b*novelX, tru=trueF(novelX);
+        s+='<line x1="'+xp(novelX)+'" y1="'+T+'" x2="'+xp(novelX)+'" y2="'+(T+ph)+'" stroke="#e0a458" stroke-width="1.4" stroke-dasharray="3 3"/>';
+        s+='<text x="'+xp(novelX)+'" y="'+(T+10)+'" text-anchor="middle" font-size="9.5" font-weight="700" fill="#b5822f">novel</text>';
+        s+='<circle cx="'+xp(novelX)+'" cy="'+yp(tru)+'" r="6" fill="none" stroke="#2e9e6b" stroke-width="2.5"/>';
+        s+='<circle cx="'+xp(novelX)+'" cy="'+yp(est)+'" r="5" fill="#d9534f"/>';
+      }
+      plot.innerHTML=s;
+    }
+    function reset(){
+      pts=[]; fit=null; novelX=null; trained=false;
+      testBtn.disabled=true; practiceBtn.disabled=false; practiceBtn.textContent="Practice (10 throws)";
+      note.textContent = mode==="constant" ? "Constant: all practice at ONE distance (~25 m)." : "Variable: practice spread across many distances.";
+      setResult("", "Pick a practice type, then press <strong>Practice</strong>.");
+      draw();
+    }
+    function practice(){
+      pts=[]; gapCenter=null;
+      if(mode==="variable"){
+        // Reserve an empty "gap band" in the middle of the range; practice points fall on
+        // either side of it, and the transfer test will land inside the gap (never near a point).
+        var lo=DMIN+3, hi=DMAX-3;
+        gapCenter = lo+8 + Math.random()*((hi-8)-(lo+8));  // keep the gap away from the ends
+        var half=4.0;                                       // half-width of the reserved band (~8 m clear zone)
+        for(var i=0;i<10;i++){
+          var d;
+          do { d = lo + Math.random()*(hi-lo); } while(Math.abs(d-gapCenter) < half);
+          pts.push({d:d, f:trueF(d) + (Math.random()-0.5)*2*NOISE});
+        }
+      } else {
+        for(var j=0;j<10;j++){
+          var dc = 25 + (Math.random()-0.5)*1.2;
+          pts.push({d:dc, f:trueF(dc) + (Math.random()-0.5)*2*NOISE});
+        }
+      }
+      if(mode==="constant"){
+        // A tight cluster carries no information about the SLOPE (how force scales with
+        // distance), so the best-supported rule is "use what worked here" — a flat line
+        // at the practiced mean. It fits the practice perfectly but can't extrapolate.
+        var mean=0; pts.forEach(function(p){mean+=p.f;}); mean/=pts.length;
+        fit={a:mean, b:0};
+      } else {
+        fit=fitLine(pts); // variable practice reveals the real slope
+      }
+      trained=true;
+      testBtn.disabled=false; practiceBtn.textContent="Practice again";
+      setResult("", "10 throws practiced. Now press <strong>Transfer test</strong> to try a new distance you never practiced.");
+      draw();
+    }
+    function minGap(x){ // distance from x to the nearest practiced point
+      var m=Infinity; pts.forEach(function(p){ var g=Math.abs(p.d-x); if(g<m) m=g; }); return m;
+    }
+    function pickNovel(){
+      if(mode==="constant"){ return (Math.random()<0.5)? 9 : 41; } // far from the ~25 cluster
+      // variable: land in the reserved empty band (no practiced point is within ~2.6 m of it)
+      if(gapCenter!==null && minGap(gapCenter) >= 2) return gapCenter;
+      // safety fallback: scan for the most-isolated distance
+      var best=8, bestGap=-1;
+      for(var x=8; x<=42; x+=0.5){ var g=minGap(x); if(g>bestGap){ bestGap=g; best=x; } }
+      return best;
+    }
+    function test(){
+      if(!trained) return;
+      novelX = pickNovel();
+      draw();
+      var est=fit.a+fit.b*novelX, tru=trueF(novelX); var err=Math.abs(est-tru);
+      if(err<=10) setResult("ok","&#10003; <strong>Close &mdash; off by ~"+Math.round(err)+" force units.</strong> Your fitted rule generalized to the novel distance, because practice covered a range.");
+      else setResult("no","&#10007; <strong>Off by ~"+Math.round(err)+" force units.</strong> "+(mode==="constant"?"All practice sat at one distance, so the rule couldn&rsquo;t extrapolate to the novel one.":"Unlucky spread &mdash; practice again for wider coverage."));
+      testBtn.disabled=true;
+    }
+    practiceBtn.addEventListener("click",practice);
+    testBtn.addEventListener("click",test);
+    document.querySelectorAll("#vpDemo .vp-mode").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        mode=btn.dataset.mode;
+        document.querySelectorAll("#vpDemo .vp-mode").forEach(function(x){x.classList.toggle("on",x===btn);});
+        reset();
+      });
+    });
+    reset();
+  })();
 
   show(0);
 })();
