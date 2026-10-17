@@ -1236,21 +1236,32 @@
   .callout a{color:var(--accent);font-weight:700;text-decoration:none;word-break:break-word}
   .callout a:hover{text-decoration:underline}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-  /* stop-the-target demo */
-  .st-demo{margin:18px 0 6px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
-  .st-modes{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
-  .st-mode{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.12s}
-  .st-mode:hover{border-color:var(--accent);background:#fafdfe}
-  .st-mode.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
-  .st-track{position:relative;height:56px;background:#eef2f4;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .st-dot{position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%)}
-  .st-target{position:absolute;top:-4px;bottom:-4px;width:4px;background:#d9534f}
-  .st-targetlbl{position:absolute;top:-2px;font-size:10.5px;font-weight:800;color:#d9534f;transform:translateX(-50%)}
-  .st-controls{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-  .st-result{margin-top:12px;font-size:14.5px;color:#3d4d5c;text-align:center;min-height:40px}
-  .st-result.ok{color:#1d6b47;font-weight:700}
-  .st-result.no{color:#a3403c;font-weight:700}
-  .st-score{font-size:12.5px;color:var(--muted);font-weight:700;text-align:center;margin-top:6px}
+  /* reaching demo (open vs closed loop) */
+  .tb-demo{margin:18px 0 6px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .tb-modes{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+  .tb-mode{border:2px solid var(--line);border-radius:8px;padding:9px 16px;background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);transition:.12s}
+  .tb-mode:hover{border-color:var(--accent);background:#fafdfe}
+  .tb-mode.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+  .tb-instr{font-size:14px;line-height:1.5;color:#245a63;background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:9px;padding:12px 15px;margin-bottom:12px}
+  .tb-instr.open{color:#7a5a24;background:#fdf4e6;border-color:#e8cfa6}
+  .tb-stage{position:relative;height:260px;background:#eef2f4;border:1px solid var(--line);border-radius:10px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair}
+  .tb-stage.nocursor{cursor:none}
+  .tb-home{position:absolute;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--accent);transform:translate(-50%,-50%);z-index:1}
+  .tb-homelbl{position:absolute;font-size:10px;font-weight:800;color:var(--accent-dark);transform:translate(-50%,-50%);letter-spacing:.5px}
+  .tb-target{position:absolute;width:48px;height:48px;border-radius:50%;background:rgba(224,164,88,.30);border:3px solid #e0a458;transform:translate(-50%,-50%);z-index:1}
+  .tb-targetlbl{position:absolute;font-size:10px;font-weight:800;color:#b5822f;transform:translate(-50%,-50%);letter-spacing:.5px}
+  .tb-hand{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.25);display:none;z-index:3}
+  .tb-hand.show{display:block}
+  .tb-landing{position:absolute;width:22px;height:22px;border-radius:50%;transform:translate(-50%,-50%);z-index:2;border:2px solid #fff}
+  .tb-landing.ok{background:#2e9e6b}
+  .tb-landing.no{background:#d9534f}
+  .tb-flash{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .15s}
+  .tb-flash.ok{background:rgba(46,158,107,.20);opacity:1}
+  .tb-flash.no{background:rgba(217,83,79,.16);opacity:1}
+  .tb-result{margin-top:12px;font-size:14.5px;color:#3d4d5c;text-align:center;min-height:40px}
+  .tb-result.ok{color:#1d6b47;font-weight:700}
+  .tb-result.no{color:#a3403c;font-weight:700}
+  .tb-score{font-size:12.5px;color:var(--muted);font-weight:700;text-align:center;margin-top:6px}
 
 </style>
 </head>
@@ -1536,33 +1547,36 @@
     </div>
   </section>
 
-  <!-- 13b STOP THE TARGET DEMO -->
+  <!-- 13b REACHING DEMO: with vs without vision -->
   <section class="screen" data-screen>
     <div class="inner">
       <div class="card">
         <div class="eyebrow">Try it yourself</div>
-        <h2>Fast vs. slow: can you stop in time?</h2>
-        <p>&ldquo;Too fast to adjust&rdquo; is easy to say &mdash; here&rsquo;s a way to <em>feel</em> it. A dot sweeps toward the red line. Hit <strong>Stop</strong> right as it reaches the line. Try it <strong>slow</strong> first, then <strong>fast</strong>.</p>
-        <div class="st-demo" id="stDemo">
-          <div class="st-modes">
-            <button class="st-mode on" data-sp="slow">Slow target</button>
-            <button class="st-mode" data-sp="fast">Fast target</button>
+        <h2>When does the program have to carry the whole movement?</h2>
+        <p>A motor program is the pre-structured plan that runs a movement <em>without</em> relying on feedback. Here&rsquo;s a way to feel when that plan has to do all the work. Drag from <strong>HOME</strong> to the gold <strong>target</strong> in each mode and notice how different they feel.</p>
+        <div class="tb-demo" id="tbDemo">
+          <div class="tb-modes">
+            <button class="tb-mode on" data-mode="closed">Vision ON &mdash; feedback available</button>
+            <button class="tb-mode" data-mode="open">Vision OFF &mdash; program only</button>
           </div>
-          <div class="st-track" id="stTrack">
-            <div class="st-target" id="stTarget" style="left:80%"></div>
-            <div class="st-targetlbl" id="stTargetLbl" style="left:80%">stop here</div>
-            <div class="st-dot" id="stDot" style="left:0%"></div>
+          <div class="tb-instr" id="tbInstr">
+            <strong>Vision ON:</strong> Press and <strong>hold on HOME</strong>, then drag at a <strong>comfortable speed</strong> to the gold target and release. You can see your hand the whole way &mdash; so feedback can correct the plan as it runs.
           </div>
-          <div class="st-controls">
-            <button class="btn btn-next" id="stGo" style="min-width:130px">Start</button>
-            <button class="btn" id="stStop" disabled style="min-width:130px;background:#d9534f;color:#fff">Stop!</button>
+          <div class="tb-stage" id="tbStage">
+            <div class="tb-home" id="tbHome"></div>
+            <div class="tb-homelbl">HOME</div>
+            <div class="tb-target" id="tbTarget"></div>
+            <div class="tb-targetlbl" id="tbTargetLbl">target</div>
+            <div class="tb-hand" id="tbHand"></div>
+            <div class="tb-landing" id="tbLanding" hidden></div>
+            <div class="tb-flash" id="tbFlash"></div>
           </div>
-          <p class="st-result" id="stResult">Press <strong>Start</strong>, then hit <strong>Stop</strong> the moment the dot reaches the red line.</p>
-          <p class="st-score" id="stScore"></p>
+          <p class="tb-result" id="tbResult">Press and <strong>hold</strong> on HOME, drag to the target, and release. Vision ON: you can see your hand the whole way.</p>
+          <p class="tb-score" id="tbScore"></p>
         </div>
         <div class="callout why">
           <span class="clabel">What you just felt</span>
-          <p>On the <strong>slow</strong> target you can watch, judge, and correct your timing &mdash; closed-loop control works. On the <strong>fast</strong> target, the dot is past the line before you can react; feedback is too slow, so the only way to be accurate is to have <strong>planned the stop in advance</strong>. That&rsquo;s exactly when a <strong>motor program</strong> takes over.</p>
+          <p>With <strong>vision ON</strong>, the movement doesn&rsquo;t have to be perfect at launch &mdash; you watch your hand and steer it in, so feedback shares the load. With <strong>vision OFF</strong>, nothing can correct you once you go: the <strong>motor program you launched with</strong> has to specify the whole reach in advance. That is the motor program doing its defining job &mdash; running an entire movement without feedback.</p>
         </div>
       </div>
     </div>
@@ -1698,53 +1712,110 @@
   });
   function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
 
-  // Stop-the-target demo (fast vs slow)
+  // Reaching demo: feedback available vs program-only, 2D (hand + cursor hidden mid-reach without vision)
   (function(){
-    var track=document.getElementById("stTrack"), dot=document.getElementById("stDot");
-    var target=document.getElementById("stTarget"), go=document.getElementById("stGo"), stop=document.getElementById("stStop");
-    var result=document.getElementById("stResult"), score=document.getElementById("stScore");
-    if(!track) return;
-    var speed="slow", raf=null, running=false, t0=0, W=0, DUR=0, targetPct=0.80;
-    var tries=0, good=0;
-    function setResult(cls,html){ result.className="st-result"+(cls?" "+cls:""); result.innerHTML=html; }
-    function frame(ts){
-      if(!t0) t0=ts; var el=ts-t0; var pct=el/DUR;
-      if(pct>=1){ pct=1; dot.style.left="100%";
-        running=false; stop.disabled=true; go.disabled=false; go.textContent="Try again";
-        tries++; setResult("no","&#10007; <strong>Ran off the end.</strong> You didn&rsquo;t stop it in time &mdash; especially tough on the fast target.");
-        score.textContent="Stops: "+good+" / "+tries; return;
+    var stage=document.getElementById("tbStage");
+    if(!stage) return;
+    var home=document.getElementById("tbHome"), homeLbl=document.querySelector("#tbDemo .tb-homelbl");
+    var target=document.getElementById("tbTarget"), targetLbl=document.getElementById("tbTargetLbl");
+    var hand=document.getElementById("tbHand"), landing=document.getElementById("tbLanding"), flash=document.getElementById("tbFlash");
+    var result=document.getElementById("tbResult"), score=document.getElementById("tbScore");
+    var instr=document.getElementById("tbInstr");
+    var mode="closed", reaching=false;
+    var radius=26;                 // hit if release within this many px of target centre
+    var homeXY={x:0,y:0}, targetXY={x:0,y:0};
+    var tries=0, hits=0;
+    function updateInstr(){
+      if(mode==="closed"){
+        instr.className="tb-instr";
+        instr.innerHTML="<strong>Vision ON:</strong> Press and <strong>hold on HOME</strong>, then drag at a <strong>comfortable speed</strong> to the gold target and release. You can see your hand the whole way &mdash; so feedback can correct the plan as it runs.";
+      } else {
+        instr.className="tb-instr open";
+        instr.innerHTML="<strong>Vision OFF &mdash; program only:</strong> Press and <strong>hold on HOME</strong>, then reach <strong>as fast as you can</strong> to where you think the target is and release. Your hand <em>and the cursor disappear</em> during the reach &mdash; only the program you launched with can carry it there.";
       }
-      dot.style.left=(pct*100)+"%";
-      raf=requestAnimationFrame(frame);
     }
-    function start(){
-      if(running) return; running=true; t0=0; dot.style.left="0%";
-      // slow: 2.6 s to cross; fast: 0.7 s to cross
-      DUR = speed==="slow" ? 2600 : 700;
-      go.disabled=true; stop.disabled=false;
-      setResult("", speed==="slow" ? "Watch it approach the line&hellip; hit Stop right on the red mark." : "It&rsquo;s fast &mdash; you&rsquo;ll have to anticipate!");
-      raf=requestAnimationFrame(frame);
+    function setResult(cls,html){ result.className="tb-result"+(cls?" "+cls:""); result.innerHTML=html; }
+    function doFlash(cls){ flash.className="tb-flash "+cls; setTimeout(function(){flash.className="tb-flash";},400); }
+    function place(el,x,y){ el.style.left=x+"px"; el.style.top=y+"px"; }
+    function layout(){
+      var W=stage.clientWidth, H=stage.clientHeight;
+      homeXY={x:46, y:H/2};
+      place(home, homeXY.x, homeXY.y);
+      place(homeLbl, homeXY.x, homeXY.y+26);
+      var tx = W*(0.52 + Math.random()*0.40);
+      var ty = H*(0.18 + Math.random()*0.64);
+      targetXY={x:tx, y:ty};
+      place(target, tx, ty);
+      place(targetLbl, tx, ty+34);
     }
-    function doStop(){
-      if(!running) return; running=false; cancelAnimationFrame(raf); stop.disabled=true; go.disabled=false; go.textContent="Try again";
-      var pct=(performance.now()-t0)/DUR;
-      var errPct = Math.abs(pct - targetPct);
-      var errMs = Math.round(errPct*DUR);
-      tries++;
-      if(errPct <= 0.06){ good++; setResult("ok","&#10003; <strong>Right on the line!</strong> Off by only ~"+errMs+" ms."); }
-      else { var side = pct<targetPct ? "early" : "late"; setResult("no","&#10007; <strong>Stopped "+side+"</strong> by ~"+errMs+" ms. "+(speed==="fast"?"The fast target gives no time to correct.":"Try to anticipate the line.")); }
-      score.textContent="Stops: "+good+" / "+tries;
+    function pos(e){ var r=stage.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top, w:r.width, h:r.height}; }
+    function clamp(v,max){ return Math.max(0,Math.min(max,v)); }
+    function newTrial(keepMsg){
+      reaching=false;
+      updateInstr();
+      stage.classList.remove("nocursor");
+      hand.classList.remove("show");
+      landing.hidden=true; landing.className="tb-landing";
+      layout(); // new target each trial
+      place(hand, homeXY.x, homeXY.y);
+      if(!keepMsg){ setResult("", mode==="closed"
+        ? "<strong>Vision ON.</strong> Hold on HOME and guide your hand to the target at a comfortable speed."
+        : "<strong>Vision OFF.</strong> Hold on HOME, then reach fast to where you think the target is."); }
+      score.textContent = tries? ("Hits: "+hits+" / "+tries) : "";
     }
-    go.addEventListener("click",start);
-    stop.addEventListener("click",doStop);
-    document.querySelectorAll("#stDemo .st-mode").forEach(function(btn){
+    function nearHome(pt){ var dx=pt.x-homeXY.x, dy=pt.y-homeXY.y; return Math.sqrt(dx*dx+dy*dy) <= 42; }
+    function onDown(e){
+      var pt=pos(e);
+      if(!nearHome(pt)){ setResult("no","Start <em>on HOME</em> (the teal circle on the left)."); return; }
+      e.preventDefault();
+      reaching=true;
+      place(hand, homeXY.x, homeXY.y);
+      if(mode==="closed"){ hand.classList.add("show"); stage.classList.remove("nocursor"); }
+      else { hand.classList.remove("show"); stage.classList.add("nocursor"); }
+      landing.hidden=true;
+      setResult("", mode==="closed" ? "Guide your hand to the target&hellip;" : "Reach fast &mdash; you can&rsquo;t see your hand or the cursor!");
+    }
+    function onMove(e){
+      if(!reaching) return;
+      var pt=pos(e); var x=clamp(pt.x,pt.w), y=clamp(pt.y,pt.h);
+      place(hand,x,y);
+      if(mode==="open"){ hand.classList.remove("show"); } // stay hidden during program-only reach
+    }
+    function onUp(e){
+      if(!reaching) return; reaching=false;
+      var pt=pos(e); var x=clamp(pt.x,pt.w), y=clamp(pt.y,pt.h);
+      stage.classList.remove("nocursor");
+      hand.classList.remove("show");
+      place(landing,x,y); landing.hidden=false;
+      var dx=x-targetXY.x, dy=y-targetXY.y; var err=Math.round(Math.sqrt(dx*dx+dy*dy));
+      tries++; var hit = err <= radius;
+      if(hit){ hits++; landing.className="tb-landing ok"; doFlash("ok"); }
+      else { landing.className="tb-landing no"; doFlash("no"); }
+      if(mode==="closed"){
+        setResult(hit?"ok":"no", hit
+          ? "&#10003; <strong>On target.</strong> With vision the whole way, feedback could steer the reach in as it approached &mdash; the program didn&rsquo;t have to be perfect at launch."
+          : "&#10007; <strong>Off by ~"+err+" px.</strong> You could still <em>see</em> to adjust on the way &mdash; feedback was available. More practice sharpens it.");
+      } else {
+        setResult(hit?"ok":"no", hit
+          ? "&#10003; <strong>Nice reach!</strong> You hit it <em>without</em> seeing your hand &mdash; the <strong>motor program you launched with</strong> specified the whole movement. The landing dot is <strong>terminal feedback</strong> only."
+          : "&#10007; <strong>Missed by ~"+err+" px.</strong> No vision mid-reach, so nothing could correct the program once it ran. Use the landing dot (terminal feedback) to re-plan your <em>next</em> reach.");
+      }
+      score.textContent="Hits: "+hits+" / "+tries;
+      setTimeout(function(){ newTrial(true); }, 1100);
+    }
+    stage.addEventListener("pointerdown",onDown);
+    stage.addEventListener("pointermove",onMove);
+    window.addEventListener("pointerup",onUp);
+    document.getElementById("tbDemo").querySelectorAll(".tb-mode").forEach(function(btn){
       btn.addEventListener("click",function(){
-        if(running) return;
-        speed=btn.dataset.sp;
-        document.querySelectorAll("#stDemo .st-mode").forEach(function(x){x.classList.toggle("on",x===btn);});
-        go.textContent="Start"; setResult("", "Press <strong>Start</strong>, then hit <strong>Stop</strong> the moment the dot reaches the red line.");
+        mode=btn.dataset.mode;
+        document.querySelectorAll("#tbDemo .tb-mode").forEach(function(x){x.classList.toggle("on",x===btn);});
+        newTrial();
       });
     });
+    var io=new MutationObserver(function(){ if(stage.closest(".screen").classList.contains("active")){ layout(); place(hand,homeXY.x,homeXY.y); } });
+    io.observe(stage.closest(".screen"),{attributes:true,attributeFilter:["class"]});
+    setTimeout(function(){ newTrial(); }, 300);
   })();
 
   // Components reveal (all 4 to continue)
