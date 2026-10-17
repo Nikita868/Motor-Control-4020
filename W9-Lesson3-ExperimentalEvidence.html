@@ -1254,13 +1254,32 @@
   #shPlot{width:100%;max-width:460px;height:auto;display:block;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:8px}
   .sh-plot-note{font-size:12.5px;color:var(--muted);text-align:center;margin-top:8px}
 
+  /* CPG interactive demo */
+  .cpg-demo{margin:18px 0 6px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .cpg-legs{display:flex;gap:40px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+  .cpg-cell{display:flex;flex-direction:column;align-items:center;gap:7px}
+  .cpg-celltag{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+  .cpg-leg{width:26px;height:70px;border-radius:13px;background:#d4dde2;transform-origin:top center;transition:background .08s linear;transform:rotate(0deg)}
+  .cpg-cell.firA .cpg-leg{background:var(--accent)}
+  .cpg-cell.firB .cpg-leg{background:var(--gold)}
+  .cpg-leglbl{font-size:11px;color:var(--muted);font-weight:600}
+  #cpgCanvas{display:block;width:100%;max-width:700px;height:auto;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+  .cpg-controls{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .cpg-slider{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--ink)}
+  .cpg-slider input[type=range]{accent-color:var(--accent);width:130px}
+  .cpg-slider #cpgSpeedVal{min-width:38px;color:var(--accent-dark);font-variant-numeric:tabular-nums}
+  .cpg-toggle{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer}
+  .cpg-toggle input{accent-color:var(--gold);width:17px;height:17px}
+  .cpg-status{margin-top:13px;font-size:14px;color:#3d4d5c;text-align:center;min-height:22px}
+  .cpg-status.cut{color:#b9802f;font-weight:700}
+
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Module 8 &nbsp;&rsaquo;&nbsp; <b>Lesson 3: Experimental Evidence</b></div>
-  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">13</span></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">18</span></div>
   <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
 </header>
 
@@ -1588,6 +1607,57 @@
     </div>
   </section>
 
+  <!-- 13b CPG INTERACTIVE DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself</div>
+        <h2>Run a central pattern generator</h2>
+        <p>This is a working model of the two-cell circuit above &mdash; a <strong>half-center oscillator</strong>. Cells <strong>A</strong> and <strong>B</strong> each excite a &ldquo;leg&rdquo; and <strong>inhibit each other</strong>, so they take turns firing. That alternation <em>is</em> the step rhythm. Press play and watch it walk.</p>
+
+        <div class="cpg-demo" id="cpgDemo">
+          <div class="cpg-legs" aria-hidden="true">
+            <div class="cpg-cell" id="cpgCellA"><span class="cpg-celltag">Cell A</span><div class="cpg-leg" id="cpgLegA"></div><span class="cpg-leglbl">left leg</span></div>
+            <div class="cpg-cell" id="cpgCellB"><span class="cpg-celltag">Cell B</span><div class="cpg-leg" id="cpgLegB"></div><span class="cpg-leglbl">right leg</span></div>
+          </div>
+
+          <canvas id="cpgCanvas" width="700" height="200" role="img" aria-label="Two alternating rhythmic output traces: cell A in teal and cell B in gold, rising and falling out of phase with each other."></canvas>
+
+          <div class="cpg-controls">
+            <button class="btn btn-next" id="cpgPlay" style="min-width:120px">&#9654; Play</button>
+            <label class="cpg-slider">Rhythm speed
+              <input type="range" id="cpgSpeed" min="0.4" max="2.2" step="0.1" value="1">
+              <span id="cpgSpeedVal">1.0&times;</span>
+            </label>
+            <label class="cpg-toggle">
+              <input type="checkbox" id="cpgFeedback">
+              Cut sensory feedback
+            </label>
+          </div>
+          <p class="cpg-status" id="cpgStatus">Paused. Press <strong>Play</strong> to start the rhythm.</p>
+        </div>
+
+        <div class="pn-row" style="margin-top:18px">
+          <div class="pn pos">
+            <div class="pnh">Change the speed</div>
+            <h4>One knob sets the tempo</h4>
+            <p>Slide <strong>Rhythm speed</strong> and the whole pattern speeds up or slows down together &mdash; like shifting from a walk to a jog. A single central parameter rescales the <em>entire</em> rhythm.</p>
+          </div>
+          <div class="pn pos" style="border-top-color:var(--gold)">
+            <div class="pnh" style="color:#b9802f">Cut the feedback</div>
+            <h4>The rhythm doesn&rsquo;t stop</h4>
+            <p>Tick <strong>Cut sensory feedback</strong> &mdash; imagine the sensory nerves severed, as in Brown&rsquo;s deafferented preparation. The alternation <strong>keeps running</strong>. The pattern is generated <em>centrally</em>; feedback can shape it, but it isn&rsquo;t what creates it.</p>
+          </div>
+        </div>
+
+        <div class="callout why" style="margin-top:16px">
+          <span class="clabel">The point</span>
+          <p>Brown (1911) showed that a deafferented, decerebrate cat still produced alternating stepping. This demo captures why that result mattered: a small central circuit can manufacture a <strong>patterned, rhythmic output with no rhythmic input driving it</strong> &mdash; the clearest case of movement organized from the center outward.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 14 MATCH / APPLY -->
   <section class="screen" data-screen data-gate="match">
     <div class="inner">
@@ -1853,6 +1923,121 @@
       var nStop=stops.length;
       plotNote.innerHTML="Based on <strong>"+nStop+"</strong> stop trial"+(nStop===1?"":"s")+". Red = your success rate in each 100 ms bin. Run more to smooth the curve.";
     }
+  })();
+
+  // CPG demo: half-center oscillator (two mutually-inhibiting cells, alternating output)
+  (function(){
+    var cv=document.getElementById("cpgCanvas");
+    if(!cv) return;
+    var ctx=cv.getContext("2d");
+    var playBtn=document.getElementById("cpgPlay");
+    var speedSl=document.getElementById("cpgSpeed"), speedVal=document.getElementById("cpgSpeedVal");
+    var fbChk=document.getElementById("cpgFeedback");
+    var status=document.getElementById("cpgStatus");
+    var cellA=document.getElementById("cpgCellA"), cellB=document.getElementById("cpgCellB");
+    var legA=document.getElementById("cpgLegA"), legB=document.getElementById("cpgLegB");
+
+    var W=cv.width, H=cv.height;
+    var ACCENT=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#1a7f8e";
+    var GOLD=getComputedStyle(document.documentElement).getPropertyValue("--gold").trim()||"#e0a458";
+
+    var playing=false, raf=null, last=0;
+    var phase=0;                 // radians, advances with time * speed
+    var speed=1;                 // multiplier from slider
+    var baseHz=0.55;             // cycles per second at 1x
+    var hist=[];                 // {a,b} samples, newest last
+    var MAXPTS=W;                // one sample per pixel column
+
+    // burst shaper: smooth alternating bursts from a sine, half-wave rectified & sharpened
+    function burst(ph){ var s=Math.sin(ph); s=s>0?s:0; return Math.pow(s,0.6); }
+
+    function sample(){
+      var a=burst(phase);
+      var b=burst(phase+Math.PI);   // cell B is half a cycle out of phase (mutual inhibition)
+      return {a:a,b:b};
+    }
+
+    function updateLegs(s){
+      // leg swings forward when its cell fires; simple linear map of activation to angle
+      var angA=(s.a-0.5)*44, angB=(s.b-0.5)*44;
+      legA.style.transform="rotate("+angA+"deg)";
+      legB.style.transform="rotate("+(-angB)+"deg)";
+      cellA.classList.toggle("firA", s.a>0.5);
+      cellB.classList.toggle("firB", s.b>0.5);
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      // midline + labels baseline
+      var padL=8, padR=8, plotW=W-padL-padR;
+      var trackTopA=20, trackBotA=H/2-8;
+      var trackTopB=H/2+8, trackBotB=H-20;
+      // faint separators
+      ctx.strokeStyle="#eef2f4"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(padL,H/2); ctx.lineTo(W-padR,H/2); ctx.stroke();
+      // draw a trace in a band
+      function trace(get,top,bot,color){
+        ctx.strokeStyle=color; ctx.lineWidth=2.4; ctx.lineJoin="round"; ctx.beginPath();
+        for(var i=0;i<hist.length;i++){
+          var x=padL + (i/(MAXPTS-1))*plotW;
+          var v=get(hist[i]);           // 0..1
+          var y=bot - v*(bot-top);
+          if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+      trace(function(d){return d.a;}, trackTopA, trackBotA, ACCENT);
+      trace(function(d){return d.b;}, trackTopB, trackBotB, GOLD);
+      // labels
+      ctx.font="700 12px system-ui,Segoe UI,Roboto,sans-serif";
+      ctx.fillStyle=ACCENT; ctx.textBaseline="top"; ctx.fillText("Cell A output", padL+2, 3);
+      ctx.fillStyle="#b9802f"; ctx.textBaseline="top"; ctx.fillText("Cell B output", padL+2, H/2+2);
+    }
+
+    function step(ts){
+      if(!last) last=ts;
+      var dt=(ts-last)/1000; last=ts;
+      if(dt>0.1) dt=0.1;        // clamp after tab-away
+      phase += dt * baseHz * speed * 2*Math.PI;
+      var s=sample();
+      hist.push(s);
+      while(hist.length>MAXPTS) hist.shift();
+      updateLegs(s);
+      draw();
+      if(playing) raf=requestAnimationFrame(step);
+    }
+
+    function setStatus(){
+      if(!playing){ status.className="cpg-status"; status.innerHTML="Paused. Press <strong>Play</strong> to start the rhythm."; return; }
+      if(fbChk.checked){
+        status.className="cpg-status cut";
+        status.innerHTML="Sensory feedback cut &mdash; and the alternating rhythm <strong>keeps running</strong>. It&rsquo;s generated centrally.";
+      } else {
+        status.className="cpg-status";
+        status.innerHTML="Cells A and B fire in strict alternation &mdash; the engine of a step rhythm.";
+      }
+    }
+
+    function play(){ if(playing) return; playing=true; last=0; playBtn.innerHTML="&#10073;&#10073; Pause"; setStatus(); raf=requestAnimationFrame(step); }
+    function pause(){ playing=false; if(raf) cancelAnimationFrame(raf); playBtn.innerHTML="&#9654; Play"; setStatus(); }
+
+    playBtn.addEventListener("click",function(){ playing?pause():play(); });
+    speedSl.addEventListener("input",function(){
+      speed=parseFloat(speedSl.value);
+      speedVal.textContent=speed.toFixed(1)+"×";
+    });
+    fbChk.addEventListener("change",setStatus);
+
+    // prime one static frame so the canvas isn't blank before first play
+    (function prime(){ var s=sample(); hist.push(s); for(var i=1;i<MAXPTS;i++){ phase+=0.02; hist.push(sample()); } phase=0; draw(); updateLegs(sample()); })();
+    speedVal.textContent="1.0×";
+
+    // pause when the screen is navigated away from (saves CPU)
+    var io=new MutationObserver(function(){
+      var active=cv.closest(".screen").classList.contains("active");
+      if(!active && playing) pause();
+    });
+    io.observe(cv.closest(".screen"),{attributes:true,attributeFilter:["class"]});
   })();
 
   // Accordion: open all to continue
