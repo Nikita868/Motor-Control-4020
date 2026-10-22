@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Touch — The Tactile System</title>
+<!--
+  HLSC 4025 · Sensory-Based Control · Lesson 2 of 4 — Touch (The Tactile System)
+  Shared design system (teal/gold). Screens are <section data-screen>; engine + interactives in <script>.
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#a7c6cc;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:50px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:22px;font-weight:600;line-height:1.42;margin:0}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:7px;
+    padding:14px 18px;margin-bottom:10px;font-size:15.5px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+  .kc-opt:hover:not(:disabled){border-color:var(--accent);background:#fafdfe}
+  .kc-opt:disabled{cursor:default}
+  .kc-opt.correct{border-color:#2e9e6b;background:#eafaf1}
+  .kc-opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .kc-opt .mark{float:right;font-weight:800}
+  .kc-fb{margin-top:10px;padding:15px 18px;border-radius:7px;font-size:15px}
+  .kc-fb[hidden]{display:none}
+  .kc-fb.ok{background:#eafaf1;color:#1d6b47;border:1px solid #bfe6cf}
+  .kc-fb.no{background:#fdeeee;color:#a3403c;border:1px solid #f0cccc}
+  .gate-note{font-size:13.5px;color:var(--muted);margin-top:14px;font-style:italic}
+
+  /* reflect */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+
+  /* prose flip answer (auto-fit) */
+  .flipans{--famin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block}
+  .flipans .fa-inner{position:relative;display:block;width:100%;min-height:var(--famin);transition:transform .55s;transform-style:preserve-3d}
+  .flipans.flipped .fa-inner{transform:rotateY(180deg)}
+  .fa-back{position:relative;display:block;box-sizing:border-box;min-height:var(--famin);padding:22px 26px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(180deg);background:#fdf3e0;border:1px solid #e0a458;color:#5a3d12;font-size:14.5px;line-height:1.6;text-align:left}
+  .fa-back strong{color:#9c6a1c}
+  .fa-front{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:22px 26px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;text-align:center}
+  .fa-front .fa-q{font-size:15.5px;font-weight:800}
+  .fa-front .fa-hint{font-size:12px;opacity:.85;margin-top:8px}
+  .fa-front .fa-hint::before{content:"\21BB  "}
+
+  /* example cards grid (touch in action) */
+  .ex-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+  @media(max-width:600px){.ex-grid{grid-template-columns:1fr}}
+  .ex-item{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:13px 16px;background:#fff}
+  .ex-item h4{font-size:14.5px;margin:0 0 3px;color:var(--ink)}
+  .ex-item p{font-size:13.6px;margin:0;color:#556}
+
+  /* refline */
+  .refline{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  /* coin 2x2 grid table */
+  .coin-tbl{width:100%;border-collapse:separate;border-spacing:8px;margin-top:16px}
+  .coin-tbl th{font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);font-weight:800;padding:4px 8px;text-align:center}
+  .coin-tbl th.rowh{text-align:right;width:70px}
+  .coin-cell{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fff;vertical-align:top}
+  .coin-cell .cn{font-weight:800;color:var(--accent-dark);font-size:14px}
+  .coin-cell .cd{font-size:12.8px;color:#556;margin-top:3px}
+  .coin-cell.ra{border-top:3px solid var(--accent)}
+  .coin-cell.sa{border-top:3px solid var(--gold)}
+
+  /* rapidly vs slowly adapting comparison (flip cards) */
+  .adapt-flip-hint{font-size:12.5px;color:var(--muted);font-weight:700;margin:10px 0 0}
+  .adapt-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0 4px}
+  .aflip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1300px;height:336px;width:100%;display:block}
+  .aflip .af-inner{position:relative;display:block;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .aflip.flipped .af-inner{transform:rotateY(180deg)}
+  .af-face{position:absolute;top:0;left:0;right:0;bottom:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:12px;box-sizing:border-box;padding:15px 17px;display:flex;flex-direction:column;text-align:left;overflow:auto;background:#fff}
+  .aflip.ra .af-face{border-top:4px solid var(--accent)}
+  .aflip.sa .af-face{border-top:4px solid var(--gold)}
+  .af-front .adapt-h{font-size:14.5px;color:#243;margin-bottom:8px}
+  .adapt-tag{display:inline-block;font-weight:800;font-size:11.5px;letter-spacing:.3px;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-right:4px}
+  .aflip.ra .adapt-tag{background:var(--accent-soft);color:var(--accent-dark)}
+  .aflip.sa .adapt-tag{background:#f6ecda;color:#b9802f}
+  .af-def{font-size:13px;color:#556;flex:1}
+  .af-hint{font-size:11.5px;font-weight:700;margin-top:10px}
+  .aflip.ra .af-hint{color:var(--accent)}
+  .aflip.sa .af-hint{color:#b9802f}
+  .af-back{transform:rotateY(180deg)}
+  .aflip.ra .af-back{background:var(--accent-soft)}
+  .aflip.sa .af-back{background:#faf3e6}
+  .af-back-h{font-weight:800;font-size:13px;letter-spacing:.2px;text-transform:uppercase;margin-bottom:8px}
+  .aflip.ra .af-back-h{color:var(--accent-dark)}
+  .aflip.sa .af-back-h{color:#b9802f}
+  .adapt-list{margin:0;padding-left:18px}
+  .adapt-list li{font-size:12.8px;color:#334;margin-bottom:6px;line-height:1.45}
+  .adapt-who{font-size:12.5px;color:#556;margin-top:9px;padding-top:9px;border-top:1px dashed rgba(0,0,0,.14)}
+  .aflip.flipped .af-front{border-color:#2e9e6b}
+  .adapt-note{font-size:13px;color:#556;background:var(--accent-soft);border-radius:10px;padding:11px 14px;margin:14px 0 4px}
+  @media(max-width:620px){.adapt-pair{grid-template-columns:1fr}.aflip{height:auto;min-height:300px}}
+
+  /* receptor description list (above the interactive) */
+  .recept-list{display:flex;flex-direction:column;gap:10px;margin:16px 0 6px}
+  .recept-row{display:grid;grid-template-columns:150px auto 1fr;gap:12px 16px;align-items:start;border:1px solid var(--line);border-radius:9px;padding:12px 15px;background:#fff}
+  .recept-row .rr-name{font-weight:800;font-size:14.5px}
+  .recept-row .rr-pills{display:flex;gap:6px;flex-wrap:wrap}
+  .recept-row .rr-d{font-size:13.6px;color:#4a5a68;line-height:1.5}
+  .pill{font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;background:var(--accent-soft);color:var(--accent-dark);white-space:nowrap}
+  .pill.rapid{background:#fdf0e0;color:#b9802f}
+  .pill.slow{background:#e8f4f6;color:#146470}
+  .pill.na{background:#eef1f3;color:#6b7680}
+  @media(max-width:620px){.recept-row{grid-template-columns:1fr;gap:6px}}
+
+  /* skin cross-section interactive (screen 5) */
+  .skin-fig{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#fdf1f0,#f7e3e0);overflow:hidden;margin-top:12px;max-width:440px}
+  .skin-fig svg{width:100%;height:auto;display:block}
+  .rc-hot{cursor:pointer}
+  .rc-dot{transition:.15s;transform-box:fill-box;transform-origin:center}
+  .rc-hot:hover .rc-dot,.rc-hot.sel .rc-dot{transform:scale(1.08)}
+  .rc-hot:focus-visible .rc-ring,.rc-hot:hover .rc-ring,.rc-hot.sel .rc-ring{opacity:1}
+  .rc-lbl{opacity:.55;transition:.15s}
+  .rc-hot:hover .rc-lbl,.rc-hot.sel .rc-lbl{opacity:1;font-weight:800}
+  .rc-badge{transition:.15s;cursor:pointer}
+  .rc-hot:hover .rc-badge,.rc-hot.sel .rc-badge{stroke-width:3}
+  .rc-hot.sel .rc-badge{fill:#fff8ec}
+  .rc-hot:hover .rc-dot,.rc-hot.sel .rc-dot{transform:scale(1.06)}
+  .skin-prompt{font-size:13px;color:var(--muted);font-style:italic;margin-top:12px}
+  .skin-legend{font-size:12.5px;color:var(--muted);margin-top:8px}
+  /* info panel above the receptor image */
+  .rc-info{border:1px solid var(--line);border-radius:12px;background:#fff;padding:15px 18px;min-height:112px;margin:4px 0 2px}
+  .rc-info-empty{font-size:14px;color:var(--muted);font-style:italic}
+  .rc-info .rci-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .rc-info .rci-letter{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent-dark);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .rc-info .rci-name{font-size:17px;font-weight:800;color:var(--accent-dark)}
+  .rc-info .rci-pills{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  .rc-info .rci-body{font-size:14px;color:#4a5a68;line-height:1.55;margin-top:4px}
+
+  /* ascending pathway (screen 6) */
+  .pathfig{margin:18px 0 6px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(170deg,#f9fcfc,#eef5f7);padding:14px 10px 6px}
+  .pathfig svg{width:100%;height:auto;display:block}
+  .pathcap{font-size:13px;color:var(--muted);text-align:center;margin:8px 12px 4px}
+
+  /* study block */
+  .study{border:1px solid var(--line);border-radius:9px;padding:16px 18px;margin:14px 0;background:#fff}
+  .study .sname{font-size:15px;font-weight:800;color:var(--accent-dark);margin-bottom:3px}
+  .study .syr{color:var(--muted);font-weight:600;font-size:13px}
+  .study .srow{display:grid;grid-template-columns:96px 1fr;gap:10px;margin-top:8px;font-size:14px}
+  .study .srow .k{font-weight:700;color:var(--ink)}
+  .study .takeaway{margin-top:9px;font-size:14.3px;background:var(--accent-soft);border-radius:7px;padding:10px 13px;color:#245a63}
+  .study .takeaway b{color:var(--accent-dark)}
+
+  /* remove vs add framework */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .cmp .col{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#fafbfc}
+  .cmp .col .h{font-size:13.5px;font-weight:800;margin-bottom:5px}
+  .cmp .col.a{border-top:3px solid var(--accent)}.cmp .col.a .h{color:var(--accent-dark)}
+  .cmp .col.b{border-top:3px solid var(--gold)}.cmp .col.b .h{color:#b9802f}
+  @media(max-width:600px){.cmp{grid-template-columns:1fr}}
+
+  /* flippable two-method cards */
+  .mflip-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  @media(max-width:600px){.mflip-grid{grid-template-columns:1fr}}
+  .mflip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;height:120px;width:100%;display:block}
+  .mflip .mf-inner{position:relative;display:block;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .mflip.flipped .mf-inner{transform:rotateY(180deg)}
+  .mf-face{position:absolute;top:0;left:0;right:0;bottom:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px 18px;box-sizing:border-box}
+  .mf-front{background:#fff}
+  .mf-front .mf-h{font-size:15px;font-weight:800}
+  .mf-front .mf-hint{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:8px}
+  .mf-back{transform:rotateY(180deg);font-size:13.6px;line-height:1.5;display:block;text-align:left}
+  .mflip.rem .mf-front{border-top:3px solid #c0392b}.mflip.rem .mf-front .mf-h{color:#c0392b}
+  .mflip.rem .mf-back{background:#fdeeee;color:#7a2f2a}
+  .mflip.add .mf-front{border-top:3px solid var(--accent)}.mflip.add .mf-front .mf-h{color:var(--accent-dark)}
+  .mflip.add .mf-back{background:var(--accent-soft);color:#245a63}
+  .mflip.flipped .mf-front{border-color:#2e9e6b}
+
+  /* step flip cards (quarter scenario) */
+  .step-flips{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  @media(max-width:620px){.step-flips{grid-template-columns:1fr}}
+  .sflip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1300px;height:176px;width:100%;display:block}
+  .sflip .sf-inner{position:relative;display:block;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .sflip.flipped .sf-inner{transform:rotateY(180deg)}
+  .sf-face{position:absolute;top:0;left:0;right:0;bottom:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:11px;box-sizing:border-box;padding:15px 17px;display:flex;flex-direction:column;text-align:left;overflow:auto}
+  .sf-front{background:#fff}
+  .sf-front .sf-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:9px}
+  .sf-front .sf-q{font-size:13.6px;color:#3d4d5c;line-height:1.5;flex:1}
+  .sf-front .sf-hint{font-size:11.5px;color:var(--accent);font-weight:700;margin-top:9px}
+  .sf-back{transform:rotateY(180deg);background:var(--accent-soft);border-color:#cfe6ea}
+  .sf-back .sf-name{font-weight:800;font-size:14.5px;color:var(--accent-dark);margin-bottom:5px}
+  .sf-back .sf-txt{font-size:13px;color:#245a63;line-height:1.5}
+  .sflip.flipped .sf-front{border-color:#2e9e6b}
+
+  /* neutral role flip cards */
+  .mflip-grid.role4 .mflip{height:128px}
+  .mflip.neu .mf-front{border-top:3px solid var(--accent)}
+  .mflip.neu .mf-front .mf-h{color:var(--ink)}
+  .mflip.neu .mf-back{background:var(--accent-soft);color:#245a63}
+  .mf-n4{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+
+  /* roles overview chips */
+  .role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+  @media(max-width:600px){.role-grid{grid-template-columns:1fr}}
+  .role{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fff;display:flex;gap:13px;align-items:flex-start}
+  .role .rn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .role h4{font-size:14.5px;margin:0 0 2px}
+  .role p{font-size:13px;margin:0;color:#556}
+
+  /* sorter grid (knowledge check, screen 12) */
+  .sorter{margin-top:18px}
+  .sort-bank{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;min-height:46px}
+  .chip{border:2px solid var(--accent);background:#fff;border-radius:8px;padding:10px 15px;font-size:14px;font-weight:700;color:var(--accent-dark);cursor:grab;font-family:inherit;transition:.12s}
+  .chip:hover{background:var(--accent-soft)}
+  .chip.placed{opacity:.45;cursor:default;border-style:dashed}
+  .sort-grid{display:grid;grid-template-columns:90px 1fr 1fr;gap:8px;align-items:stretch}
+  .sort-grid .gh{font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;padding:6px}
+  .sort-grid .rh{font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center}
+  .cell{border:2px dashed #cdd8df;border-radius:9px;min-height:74px;display:flex;align-items:center;justify-content:center;padding:8px;background:#fafbfc;transition:.15s;text-align:center;font-size:13.5px}
+  .cell.over{border-color:var(--accent);background:var(--accent-soft)}
+  .cell.filled{border-style:solid}
+  .cell.ok{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47;font-weight:700}
+  .cell.no{border-color:#d9534f;background:#fdeeee;color:#a3403c;font-weight:700}
+  .sort-note{font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center}
+
+  /* navbar */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  .receptor-cue{display:inline-flex;align-items:center;gap:7px;color:var(--accent-dark);font-size:12px;font-weight:700;margin:5px 0 8px}
+  .receptor-cue svg{width:34px;height:34px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Sensory-Based Control &nbsp;&rsaquo;&nbsp; <b>Lesson 2: Touch</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">18</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Sensory-Based Control · Lesson 2 of 4</div>
+        <h1>Touch &mdash; The Tactile System</h1>
+        <p>The closed-loop model from Lesson 1 runs on feedback. Touch is the first source of that feedback we examine in detail &mdash; from the receptors in your skin to the roles they play in accurate, well-timed movement.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> Cutaneous mechanoreceptors</span>
+          <span><span class="dot"></span> The ascending pathway</span>
+          <span><span class="dot"></span> Four roles in motor control</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 BRIDGE FROM LESSON 1 -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Where we are</div>
+        <h2>From the model to a real sense</h2>
+        <p>Lesson 1 built the <strong>closed-loop machinery</strong>: a command goes out, an efference copy predicts the feedback, and the comparator checks the <em>actual</em> sensory feedback against that prediction. But where does the actual feedback come from? From the sensory systems &mdash; one at a time, this week and next.</p>
+        <div class="callout why">
+          <span class="clabel">This lesson</span>
+          <p><strong>Touch</strong> is the first source we examine closely. Every study you&rsquo;ll meet works by <em>disrupting</em> the actual tactile feedback (numbing a finger, reducing sensitivity) or <em>adding</em> it &mdash; and watching what happens to the movement. That&rsquo;s the closed-loop model in the lab.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">By the end of this lesson you will be able to&hellip;</div>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Explain why tactile feedback matters for motor control and give everyday examples.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Identify the four main <strong>cutaneous mechanoreceptors</strong> and what each detects.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Describe the four movement-related roles of tactile information: accuracy/consistency, timing, force adjustment, and postural control.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Interpret the experimental methods &mdash; removing touch (anesthesia, reduced sensitivity) vs. adding touch &mdash; that reveal touch&rsquo;s role.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 TOUCH IN ACTION + HAPTIC PERCEPTION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Let&rsquo;s try this</div>
+        <h2>Explore the world through your skin</h2>
+        <p class="lead">Close your eyes and explore with your hands: <strong>feel the texture</strong> of a few surfaces around you &mdash; can you tell them apart? <strong>Run a finger along the edge of the table.</strong> <strong>Press the skin on the back of your hand</strong> and feel the pressure build.</p>
+        <div class="reflect">
+          <span class="rlabel">Think about it</span>
+          <p>Those are all examples of <strong>cutaneous perception</strong> &mdash; perceiving the world through the skin. Combined with active movement of the hand, it&rsquo;s the basis of <strong>haptic perception</strong>. What could you tell apart by feel, and what kind of information was each one giving you (texture? an edge? pressure?)</p>
+          <textarea class="reflect-input" id="hapticBox" placeholder="Jot down what you could feel&hellip;"></textarea>
+          <p class="reflect-note">Saved only in your browser, just for you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 WHY TOUCH MATTERS + EVERYDAY USES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Touch in action</div>
+        <h2>Why touch matters for movement</h2>
+        <p>We lean on cutaneous feedback constantly while moving &mdash; it&rsquo;s <em>exploratory</em> and feeds motor control in real time. Think of <strong>holding a fork</strong>, <strong>typing a text</strong>, <strong>picking up a ball</strong>, or the <strong>sole of your foot</strong> sensing the ground for balance. Now imagine doing each with <em>numb fingers</em> &mdash; that&rsquo;s the thread of this lesson.</p>
+        <figure style="margin:16px auto;max-width:400px;border:1px solid var(--line);border-radius:12px;overflow:hidden"><img src="images/sens-touch-uses.png" alt="Everyday uses of touch: texting, holding a fork, gripping a cup, standing barefoot, and picking up a tennis ball." style="width:100%;height:auto;display:block"><figcaption style="font-size:12.5px;color:var(--muted);padding:10px 14px;background:#fff">Everyday movements guided by tactile information.</figcaption></figure>
+        <h3>Everyday uses of tactile information</h3>
+        <div class="ex-grid">
+          <div class="ex-item"><h4>Object manipulation</h4><p>Holding a fork, gripping a cup, buttoning a shirt &mdash; touch tells you contact, slip, and force.</p></div>
+          <div class="ex-item"><h4>Fine finger skills</h4><p>Typing, playing an instrument &mdash; tactile feedback keeps each contact accurate.</p></div>
+          <div class="ex-item"><h4>Catching &amp; grasping</h4><p>Picking up a ball &mdash; touch confirms the catch and sets grip.</p></div>
+          <div class="ex-item"><h4>Balance &amp; locomotion</h4><p>Foot-sole feedback reports foot&ndash;ground contact for standing and walking.</p></div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Coming up</span>
+          <p>Each of these is one input to the Lesson 1 closed loop. To understand how touch delivers it, we need to meet the receptors doing the work &mdash; next.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 NEURAL BASIS: INTERACTIVE CROSS-SECTION -->
+  <section class="screen" data-screen data-gate="recept">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Explore it</div>
+        <h2>The cutaneous mechanoreceptors</h2>
+        <p>Beneath the skin&rsquo;s surface sit specialized receptors. The skin holds several kinds &mdash; <strong>temperature</strong> receptors, <strong>pain</strong> receptors (nociceptors), and <strong>mechanoreceptors</strong>. It&rsquo;s the <strong>cutaneous mechanoreceptors</strong> that form the basis of <strong>tactile (haptic) perception</strong>, and there are four main types, most densely packed in your fingertips.</p>
+        <p><strong>Click a labeled receptor</strong> (A&ndash;E) in the cross-section &mdash; its details appear in the panel above the image. Open all four <em>mechanoreceptors</em> (A, B, D, E) to continue.</p>
+
+        <!-- info panel ABOVE the image -->
+        <div class="rc-info" id="rcInfo" aria-live="polite">
+          <div class="rc-info-empty">Click a labeled structure below (A, B, C, D, or E) to see what it is and what it detects.</div>
+        </div>
+
+        <div class="skin-fig">
+          <svg id="skinSvg" viewBox="0 0 440 300" role="img" aria-label="Cross-section of fingertip skin with five labeled structures. C: free nerve endings reaching the surface. A: Meissner's corpuscles in dermal papillae near the surface. B: Merkel's disks at the base of the epidermis. D: Pacinian corpuscle deep in the dermis. E: Ruffini ending deep in the dermis. Click a letter to learn about it.">
+            <defs>
+              <linearGradient id="skgrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#e9edf0"/><stop offset="1" stop-color="#cfd6db"/>
+              </linearGradient>
+            </defs>
+            <!-- skin block (surface on the right, like the schematic) -->
+            <path d="M70 30 Q250 14 410 34 Q432 150 410 266 Q250 286 70 270 Q58 150 70 30 Z" fill="url(#skgrad)" stroke="#aeb7bd" stroke-width="1.5"/>
+            <path d="M406 36 q14 18 0 36 q-14 18 0 36 q14 18 0 36 q-14 18 0 36 q14 18 0 36 q-14 18 0 36" fill="none" stroke="#9aa4ab" stroke-width="2"/>
+            <text x="426" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#5a6670" transform="rotate(90 426 150)">Skin surface</text>
+            <text x="250" y="292" text-anchor="middle" font-size="11" font-weight="700" fill="#5a6670">Dermis</text>
+            <text x="392" y="292" text-anchor="middle" font-size="11" font-weight="700" fill="#5a6670">Epidermis</text>
+
+            <!-- C: free nerve endings -->
+            <g class="rc-hot" data-rc="free" tabindex="0" role="button" aria-label="Structure C, free nerve endings">
+              <rect class="rc-hit" x="296" y="40" width="104" height="60" rx="10" fill="#000" opacity="0"/>
+              <path class="rc-dot" d="M250 92 Q320 78 362 56 M332 68 l-5 -9 M346 62 l-3 -10 M358 56 l0 -11" fill="none" stroke="#8a93a0" stroke-width="2"/>
+              <circle class="rc-badge" cx="318" cy="54" r="12" fill="#fff" stroke="#8a93a0" stroke-width="2"/>
+              <text class="rc-lt" x="318" y="58" text-anchor="middle" font-size="12" font-weight="800" fill="#5a6670">C</text>
+            </g>
+            <!-- A: Meissner's corpuscles (two) -->
+            <g class="rc-hot" data-rc="meissner" tabindex="0" role="button" aria-label="Structure A, Meissner's corpuscle">
+              <rect class="rc-hit" x="300" y="100" width="100" height="100" rx="10" fill="#000" opacity="0"/>
+              <ellipse class="rc-dot" cx="360" cy="122" rx="14" ry="20" fill="#f0d8b4" stroke="#b9802f" stroke-width="1.5"/>
+              <ellipse cx="360" cy="180" rx="14" ry="20" fill="#f0d8b4" stroke="#b9802f" stroke-width="1.5"/>
+              <circle class="rc-badge" cx="332" cy="122" r="12" fill="#fff" stroke="#b9802f" stroke-width="2"/>
+              <text class="rc-lt" x="332" y="126" text-anchor="middle" font-size="12" font-weight="800" fill="#b9802f">A</text>
+              <circle cx="332" cy="180" r="12" fill="#fff" stroke="#b9802f" stroke-width="2"/>
+              <text x="332" y="184" text-anchor="middle" font-size="12" font-weight="800" fill="#b9802f">A</text>
+            </g>
+            <!-- B: Merkel's disks -->
+            <g class="rc-hot" data-rc="merkel" tabindex="0" role="button" aria-label="Structure B, Merkel's disk">
+              <rect class="rc-hit" x="326" y="206" width="74" height="52" rx="10" fill="#000" opacity="0"/>
+              <g class="rc-dot" fill="#146470"><circle cx="374" cy="230" r="5"/><circle cx="386" cy="238" r="5"/></g>
+              <circle class="rc-badge" cx="352" cy="234" r="12" fill="#fff" stroke="#146470" stroke-width="2"/>
+              <text class="rc-lt" x="352" y="238" text-anchor="middle" font-size="12" font-weight="800" fill="#146470">B</text>
+            </g>
+            <!-- D: Pacinian corpuscle (deep onion body) -->
+            <g class="rc-hot" data-rc="pacinian" tabindex="0" role="button" aria-label="Structure D, Pacinian corpuscle">
+              <rect class="rc-hit" x="92" y="70" width="120" height="110" rx="12" fill="#000" opacity="0"/>
+              <g class="rc-dot" fill="none" stroke="#b9802f">
+                <ellipse cx="150" cy="128" rx="34" ry="44" stroke-width="1.8" transform="rotate(-18 150 128)"/>
+                <ellipse cx="150" cy="128" rx="25" ry="33" stroke-width="1.5" transform="rotate(-18 150 128)"/>
+                <ellipse cx="150" cy="128" rx="15" ry="21" stroke-width="1.3" transform="rotate(-18 150 128)"/>
+                <path d="M150 172 Q140 212 104 238" stroke="#b9802f" stroke-width="2" fill="none"/>
+              </g>
+              <circle class="rc-badge" cx="150" cy="80" r="12" fill="#fff" stroke="#b9802f" stroke-width="2"/>
+              <text class="rc-lt" x="150" y="84" text-anchor="middle" font-size="12" font-weight="800" fill="#b9802f">D</text>
+            </g>
+            <!-- E: Ruffini ending (spindle, deep) -->
+            <g class="rc-hot" data-rc="ruffini" tabindex="0" role="button" aria-label="Structure E, Ruffini ending">
+              <rect class="rc-hit" x="198" y="150" width="104" height="72" rx="10" fill="#000" opacity="0"/>
+              <g class="rc-dot">
+                <path d="M216 188 Q254 166 292 188 Q254 210 216 188 Z" fill="#bfe3ea" stroke="#146470" stroke-width="1.6"/>
+                <path d="M202 188 h14 M292 188 h14" stroke="#146470" stroke-width="1.6" fill="none"/>
+                <path d="M238 182 q16 6 32 0 M238 194 q16 -6 32 0" stroke="#146470" stroke-width="1.2" fill="none"/>
+              </g>
+              <circle class="rc-badge" cx="254" cy="164" r="12" fill="#fff" stroke="#146470" stroke-width="2"/>
+              <text class="rc-lt" x="254" y="168" text-anchor="middle" font-size="12" font-weight="800" fill="#146470">E</text>
+            </g>
+          </svg>
+          <div class="skin-legend" style="padding:8px 12px 10px">A, B, D, E are the four <strong>mechanoreceptors</strong>; C (free nerve endings) is not a mechanoreceptor. <span style="color:var(--muted)">Schematic, redrawn.</span></div>
+        </div>
+        <figure style="margin:16px 0;max-width:440px;border:1px solid var(--line);border-radius:12px;overflow:hidden"><img src="images/sens-mechanoreceptors.png" alt="Anatomical view of skin receptors: A, Meissner’s corpuscles; B, Merkel’s disks; C, free nerve endings; D, Pacinian corpuscle; E, Ruffini ending." style="width:100%;height:auto;display:block"><figcaption style="font-size:12.5px;color:var(--muted);padding:10px 14px;background:#fff">Anatomical view: <strong>A</strong> Meissner&rsquo;s corpuscles; <strong>B</strong> Merkel&rsquo;s disks; <strong>C</strong> free nerve endings; <strong>D</strong> Pacinian corpuscle; <strong>E</strong> Ruffini ending. From Anderson &amp; Magill, <em>Motor Learning and Control</em>.</figcaption></figure>
+        <p class="skin-prompt" id="skinPrompt">Opened 0 of 4 mechanoreceptors.</p>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 ORGANIZING GRID: adapting speed x depth -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Organize the four</div>
+        <h2>Two axes: adapting speed and depth</h2>
+        <p>The four cutaneous mechanoreceptors sort neatly onto a 2&times;2 grid &mdash; by how fast they <strong>adapt</strong> (a brief signal when a stimulus changes vs. a persistent signal that keeps firing) and how <strong>deep</strong> they sit in the skin. Each receptor&rsquo;s function follows from where it is located in the skin.</p>
+        <table class="coin-tbl">
+          <tr><th class="rowh"></th><th>Rapidly adapting<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(brief signal)</span></th><th>Slowly adapting<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(persistent signal)</span></th></tr>
+          <tr><th class="rowh">Shallow</th>
+            <td class="coin-cell ra"><div class="cn">Meissner&rsquo;s corpuscle</div><span class="receptor-cue"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M12 8h15v16H12z M19 26v9m-4-4 4 4 4-4 M6 13v10m27-10v10"/></svg><span>Slip sensor</span></span><div class="cd">Low-frequency vibration &middot; grip control, slip detection</div></td>
+            <td class="coin-cell sa"><div class="cn">Merkel&rsquo;s disk</div><span class="receptor-cue"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M10 30V10h20v20z M6 15h8m-4-9v8 M26 30h8m-4-4v8"/></svg><span>Edge detector</span></span><div class="cd">Edges of objects &middot; fine form &amp; texture</div></td></tr>
+          <tr><th class="rowh">Deep</th>
+            <td class="coin-cell ra"><div class="cn">Pacinian corpuscle</div><span class="receptor-cue"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="14" y="9" width="12" height="22" rx="3"/><path d="M9 12q-7 8 0 16m22-16q7 8 0 16 M5 8q-10 12 0 24m30-24q10 12 0 24"/></svg><span>Vibration sensor</span></span><div class="cd">High-frequency vibration &middot; remote sensing through tools</div></td>
+            <td class="coin-cell sa"><div class="cn">Ruffini ending</div><span class="receptor-cue"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 14h18v12H11z M3 20h8m-4-4-4 4 4 4 M29 20h8m-4-4 4 4-4 4"/></svg><span>Stretch sensor</span></span><div class="cd">Skin stretch</div></td></tr>
+        </table>
+        <h3 style="margin-top:22px">What &ldquo;adapting&rdquo; feels like</h3>
+        <p>The adapting axis is the one students mix up most, so it&rsquo;s worth making concrete. &ldquo;Adaptation&rdquo; is just how a receptor responds when a stimulus <em>stays the same</em>. Compare the two columns:</p>
+        <p class="adapt-flip-hint">Flip each card to see everyday examples.</p>
+        <div class="adapt-pair">
+          <button class="aflip ra" onclick="doFlip(this)"><span class="af-inner">
+            <span class="af-face af-front">
+              <span class="adapt-h"><span class="adapt-tag">Rapidly adapting</span> &mdash; fires at <strong>change</strong></span>
+              <span class="af-def">Responds with a quick burst when something <em>starts</em> or <em>stops</em>, then falls silent even if the stimulus is still there. Good for detecting events and motion.</span>
+              <span class="af-hint">flip for examples &#8635;</span>
+            </span>
+            <span class="af-face af-back">
+              <span class="af-back-h">Rapidly adapting &mdash; examples</span>
+              <ul class="adapt-list">
+                <li>The instant a buzzing phone touches your palm &mdash; then the buzz &ldquo;disappears&rdquo; from awareness.</li>
+                <li>The tiny slip when a glass starts to slide out of your grip (triggers you to grip harder).</li>
+                <li>Feeling your sock go on &mdash; but not feeling it minutes later.</li>
+                <li>The flutter of running a fingertip across a rough fabric.</li>
+                <li>Tapping a key &mdash; the brief &ldquo;contact&rdquo; and &ldquo;release&rdquo; sensations.</li>
+              </ul>
+              <span class="adapt-who"><strong>Meissner&rsquo;s</strong> &amp; <strong>Pacinian</strong></span>
+            </span>
+          </span></button>
+          <button class="aflip sa" onclick="doFlip(this)"><span class="af-inner">
+            <span class="af-face af-front">
+              <span class="adapt-h"><span class="adapt-tag">Slowly adapting</span> &mdash; fires while <strong>held</strong></span>
+              <span class="af-def">Keeps firing for as long as the stimulus is present. Good for reporting steady states &mdash; pressure, shape, and stretch that persist.</span>
+              <span class="af-hint">flip for examples &#8635;</span>
+            </span>
+            <span class="af-face af-back">
+              <span class="af-back-h">Slowly adapting &mdash; examples</span>
+              <ul class="adapt-list">
+                <li>The continuous pressure of a bag handle resting across your fingers.</li>
+                <li>Feeling the edges and corners of a key while you hold it still in your hand.</li>
+                <li>The sustained stretch of skin as you keep your fingers spread wide.</li>
+                <li>Knowing a pen is still between your fingers without looking or moving.</li>
+                <li>The steady weight of a full coffee cup pressing into your palm.</li>
+              </ul>
+              <span class="adapt-who"><strong>Merkel&rsquo;s</strong> &amp; <strong>Ruffini</strong></span>
+            </span>
+          </span></button>
+        </div>
+        <p class="adapt-note">A quick test: if you can still feel it a full minute later without moving, a <strong>slowly</strong> adapting receptor is doing the work. If the sensation faded almost immediately, a <strong>rapidly</strong> adapting one reported it and moved on.</p>
+        <div class="callout">
+          <span class="clabel">Keep this grid in mind</span>
+          <p>You&rsquo;ll rebuild it yourself in the knowledge check near the end of the lesson. First, let&rsquo;s see all four working together in one everyday action.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 PARKING-METER QUARTER EXAMPLE (narrative + flippable roles) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A worked example</div>
+        <h2>Digging for a quarter to feed a parking meter</h2>
+        <p>Picture this. You&rsquo;re <strong>walking toward a parking meter</strong>, and you reach into your pocket to <strong>find a quarter</strong> by feel. This one everyday action uses <strong>all four</strong> cutaneous mechanoreceptors in sequence <span style="color:var(--muted)">(Linden, 2016)</span>. At each step, <strong>predict which receptor</strong> is doing the work &mdash; then flip the card.</p>
+        <div class="step-flips">
+          <button class="sflip" onclick="doFlip(this)"><span class="sf-inner">
+            <span class="sf-face sf-front"><span class="sf-n">1</span><span class="sf-q">In your pocket, your fingers hunt for the quarter among keys and lint, recognizing it by its <strong>milled edge and texture</strong>.</span><span class="sf-hint">Which receptor? Flip &#8635;</span></span>
+            <span class="sf-face sf-back"><span class="sf-name">Merkel&rsquo;s disks</span><span class="sf-txt">Shallow, slowly adapting &mdash; tuned to <strong>edges, form, and texture</strong>. They let you identify the coin by feel without looking.</span></span>
+          </span></button>
+          <button class="sflip" onclick="doFlip(this)"><span class="sf-inner">
+            <span class="sf-face sf-front"><span class="sf-n">2</span><span class="sf-q">You pinch and lift the quarter out, gripping <strong>just hard enough</strong> that it doesn&rsquo;t slip from your fingers.</span><span class="sf-hint">Which receptor? Flip &#8635;</span></span>
+            <span class="sf-face sf-back"><span class="sf-name">Meissner&rsquo;s corpuscles</span><span class="sf-txt">Shallow, rapidly adapting &mdash; detect <strong>micro-slips</strong> and set <strong>grip force</strong>, so you hold the coin securely but not crushingly.</span></span>
+          </span></button>
+          <button class="sflip" onclick="doFlip(this)"><span class="sf-inner">
+            <span class="sf-face sf-front"><span class="sf-n">3</span><span class="sf-q">You guide the coin to the slot and feel the <strong>moment it makes contact</strong> with the meter &mdash; sensed <em>through</em> the coin itself.</span><span class="sf-hint">Which receptor? Flip &#8635;</span></span>
+            <span class="sf-face sf-back"><span class="sf-name">Pacinian corpuscles</span><span class="sf-txt">Deep, rapidly adapting &mdash; tuned to <strong>high-frequency vibration</strong>, so you feel contact transmitted <strong>through the coin like a tool</strong>.</span></span>
+          </span></button>
+          <button class="sflip" onclick="doFlip(this)"><span class="sf-inner">
+            <span class="sf-face sf-front"><span class="sf-n">4</span><span class="sf-q">The coin drops in, and you <strong>open your hand</strong> to release it &mdash; feeling the skin of your palm stretch.</span><span class="sf-hint">Which receptor? Flip &#8635;</span></span>
+            <span class="sf-face sf-back"><span class="sf-name">Ruffini endings</span><span class="sf-txt">Deep, slowly adapting &mdash; respond to <strong>skin stretch</strong>, reporting the deformation of the palm as your hand opens.</span></span>
+          </span></button>
+        </div>
+        <figure style="margin:16px auto;max-width:320px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <img src="images/sens-quarter-meter.png" alt="A person reaching into a pocket, searching by feel for a coin." style="width:100%;display:block">
+          <figcaption style="font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fff;border-top:1px solid var(--line);text-align:center">Finding a coin by touch alone &mdash; no vision of the hand.</figcaption>
+        </figure>
+        <p class="refline">Linden, D. J. (2016). <em>Touch: The science of the hand, heart, and mind.</em> Penguin Books (pp. 40&ndash;49).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ASCENDING PATHWAY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">From skin to cortex</div>
+        <h2>The ascending sensory pathway</h2>
+        <p>Once a receptor fires, the touch signal travels a <strong>three-neuron chain</strong> to the brain. Each relay &mdash; and the distance &mdash; is part of why feedback takes time (Lesson 1). Follow the path from the skin up to the somatosensory cortex.</p>
+        <figure style="margin:12px auto 4px;max-width:420px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <img src="images/sens-pathway.png" alt="The ascending somatosensory pathway: skin receptor to first-order sensory neuron, to second-order interneuron crossing via the spinothalamic tract through the medulla to the thalamus, to third-order interneuron, to the somatosensory cerebral cortex." style="width:100%;display:block">
+          <figcaption style="font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fff;border-top:1px solid var(--line);text-align:center">The three-neuron ascending somatosensory pathway, from skin receptor to somatosensory cortex.</figcaption>
+        </figure>
+        <h3>Walking the path, relay by relay</h3>
+        <ul class="obj-list" style="margin-top:4px">
+          <li><span class="obj-num" style="background:#e8f4f6">1</span><span class="txt">A <strong>skin receptor</strong> fires and sends the signal into the <strong>1st-order sensory neuron</strong>. Its <strong>cell body sits in the dorsal root (sensory) ganglion</strong> &mdash; just outside the spinal cord &mdash; and its axon carries the signal into the <strong>spinal cord</strong>.</span></li>
+          <li><span class="obj-num" style="background:#fdeeee;color:#a23f3f">2</span><span class="txt">There it synapses onto a <strong>2nd-order interneuron</strong>, which <strong>crosses</strong> to the other side and ascends the <strong>spinothalamic tract</strong>, passing up through the <strong>medulla oblongata</strong> to the <strong>thalamus</strong> (the brain&rsquo;s sensory relay station).</span></li>
+          <li><span class="obj-num" style="background:#eafaf1;color:#1d6b47">3</span><span class="txt">From the thalamus, a <strong>3rd-order interneuron</strong> carries the signal the rest of the way to the <strong>somatosensory cerebral cortex</strong>, where the touch is consciously perceived.</span></li>
+        </ul>
+        <div class="callout why">
+          <span class="clabel">Tie-back to Lesson 1</span>
+          <p>Three synapses and a long climb from skin to cortex: that distance is one reason tactile feedback is relatively slow (~245 ms to react, from last lesson), and why fast movements can&rsquo;t wait for it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 FOUR ROLES OVERVIEW + REMOVE/ADD FRAMEWORK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The organizing frame</div>
+        <h2>Four roles of tactile information</h2>
+        <p>Across the next four screens, we&rsquo;ll see how tactile feedback shapes four movement-related characteristics &mdash; the touch-specific versions of the feedback <em>functions</em> from Lesson 1. <strong>Flip each card</strong> to see what touch does for it.</p>
+        <div class="mflip-grid role4">
+          <button class="mflip neu" onclick="doFlip(this)"><span class="mf-inner">
+            <span class="mf-face mf-front"><span class="mf-n4">1</span><span class="mf-h">Accuracy &amp; consistency</span><span class="mf-hint">flip &#8635;</span></span>
+            <span class="mf-face mf-back">Touch sharpens <strong>where movement ends</strong> and makes them <strong>repeatable</strong> trial to trial.</span>
+          </span></button>
+          <button class="mflip neu" onclick="doFlip(this)"><span class="mf-inner">
+            <span class="mf-face mf-front"><span class="mf-n4">2</span><span class="mf-h">Timing</span><span class="mf-hint">flip &#8635;</span></span>
+            <span class="mf-face mf-back">Contact gives <strong>discrete events</strong> to time against, keeping rhythmic movements steady.</span>
+          </span></button>
+          <button class="mflip neu" onclick="doFlip(this)"><span class="mf-inner">
+            <span class="mf-face mf-front"><span class="mf-n4">3</span><span class="mf-h">Force adjustment</span><span class="mf-hint">flip &#8635;</span></span>
+            <span class="mf-face mf-back">Touch calibrates <strong>grip force applied to objects</strong> when you grasp them in your hand.</span>
+          </span></button>
+          <button class="mflip neu" onclick="doFlip(this)"><span class="mf-inner">
+            <span class="mf-face mf-front"><span class="mf-n4">4</span><span class="mf-h">Postural control</span><span class="mf-hint">flip &#8635;</span></span>
+            <span class="mf-face mf-back">Foot-sole contact reports <strong>foot&ndash;ground interaction</strong> to help you stay balanced.</span>
+          </span></button>
+        </div>
+        <h3>How researchers test it: two methods</h3>
+        <p>Every study you&rsquo;re about to see uses one of two experimental logics &mdash; <strong>flip each card</strong> to see how it works, then watch for which one each study uses:</p>
+        <div class="mflip-grid">
+          <button class="mflip rem" onclick="doFlip(this)"><span class="mf-inner">
+            <span class="mf-face mf-front"><span class="mf-h">&#8722; Remove touch</span><span class="mf-hint">flip &#8635;</span></span>
+            <span class="mf-face mf-back">Numb the skin with local <strong>anesthesia</strong>, or study people whose tactile sensitivity is already <strong>reduced</strong> &mdash; then see what breaks.</span>
+          </span></button>
+          <button class="mflip add" onclick="doFlip(this)"><span class="mf-inner">
+            <span class="mf-face mf-front"><span class="mf-h">&#43; Add touch</span><span class="mf-hint">flip &#8635;</span></span>
+            <span class="mf-face mf-back">Give the performer extra tactile <strong>contact</strong> they didn&rsquo;t have &mdash; then see what <strong>improves</strong>.</span>
+          </span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 ROLE 1a: ACCURACY (remove touch) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Role 1 &middot; Accuracy &amp; consistency</div>
+        <h2>Remove touch: typing accuracy falls apart</h2>
+        <p>For example, let&rsquo;s look at a study by <strong>Rabin and Gordon (2004)</strong>. They asked skilled typists to type sentences without seeing their hands, then numbed the right index finger to reduce tactile feedback. Would removing touch make their keystrokes less accurate?</p>
+        <div class="study">
+          <div class="sname">Rabin &amp; Gordon <span class="syr">(2004)</span></div>
+          <div class="srow"><span class="k">Subjects</span><span>12 skilled typists.</span></div>
+          <div class="srow"><span class="k">Task</span><span>Type sentences from the screen; they could see the monitor but <em>not</em> their hands.</span></div>
+          <div class="srow"><span class="k">Manipulation</span><span>Anesthetized the right index finger (tactile feedback removed).</span></div>
+        </div>
+        <figure style="margin:16px auto;max-width:360px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <img src="images/sens-typing.png" alt="A person typing at a keyboard with the view of their hands obstructed." style="width:100%;display:block">
+          <figcaption style="font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fff;border-top:1px solid var(--line);text-align:center">Typing with the hands out of view &mdash; the task relies on tactile feedback from the fingertips.</figcaption>
+        </figure>
+        <p style="margin-top:16px"><strong>Predict the result, then flip:</strong></p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:130px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">What happened to the error rate?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">Errors jumped from <strong>3.5%</strong> (normal) to <strong>16.5%</strong> with the finger anesthetized &mdash; nearly five times as many, mostly &ldquo;aim&rdquo; errors (missing the key). Without tactile feedback, finger movements became less accurate and less consistent.</span>
+        </span></button>
+        <p class="refline">Rabin, E., &amp; Gordon, A. M. (2004). Tactile feedback contributes to consistency of finger movements during typing. <em>Experimental Brain Research, 155</em>, 362&ndash;369.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 ROLE 1b: ACCURACY (add touch) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Role 1 &middot; Accuracy &amp; consistency</div>
+        <h2>Add touch: contact improves pointing</h2>
+        <p>Now let&rsquo;s look at a study by <strong>Rao and Gordon (2001)</strong>, who asked whether contact with a target helps people remember a hand position. An experimenter guided each participant&rsquo;s hand to a reference position, and the participant then tried to reproduce it. The researchers compared conditions with and without tactile contact.</p>
+        <div class="study">
+          <div class="sname">Rao &amp; Gordon <span class="syr">(2001)</span></div>
+          <div class="srow"><span class="k">Task</span><span>The experimenter guided the hand to a reference position; the subject then reproduced that remembered position.</span></div>
+          <div class="srow"><span class="k">Manipulation</span><span>Whether the hand <em>touched</em> the target during the reference movement.</span></div>
+        </div>
+        <figure style="margin:16px auto;max-width:300px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <video controls preload="metadata" playsinline poster="images/sens-rao-poster.jpg" style="width:100%;display:block;background:#000">
+            <source src="images/sens-rao-demo.mp4" type="video/mp4">
+            Your browser does not support embedded video. <a href="images/sens-rao-demo.mp4">Download the clip</a>.
+          </video>
+          <figcaption style="font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fff;border-top:1px solid var(--line);text-align:center">Demo: the experimenter guides the hand to a reference position; the participant reproduces it with vs. without fingertip contact.</figcaption>
+        </figure>
+        <p style="margin-top:16px"><strong>Predict the result, then flip:</strong></p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:130px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">When was pointing most accurate?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">Touching the target during <strong>both</strong> the reference and the reproduction led to the <strong>most accurate</strong> pointing; accuracy dropped when the hand didn&rsquo;t touch. Fingertip contact forces seem to inform finger and forearm orientation in space &mdash; a richer source of actual feedback for the comparator.</span>
+        </span></button>
+        <p class="refline">Rao, A. K., &amp; Gordon, A. M. (2001). Contributions of tactile information to accuracy in pointing movements. <em>Experimental Brain Research, 138</em>, 438&ndash;445.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 PARTNER ACTIVITY + REFLECTION (merged, gated) -->
+  <section class="screen" data-screen data-gate="reflect">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it &amp; reflect</div>
+        <h2>Reproduce an arm position</h2>
+        <p>In <strong>Rao and Gordon&rsquo;s (2001)</strong> study, participants tried to reproduce a hand position after an experimenter guided them to it. Now try a simplified version of that task yourself: does touching a surface help you find the same position again? Work with a partner if you have one, or think through the comparison below.</p>
+        <div class="callout why">
+          <span class="clabel">Partner activity</span>
+          <p>One person <strong>closes their eyes</strong> while the other <strong>moves their arm to a position</strong>. The first person then tries to <strong>reproduce</strong> it. Run it twice: once <em>touching</em> a surface or object at the end point, once in <em>mid-air</em> with no contact.</p>
+        </div>
+        <div class="reflect" style="margin-top:12px">
+          <span class="rlabel">Write your answer</span>
+          <p>Did touching an end point make you more accurate than reaching to a position in mid-air? Connect it to Rao &amp; Gordon (2001) &mdash; <em>why</em> would contact help you reproduce a position?</p>
+          <textarea class="reflect-input" id="reflectBox" placeholder="Type a few sentences&hellip;"></textarea>
+          <div class="reflect-actions">
+            <button class="reflect-copy" id="reflectSave" type="button">Save my answer</button>
+            <span class="reflect-status" id="reflectStatus"></span>
+          </div>
+          <p class="reflect-note">Saved only in your browser, just for you. Jot something down, then continue.</p>
+        </div>
+        <p class="gate-note" id="reflectnote">Write a sentence or two, then continue.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 ROLE 2: TIMING -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Role 2</div>
+        <h2>Movement timing</h2>
+        <p>How might touch help us keep a steady rhythm? <strong>Studenka, Zelaznik, and Balasubramaniam (2012)</strong> explored this by asking participants to perform rhythmic tapping and circle-drawing tasks, with and without contact with a surface. Let&rsquo;s see how adding or removing tactile contact changed movement timing.</p>
+        <div class="study">
+          <div class="sname">Studenka, Zelaznik &amp; Balasubramaniam <span class="syr">(2012)</span></div>
+          <div class="srow"><span class="k">Task</span><span>Tap a surface, and draw circles, each to a specific time demand &mdash; <em>with</em> and <em>without</em> touching the surface.</span></div>
+        </div>
+        <figure style="margin:12px auto 4px;max-width:340px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <img src="images/sens-studenka-task.png" alt="Two tasks: (A) a no-tactile-feedback tapping task, and (B) a tactile-feedback circle-drawing task." style="width:100%;display:block">
+          <figcaption style="font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fff;border-top:1px solid var(--line);text-align:center">(a) The no-tactile-feedback tapping task and (b) the tactile-feedback circle-drawing task. <span style="color:var(--muted)">From Studenka, Zelaznik &amp; Balasubramaniam (2012), Fig.&nbsp;1.</span></figcaption>
+        </figure>
+        <p style="margin-top:16px"><strong>Predict the result, then flip:</strong></p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:140px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">How did touch change the timing?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">Touch improves the <strong>timing consistency</strong> of rhythmic movements. Making discrete contact (tapping) lets people use <strong>event timing</strong> &mdash; timing anchored to each contact event &mdash; whereas smooth movements without contact rely on <strong>emergent timing</strong>. So contact changes <em>how</em> the movement is timed, not just how well.</span>
+        </span></button>
+        <div class="callout">
+          <span class="clabel">Event vs. emergent timing</span>
+          <p><strong>Event timing</strong>: the movement is timed to distinct events (the moment of each tap). <strong>Emergent timing</strong>: timing &ldquo;falls out&rdquo; of a continuous movement with no salient events (smooth circle drawing). Adding tactile contact can switch a task from one mode to the other.</p>
+        </div>
+        <p class="refline">Studenka, B. E., Zelaznik, H. N., &amp; Balasubramaniam, R. (2012). The distinction between tapping and circle drawing with and without tactile feedback. <em>The Quarterly Journal of Experimental Psychology, 65</em>(6), 1086&ndash;1100.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 ROLE 3: FORCE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Role 3</div>
+        <h2>Force adjustment during grasping</h2>
+        <p>How hard should you grip an object? To explore the role of touch, <strong>Nowak and Hermsd&ouml;rfer (2003)</strong> studied people with reduced tactile sensitivity in their fingers. They measured grip force at the thumb and index finger during object lifting. Would reduced sensitivity change how tightly participants held the object?</p>
+        <div class="study">
+          <div class="sname">Nowak &amp; Hermsd&ouml;rfer <span class="syr">(2003)</span> &mdash; reduced sensitivity</div>
+          <div class="srow"><span class="k">Who</span><span>People with <strong>reduced finger tactile sensitivity</strong>, who report trouble with object-manipulation tasks.</span></div>
+          <div class="srow"><span class="k">Measure</span><span>Grip force at the thumb and index finger while lifting objects.</span></div>
+        </div>
+        <figure style="margin:12px auto 4px;max-width:280px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <img src="images/sens-grip-cup.png" alt="A hand gripping a cup of liquid, with a downward load-force arrow at the base." style="width:100%;display:block">
+          <figcaption style="font-size:12.5px;color:var(--muted);padding:9px 14px;background:#fff;border-top:1px solid var(--line);text-align:center">Grip force must counter the downward load force &mdash; and must rise as the cup fills. Tactile feedback calibrates it.</figcaption>
+        </figure>
+        <p style="margin-top:16px"><strong>Predict the result, then flip:</strong></p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:130px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">How did they grip differently?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">People with reduced sensitivity <strong>&ldquo;overgrip&rdquo;</strong> &mdash; they apply more force than needed, increasing their <strong>safety margin</strong> to keep the object from slipping. Without good tactile feedback (to detect microslips), the system plays it safe with extra force &mdash; costly in fatigue and finesse.</span>
+        </span></button>
+        <p class="refline">Nowak, D. A., &amp; Hermsd&ouml;rfer, J. (2003). Selective deficits of grip force control during object manipulation in patients with reduced sensibility of the grasping digits. <em>Neuroscience Research, 47</em>, 65&ndash;72.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 ROLE 4: POSTURAL CONTROL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Role 4</div>
+        <h2>Postural control &amp; balance</h2>
+        <p><strong>Postural control</strong> is the capability to maintain balance when standing. It relies on several senses at once &mdash; vision, proprioception, vestibular, and <strong>touch</strong> &mdash; the multisensory integration we flagged in Lesson 1.</p>
+        <p>Your <strong>foot-sole tactile receptors</strong> report foot&ndash;ground interactions: pressure distribution, shifts, and the edges of your base of support. They help detect and respond to balance changes, contributing substantially to stability while standing and walking.</p>
+        <figure style="margin:16px auto;max-width:440px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+          <img src="images/sens-balance-lab.png" alt="A participant wearing a virtual-reality headset stands barefoot on a foam pad, with a researcher behind her and support rails nearby." style="width:100%;height:auto;display:block">
+          <figcaption style="font-size:12.5px;color:var(--muted);padding:12px 14px;background:#fff;border-top:1px solid var(--line)">Balance testing with a virtual-reality headset and a foam surface. This setup allows researchers to vary visual and support-surface conditions while measuring postural control.<br>Image: Lubetzky et al. (2022), <a href="https://doi.org/10.1371/journal.pone.0276251" target="_blank" rel="noopener noreferrer">Figure 1</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</figcaption>
+        </figure>
+        <p class="refline">Lubetzky, A. V., Kelly, J. L., Harel, D., Roginska, A., Hujsak, B. D., Wang, Z., Perlin, K., &amp; Cosetti, M. (2022). Insight into postural control in unilateral sensorineural hearing loss and vestibular hypofunction. <em>PLOS ONE, 17</em>(10), e0276251. <a href="https://doi.org/10.1371/journal.pone.0276251" target="_blank" rel="noopener noreferrer">https://doi.org/10.1371/journal.pone.0276251</a></p>
+        <div class="callout why">
+          <span class="clabel">Clinical relevance &mdash; and the lab</span>
+          <p>Foot-sole sensitivity declines with <strong>aging</strong>, <strong>diabetes mellitus</strong>, <strong>neuropathies</strong>, and as a <strong>side effect of chemotherapy</strong> &mdash; and that decline is linked to poorer balance and higher fall risk. This is exactly the kind of feedback you&rsquo;ll manipulate in lab.</p>
+        </div>
+        <p class="refline">Viseux, F. J. (2020). The sensory role of the sole of the foot: Review and update on clinical perspectives. <em>Neurophysiologie Clinique, 50</em>(1), 55&ndash;68.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 KNOWLEDGE CHECK: SORTER GRID -->
+  <section class="screen" data-screen data-gate="sort">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2>Place each receptor on the grid</h2>
+        <p>Drag each cutaneous mechanoreceptor into the cell matching its <strong>depth</strong> (shallow / deep) and <strong>adapting speed</strong> (rapidly / slowly adapting). Fill all four to continue. <span style="color:var(--muted)">(On touch, tap a chip then tap a cell.)</span></p>
+        <div class="sorter" id="sorter">
+          <div class="sort-bank" id="sortBank">
+            <button class="chip" id="chip-meissner" data-rc="meissner" draggable="true">Meissner&rsquo;s corpuscle</button>
+            <button class="chip" id="chip-merkel" data-rc="merkel" draggable="true">Merkel&rsquo;s disk</button>
+            <button class="chip" id="chip-pacinian" data-rc="pacinian" draggable="true">Pacinian corpuscle</button>
+            <button class="chip" id="chip-ruffini" data-rc="ruffini" draggable="true">Ruffini ending</button>
+          </div>
+          <div class="sort-grid">
+            <div class="gh"></div>
+            <div class="gh">Rapidly adapting<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(brief signal)</span></div>
+            <div class="gh">Slowly adapting<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(persistent signal)</span></div>
+            <div class="rh">Shallow</div>
+            <div class="cell" data-cell="meissner" aria-label="Shallow, rapidly adapting"></div>
+            <div class="cell" data-cell="merkel" aria-label="Shallow, slowly adapting"></div>
+            <div class="rh">Deep</div>
+            <div class="cell" data-cell="pacinian" aria-label="Deep, rapidly adapting"></div>
+            <div class="cell" data-cell="ruffini" aria-label="Deep, slowly adapting"></div>
+          </div>
+          <p class="sort-note" id="sortNote">Placed 0 of 4.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 15 WRAP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What you can now do</div>
+        <h2>Summary &amp; the next sense</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Explain haptic perception and give everyday examples where touch guides movement.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Identify the four cutaneous mechanoreceptors by depth and adapting speed &mdash; Meissner&rsquo;s, Merkel, Pacinian, Ruffini.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Describe touch&rsquo;s four roles: accuracy/consistency, timing, force adjustment, postural control.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Read the experimental logic &mdash; removing vs. adding touch &mdash; behind Rabin &amp; Gordon, Rao &amp; Gordon, Studenka, Nowak, and foot-sole work.</span></li>
+        </ul>
+        <div class="statement" style="margin-top:8px">
+          <div class="eyebrow">The thread</div>
+          <p>Touch is one source of the feedback the closed-loop model runs on. Next: the sense that tells you where your body is.</p>
+        </div>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 3 &mdash; Proprioception:</strong> the muscle spindles, Golgi tendon organs, and joint receptors that sense body position and movement &mdash; and the classic deafferentation and tendon-vibration studies that reveal what they do.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={recept:"Open all four mechanoreceptors (A, B, D, E) to continue",sort:"Place all four to continue",reflect:"Write a sentence or two, then continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  // --- Interactive receptor cross-section (A-E): info shown above the image ---
+  (function(){
+    var svg=document.getElementById("skinSvg");
+    if(!svg) return;
+    var info=document.getElementById("rcInfo"), prompt=document.getElementById("skinPrompt");
+    var DATA={
+      meissner:{letter:"A",name:"Meissner’s corpuscle",pills:[["Rapidly adapting","rapid"],["Shallow","slow"]],
+        body:"An encapsulated receptor in the dermal papillae near the surface. Detects <strong>low-frequency vibration</strong> and object <strong>slip</strong> during grasping — the key receptor for <strong>grip-force control</strong>.",mech:true},
+      merkel:{letter:"B",name:"Merkel’s disk",pills:[["Slowly adapting","slow"],["Shallow","slow"]],
+        body:"Sits at the base of the epidermis and is sensitive to very small skin deformation. Detects <strong>edges, form, and texture</strong> — your fine-detail, fingertip-reading receptor.",mech:true},
+      free:{letter:"C",name:"Free nerve endings",pills:[["Not a mechanoreceptor","na"]],
+        body:"Bare nerve endings reaching toward the surface. These include <strong>nociceptors</strong> (pain), <strong>thermoreceptors</strong> (temperature), and itch receptors — important for protection, but <strong>not</strong> one of the four mechanoreceptors that build tactile perception.",mech:false},
+      pacinian:{letter:"D",name:"Pacinian corpuscle",pills:[["Rapidly adapting","rapid"],["Deep","slow"]],
+        body:"A large, deep, onion-layered corpuscle. Detects <strong>high-frequency vibration</strong> and <strong>deep pressure</strong>; lets you feel contact <em>through</em> tools — “remote” sensation.",mech:true},
+      ruffini:{letter:"E",name:"Ruffini ending",pills:[["Slowly adapting","slow"],["Deep","slow"]],
+        body:"A deep, spindle-shaped ending that responds to <strong>skin stretch</strong>. May help sense finger/joint position — e.g., the palmar skin stretch as you extend a finger.",mech:true}
+    };
+    var opened={};
+    var hots=[].slice.call(svg.querySelectorAll(".rc-hot"));
+    var CUES={"meissner": "<span class=\"receptor-cue\"><svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M12 8h15v16H12z M19 26v9m-4-4 4 4 4-4 M6 13v10m27-10v10\"/></svg><span>Slip sensor</span></span>", "merkel": "<span class=\"receptor-cue\"><svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M10 30V10h20v20z M6 15h8m-4-9v8 M26 30h8m-4-4v8\"/></svg><span>Edge detector</span></span>", "pacinian": "<span class=\"receptor-cue\"><svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><rect x=\"14\" y=\"9\" width=\"12\" height=\"22\" rx=\"3\"/><path d=\"M9 12q-7 8 0 16m22-16q7 8 0 16 M5 8q-10 12 0 24m30-24q10 12 0 24\"/></svg><span>Vibration sensor</span></span>", "ruffini": "<span class=\"receptor-cue\"><svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M11 14h18v12H11z M3 20h8m-4-4-4 4 4 4 M29 20h8m-4-4 4 4-4 4\"/></svg><span>Stretch sensor</span></span>"};
+    function render(rc){
+      var d=DATA[rc];
+      var pills=d.pills.map(function(p){return '<span class="pill '+p[1]+'">'+p[0]+'</span>';}).join("");
+      info.innerHTML='<div class="rci-head"><span class="rci-letter">'+d.letter+'</span><span class="rci-name">'+d.name+'</span><span class="rci-pills">'+pills+'</span></div>'+(CUES[rc]||'')+'<div class="rci-body">'+d.body+'</div>';
+    }
+    function selectRC(rc, el){
+      hots.forEach(function(h){h.classList.toggle("sel",h===el);});
+      render(rc);
+      if(DATA[rc].mech) opened[rc]=true;
+      var n=Object.keys(opened).length;
+      if(prompt) prompt.textContent = n>=4 ? "All four mechanoreceptors opened — you can continue." : "Opened "+n+" of 4 mechanoreceptors. Open A, B, D, and E to continue.";
+      if(n>=4) openGate("recept");
+    }
+    hots.forEach(function(el){
+      var rc=el.dataset.rc;
+      el.addEventListener("click",function(){selectRC(rc,el);});
+      el.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){e.preventDefault();selectRC(rc,el);} });
+    });
+  })();
+
+  // --- Sorter grid knowledge check (screen 13) ---
+  (function(){
+    var sorter=document.getElementById("sorter");
+    if(!sorter) return;
+    var bank=document.getElementById("sortBank");
+    var note=document.getElementById("sortNote");
+    var cells=[].slice.call(sorter.querySelectorAll(".cell"));
+    var LABEL={meissner:"Meissner&rsquo;s",merkel:"Merkel",pacinian:"Pacinian",ruffini:"Ruffini"};
+    var placed=0, sel=null;
+    function markChip(rc){ var c=document.getElementById("chip-"+rc); if(c) c.classList.add("placed"); }
+    function tryPlace(rc, cell){
+      if(cell.classList.contains("filled")) return;
+      var ok = cell.dataset.cell===rc;
+      cell.classList.add("filled", ok?"ok":"no");
+      cell.innerHTML = (ok?"&#10003; ":"&#10007; ")+LABEL[rc];
+      if(!ok){
+        // reveal the correct receptor name for this cell after a wrong drop
+        setTimeout(function(){ cell.classList.remove("no"); cell.classList.add("ok"); cell.innerHTML="&#10003; "+LABEL[cell.dataset.cell]; checkDone(); }, 900);
+      }
+      markChip(rc);
+      // also mark the chip that *belongs* here if different
+      markChip(cell.dataset.cell);
+      placed++;
+      checkDone();
+    }
+    function checkDone(){
+      var filled = cells.filter(function(c){return c.classList.contains("filled");}).length;
+      if(filled>=4){ note.innerHTML="&#10003; All placed. Meissner&rsquo;s (shallow, rapid), Merkel (shallow, slow), Pacinian (deep, rapid), Ruffini (deep, slow)."; openGate("sort"); }
+      else note.textContent="Placed "+filled+" of 4.";
+    }
+    // drag and drop
+    bank.querySelectorAll(".chip").forEach(function(chip){
+      chip.addEventListener("dragstart",function(e){ e.dataTransfer.setData("text/plain", chip.dataset.rc); });
+      chip.addEventListener("click",function(){ // tap-to-select for touch
+        if(chip.classList.contains("placed")) return;
+        bank.querySelectorAll(".chip").forEach(function(c){c.style.outline="";});
+        sel = sel===chip.dataset.rc ? null : chip.dataset.rc;
+        if(sel) chip.style.outline="3px solid var(--accent)";
+      });
+    });
+    cells.forEach(function(cell){
+      cell.addEventListener("dragover",function(e){ e.preventDefault(); cell.classList.add("over"); });
+      cell.addEventListener("dragleave",function(){ cell.classList.remove("over"); });
+      cell.addEventListener("drop",function(e){ e.preventDefault(); cell.classList.remove("over"); var rc=e.dataTransfer.getData("text/plain"); if(rc) tryPlace(rc,cell); });
+      cell.addEventListener("click",function(){ if(sel){ tryPlace(sel,cell); var c=document.getElementById("chip-"+sel); if(c)c.style.outline=""; sel=null; } });
+    });
+  })();
+
+  // --- Haptic hook write-in (screen 4, not gated) ---
+  (function(){
+    var box=document.getElementById("hapticBox");
+    if(!box) return;
+    var KEY="hlsc4025-w10l2-haptic";
+    try{ var s=localStorage.getItem(KEY); if(s) box.value=s; }catch(e){}
+    box.addEventListener("input",function(){ try{ localStorage.setItem(KEY, box.value); }catch(e){} });
+  })();
+
+  // --- Practice reflection gate ---
+  (function(){
+    var box=document.getElementById("reflectBox");
+    if(!box) return;
+    var KEY="hlsc4025-w10l2-reflect";
+    try{ var s=localStorage.getItem(KEY); if(s) box.value=s; }catch(e){}
+    function maybe(){
+      if(box.value.trim().length>=15 && !answered.reflect){
+        document.getElementById("reflectnote").textContent="Thanks — you can continue.";
+        openGate("reflect");
+      }
+    }
+    if(box.value.trim().length>=15){ answered.reflect=true; }
+    box.addEventListener("input", maybe);
+    var save=document.getElementById("reflectSave");
+    if(save) save.addEventListener("click",function(){
+      try{ localStorage.setItem(KEY, box.value); }catch(e){}
+      var st=document.getElementById("reflectStatus");
+      if(st) st.textContent = box.value.trim().length>=15 ? "Saved ✓" : "Write a little more first";
+      maybe();
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
