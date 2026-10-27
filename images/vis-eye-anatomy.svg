@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" id="eyeSvg" viewBox="0 0 480 320" aria-label="Horizontal cross-section of the eye showing the cornea, pupil and iris, lens, the fluid-filled chambers, and the retina with its fovea, macula, and optic disc at the back.">
+            
+            <circle cx="235" cy="160" r="128" fill="#eef6f8" stroke="#bcd7dd" stroke-width="2" />
+            <text x="250" y="168" font-size="11" fill="#8aa4ab" text-anchor="middle" opacity=".7" font-family="Arial, sans-serif">vitreous humor</text>
+            
+            <path d="M235 32 A128 128 0 0 1 235 288" fill="none" stroke="#d99" stroke-width="7" opacity=".6" />
+            
+            <path d="M107 128 q-30 32 0 64" fill="#dceef1" stroke="#7fb6bf" stroke-width="3" />
+            
+            <path d="M118 120 q-18 40 0 80 q22 -10 22 -40 q0 -30 -22 -40 Z" fill="#e6f4f6" opacity=".7" />
+            
+            <rect x="130" y="112" width="12" height="30" rx="3" fill="#b9802f" />
+            <rect x="130" y="178" width="12" height="30" rx="3" fill="#b9802f" />
+            
+            <ellipse cx="150" cy="160" rx="13" ry="34" fill="#cfeaf0" stroke="#4aa3b0" stroke-width="2" />
+            
+            <path d="M356 176 q40 6 58 14 M356 198 q40 2 58 -2" fill="none" stroke="#e0c98a" stroke-width="2" />
+            <rect x="352" y="176" width="18" height="24" rx="4" fill="#f4e7c4" stroke="#d2bd8c" stroke-width="1.5" />
+            <text x="402" y="210" font-size="9.5" fill="#a08a52" text-anchor="middle" font-family="Arial, sans-serif">optic nerve</text>
+
+            
+            <g class="pc-hot" data-pc="cornea" aria-label="Structure 1: cornea">
+              <rect class="pc-hit" x="86" y="118" width="34" height="84" fill="#000" opacity="0" />
+              <circle class="pc-badge" cx="92" cy="96" r="13" fill="#fff" stroke="#146470" stroke-width="2" />
+              <text x="92" y="101" font-size="13" font-weight="800" fill="#146470" text-anchor="middle" font-family="Arial, sans-serif">1</text>
+              <line x1="92" y1="109" x2="100" y2="150" stroke="#146470" stroke-width="1" opacity=".5" />
+            </g>
+            
+            <g class="pc-hot" data-pc="iris" aria-label="Structure 2: iris and pupil">
+              <rect class="pc-hit" x="118" y="100" width="28" height="40" fill="#000" opacity="0" />
+              <circle class="pc-badge" cx="136" cy="82" r="13" fill="#fff" stroke="#b9802f" stroke-width="2" />
+              <text x="136" y="87" font-size="13" font-weight="800" fill="#b9802f" text-anchor="middle" font-family="Arial, sans-serif">2</text>
+              <line x1="136" y1="95" x2="136" y2="110" stroke="#b9802f" stroke-width="1" opacity=".5" />
+            </g>
+            
+            <g class="pc-hot" data-pc="lens" aria-label="Structure 3: lens">
+              <rect class="pc-hit" x="140" y="166" width="30" height="40" fill="#000" opacity="0" />
+              <circle class="pc-badge" cx="150" cy="238" r="13" fill="#fff" stroke="#146470" stroke-width="2" />
+              <text x="150" y="243" font-size="13" font-weight="800" fill="#146470" text-anchor="middle" font-family="Arial, sans-serif">3</text>
+              <line x1="150" y1="225" x2="150" y2="200" stroke="#146470" stroke-width="1" opacity=".5" />
+            </g>
+            
+            <g class="pc-hot" data-pc="fovea" aria-label="Structure 4: fovea and macula">
+              <circle cx="358" cy="150" r="8" fill="#c77" />
+              <rect class="pc-hit" x="300" y="96" width="52" height="40" fill="#000" opacity="0" />
+              <circle class="pc-badge" cx="326" cy="112" r="13" fill="#fff" stroke="#b9802f" stroke-width="2" />
+              <text x="326" y="117" font-size="13" font-weight="800" fill="#b9802f" text-anchor="middle" font-family="Arial, sans-serif">4</text>
+              <line x1="334" y1="121" x2="352" y2="146" stroke="#b9802f" stroke-width="1" opacity=".5" />
+            </g>
+            
+            <g class="pc-hot" data-pc="disc" aria-label="Structure 5: optic disc, the blind spot">
+              <circle cx="352" cy="186" r="7" fill="#e0c98a" />
+              <rect class="pc-hit" x="300" y="196" width="52" height="40" fill="#000" opacity="0" />
+              <circle class="pc-badge" cx="326" cy="216" r="13" fill="#fff" stroke="#146470" stroke-width="2" />
+              <text x="326" y="221" font-size="13" font-weight="800" fill="#146470" text-anchor="middle" font-family="Arial, sans-serif">5</text>
+              <line x1="334" y1="208" x2="346" y2="190" stroke="#146470" stroke-width="1" opacity=".5" />
+            </g>
+            
+            <g class="pc-hot" data-pc="retina" aria-label="Structure 6: retina">
+              <rect class="pc-hit" x="236" y="244" width="60" height="40" fill="#000" opacity="0" />
+              <circle class="pc-badge" cx="262" cy="286" r="13" fill="#fff" stroke="#b06a6a" stroke-width="2" />
+              <text x="262" y="291" font-size="13" font-weight="800" fill="#b06a6a" text-anchor="middle" font-family="Arial, sans-serif">6</text>
+              <line x1="275" y1="283" x2="326" y2="258" stroke="#b06a6a" stroke-width="1" opacity=".5" />
+              <circle cx="330" cy="252" r="5" fill="#d99" />
+            </g>
+          </svg>
