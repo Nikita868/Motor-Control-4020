@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Visual Systems</title>
+<!--
+  HLSC 4025 · Vision · Lesson 4 of 5 — Two Visual Systems & How We Study Vision's Role
+  Shared design system (teal/gold). Screens are <section data-screen>; engine + interactives in <script>.
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#a7c6cc;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:50px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:22px;font-weight:600;line-height:1.42;margin:0}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+
+  /* reflect */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+  .reflect-steps{margin:4px 0 14px;padding-left:0;list-style:none}
+  .reflect-steps li{display:flex;gap:11px;align-items:flex-start;margin-bottom:10px;font-size:15px;color:#245a63}
+  .reflect-steps .stepn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+
+  /* prose flip answer (auto-fit) */
+  .flipans{--famin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block}
+  .flipans .fa-inner{position:relative;display:block;width:100%;min-height:var(--famin);transition:transform .55s;transform-style:preserve-3d}
+  .flipans.flipped .fa-inner{transform:rotateY(180deg)}
+  .fa-back{position:relative;display:block;box-sizing:border-box;min-height:var(--famin);padding:22px 26px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(180deg);background:#fdf3e0;border:1px solid #e0a458;color:#5a3d12;font-size:14.5px;line-height:1.6;text-align:left}
+  .fa-back strong{color:#9c6a1c}
+  .fa-front{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:22px 26px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;text-align:center}
+  .fa-front .fa-q{font-size:15.5px;font-weight:800}
+  .fa-front .fa-hint{font-size:12px;opacity:.85;margin-top:8px}
+  .fa-front .fa-hint::before{content:"\21BB  "}
+
+  /* refline */
+  .refline{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  /* proprioceptor description list / info panel (explorer) */
+  .pill{font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;background:var(--accent-soft);color:var(--accent-dark);white-space:nowrap}
+  .pill.ms{background:#e8f4f6;color:#146470}
+  .pill.gto{background:#fdf0e0;color:#b9802f}
+  .pill.jr{background:#eef4ec;color:#4a7a3a}
+  .pill.fascia{background:#f1ecf6;color:#6a4a8a}
+
+  .prop-fig{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#f9fcfc,#eef5f7);overflow:hidden;margin-top:12px;max-width:470px}
+  .prop-fig svg{width:100%;height:auto;display:block}
+  .pc-hot{cursor:pointer}
+  .pc-badge{transition:.15s;cursor:pointer}
+  .pc-hot:hover .pc-badge,.pc-hot.sel .pc-badge{stroke-width:3}
+  .pc-hot.sel .pc-badge{fill:#fff8ec}
+  .pc-dot{transition:.15s;transform-box:fill-box;transform-origin:center}
+  .pc-hot:hover .pc-dot,.pc-hot.sel .pc-dot{transform:scale(1.06)}
+  .pc-prompt{font-size:13px;color:var(--muted);font-style:italic;margin-top:12px}
+  .pc-info{border:1px solid var(--line);border-radius:12px;background:#fff;padding:15px 18px;min-height:112px;margin:4px 0 2px}
+  .pc-info-empty{font-size:14px;color:var(--muted);font-style:italic}
+  .pc-info .pci-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .pc-info .pci-num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent-dark);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .pc-info .pci-name{font-size:17px;font-weight:800;color:var(--accent-dark)}
+  .pc-info .pci-pills{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  .pc-info .pci-body{font-size:14px;color:#4a5a68;line-height:1.55;margin-top:4px}
+
+  /* generic SVG figure wrap */
+  .svgfig{margin:16px auto 6px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(170deg,#f9fcfc,#eef5f7);padding:14px 12px 6px;max-width:480px}
+  .svgfig svg{width:100%;height:auto;display:block}
+  .svgcap{font-size:12.5px;color:var(--muted);text-align:center;margin:8px 12px 4px}
+
+  /* study block */
+  .study{border:1px solid var(--line);border-radius:9px;padding:16px 18px;margin:14px 0;background:#fff}
+  .study .sname{font-size:15px;font-weight:800;color:var(--accent-dark);margin-bottom:3px}
+  .study .syr{color:var(--muted);font-weight:600;font-size:13px}
+  .study .srow{display:grid;grid-template-columns:96px 1fr;gap:10px;margin-top:8px;font-size:14px}
+  .study .srow .k{font-weight:700;color:var(--ink)}
+  .study .takeaway{margin-top:9px;font-size:14.3px;background:var(--accent-soft);border-radius:7px;padding:10px 13px;color:#245a63}
+  .study .takeaway b{color:var(--accent-dark)}
+
+  /* two-column compare */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .cmp .col{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#fafbfc}
+  .cmp .col .h{font-size:14.5px;font-weight:800;margin-bottom:6px}
+  .cmp .col p{font-size:13.4px;margin:0 0 8px;color:#556}
+  .cmp .col ul{margin:0;padding-left:17px}
+  .cmp .col li{font-size:13px;color:#445;margin-bottom:5px;line-height:1.45}
+  .cmp .col.a{border-top:3px solid var(--accent)}.cmp .col.a .h{color:var(--accent-dark)}
+  .cmp .col.b{border-top:3px solid var(--gold)}.cmp .col.b .h{color:#b9802f}
+  @media(max-width:600px){.cmp{grid-template-columns:1fr}}
+
+  /* qualities chips */
+  .qual-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+  @media(max-width:600px){.qual-grid{grid-template-columns:1fr}}
+  .qual{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:13px 16px;background:#fff}
+  .qual h4{font-size:14.5px;margin:0 0 3px;color:var(--ink)}
+  .qual p{font-size:13.6px;margin:0;color:#556}
+
+  /* reusable flip boxes (bflip) */
+  .flip-hint{font-size:12.5px;color:var(--muted);font-weight:700;margin:14px 0 0}
+  .bflip-grid{display:grid;gap:14px;margin:10px 0 4px}
+  .bflip-grid.g2{grid-template-columns:1fr 1fr}
+  .bflip-grid.g4{grid-template-columns:1fr 1fr}
+  @media(max-width:600px){.bflip-grid.g2,.bflip-grid.g4{grid-template-columns:1fr}}
+  .bflip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1300px;width:100%;display:block;height:150px}
+  .bflip.tall{height:184px}
+  .bflip .bf-inner{position:relative;display:block;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .bflip.flipped .bf-inner{transform:rotateY(180deg)}
+  .bf-face{position:absolute;top:0;left:0;right:0;bottom:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:12px;box-sizing:border-box;padding:15px 17px;display:flex;flex-direction:column;text-align:left;overflow:auto;background:#fff}
+  .bflip.a .bf-face{border-top:4px solid var(--accent)}
+  .bflip.b .bf-face{border-top:4px solid var(--gold)}
+  .bf-front{justify-content:center}
+  .bf-h{font-size:15px;font-weight:800;margin-bottom:4px}
+  .bflip.a .bf-h{color:var(--accent-dark)}
+  .bflip.b .bf-h{color:#b9802f}
+  .bf-sub{font-size:13px;color:#556}
+  .bf-hint{font-size:11.5px;font-weight:700;margin-top:10px}
+  .bflip.a .bf-hint{color:var(--accent)}
+  .bflip.b .bf-hint{color:#b9802f}
+  .bf-back{transform:rotateY(180deg)}
+  .bflip.a .bf-back{background:var(--accent-soft)}
+  .bflip.b .bf-back{background:#faf3e6}
+  .bf-gif{width:100%;max-height:92px;object-fit:cover;border-radius:7px;margin-bottom:8px;border:1px solid rgba(0,0,0,.08)}
+  .bf-flag{font-size:10px;color:#b9802f;line-height:1.35;margin-top:2px}
+  .bf-back .bf-h{font-size:12.5px;letter-spacing:.2px;text-transform:uppercase;margin-bottom:7px}
+  .bf-back p{font-size:13px;line-height:1.5;margin:0 0 7px;color:#445}
+  .bf-back ul{margin:0;padding-left:17px}
+  .bf-back li{font-size:12.8px;color:#445;margin-bottom:5px;line-height:1.45}
+  .bflip.flipped .bf-front{border-color:#2e9e6b}
+
+  /* methods overview chips */
+  .mlist{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .mrow{display:flex;gap:13px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:13px 16px;background:#fff}
+  .mrow .mn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .mrow h4{font-size:14.5px;margin:0 0 2px}
+  .mrow p{font-size:13.2px;margin:0;color:#556}
+
+  /* video placeholder */
+  .vph{border:1px dashed #b9cdd2;border-radius:12px;background:linear-gradient(160deg,#20323a,#15414c);color:#cfe0e5;padding:30px 24px;text-align:center;margin:14px 0 4px}
+  .vph .vph-ic{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+  .vph .vph-ic svg{width:22px;height:22px;fill:#fff;margin-left:3px}
+  .vph .vph-t{font-size:13px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#bfe3e8;margin-bottom:4px}
+  .vph .vph-d{font-size:14px;line-height:1.5;color:#dbe7ec;max-width:460px;margin:0 auto}
+  .vph .vph-f{font-size:12px;color:#9fc0c6;margin-top:9px;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+
+  /* local video (mp4) */
+  .localvid{margin:16px auto 6px;max-width:480px}
+  .localvid video{width:100%;height:auto;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+  .localvid figcaption{font-size:12.5px;color:var(--muted);line-height:1.5;text-align:center;margin-top:9px}
+  .localvid figcaption a{color:var(--accent-dark)}
+
+  /* embedded video */
+  .video-embed{margin:14px 0 4px}
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000}
+  .video-frame iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+  .video-embed figcaption{font-size:12.5px;color:var(--muted);text-align:center;margin-top:9px}
+
+  /* portrait figure (text wraps beside a small image) */
+  .portrait{display:flex;gap:16px;align-items:flex-start;margin:14px 0;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .portrait img{flex:none;width:96px;height:auto;border-radius:8px;border:1px solid var(--line)}
+  .portrait figcaption{font-size:13.5px;color:#4a5a68;line-height:1.5}
+  .portrait figcaption a{color:var(--accent-dark)}
+  @media(max-width:520px){.portrait{flex-direction:column;align-items:center;text-align:center}}
+
+  /* generic image figure (photo / external diagram) */
+  .imgfig{margin:16px auto 6px;max-width:480px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .imgfig img{width:100%;height:auto;display:block}
+  .imgfig figcaption{font-size:12.5px;color:var(--muted);line-height:1.5;padding:10px 14px;background:#fff;border-top:1px solid var(--line);text-align:center}
+  .imgfig figcaption a{color:var(--accent-dark)}
+
+  /* sorter grid (knowledge check) */
+  .sorter{margin-top:18px}
+  .sort-bank{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;min-height:46px}
+  .chip{border:2px solid var(--accent);background:#fff;border-radius:8px;padding:10px 15px;font-size:14px;font-weight:700;color:var(--accent-dark);cursor:grab;font-family:inherit;transition:.12s}
+  .chip:hover{background:var(--accent-soft)}
+  .chip.placed{opacity:.45;cursor:default;border-style:dashed}
+  .sort-q{margin-top:16px}
+  .sort-q:first-of-type{margin-top:0}
+  .sort-prompt{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+  .sort-prompt .cell{min-width:150px}
+  .cell{border:2px dashed #cdd8df;border-radius:9px;min-height:50px;min-width:150px;display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;background:#fafbfc;transition:.15s;text-align:center;font-size:13.5px}
+  .cell.over{border-color:var(--accent);background:var(--accent-soft)}
+  .cell.filled{border-style:solid}
+  .cell.ok{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47;font-weight:700}
+  .cell.no{border-color:#d9534f;background:#fdeeee;color:#a3403c;font-weight:700}
+  .sort-note{font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center}
+
+  /* navbar */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+#visualPathExplorer .vp-key{padding:14px 18px;background:#eaf4f6;border-left:4px solid #1a7f8e;border-radius:7px;margin:16px 0;font-size:14px;line-height:1.6}
+#visualPathExplorer button,#visualPathExplorer select{font:inherit;font-size:13px;border:1px solid #a9bac5;border-radius:7px;padding:9px 12px;background:white;color:#264653;cursor:pointer}
+#visualPathExplorer button:focus-visible,#visualPathExplorer select:focus-visible{outline:3px solid #b9802f;outline-offset:3px}
+#visualPathExplorer button[aria-pressed=true],#visualPathExplorer button[aria-current=step]{background:#146470;color:white;border-color:#146470}
+#visualPathExplorer button:disabled{opacity:.45;cursor:default}
+.vp-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:14px 0}.vp-controls fieldset{border:0;padding:0;display:flex;flex-wrap:wrap;gap:7px}.vp-controls legend{font-size:13px;font-weight:700;margin-bottom:8px}.vp-controls label{font-size:13px;font-weight:700;display:grid;gap:8px;margin-left:auto}
+.vp-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:18px 0 10px}.vp-explain{min-height:96px;padding:14px 17px;border:1px solid #c9dce1;background:#f5fafb;border-radius:9px;font-size:14px;line-height:1.55}
+.vp-layout{display:grid;grid-template-columns:minmax(0,3fr) minmax(180px,1fr);gap:16px;align-items:start;margin-top:16px}.vp-diagram svg{width:100%;height:auto;display:block}.vp-diagram text{font-family:Arial,sans-serif;font-size:14px;fill:#344859}.vp-diagram [data-vp-field]{transition:opacity .2s}.vp-side{background:#f6f8fa;border-radius:9px;padding:16px}.vp-side h3{font-size:15px;margin:0 0 12px}.vp-side p,.vp-small{font-size:12.5px!important;line-height:1.55!important}.vp-route{border-left:3px solid #bbc8d1;padding-left:10px;margin:0 0 14px!important}.vp-check,.vp-reference{border:1px solid #c9dce1;padding:15px 18px;border-radius:9px;margin:18px 0}.vp-check summary,.vp-reference summary{cursor:pointer;font-weight:700;color:#146470}.vp-check label{display:grid;gap:7px;margin:13px 0;font-size:14px}.vp-check select{max-width:300px}
+@media(max-width:800px){.vp-layout{grid-template-columns:1fr}.vp-side{display:block}.vp-controls label{margin-left:0}.vp-steps{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){.vp-diagram [data-vp-field]{transition:none}}
+
+.receptor-memory{display:block;width:160px;height:58px;flex-shrink:0;margin:0 0 9px}
+</style>
+
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Vision &nbsp;&rsaquo;&nbsp; <b>Lesson 4: Two Visual Systems</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">9</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Vision &middot; Lesson 4 of 5</div>
+        <h1>Two Visual Systems &amp; How We Study Vision&rsquo;s Role</h1>
+        <p>Your brain uses vision in two very different ways &mdash; one to <em>recognize</em> the world, another to <em>act</em> in it. This lesson introduces that split and the clever experiments that pull the two apart.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> Perception vs. action</span>
+          <span><span class="dot"></span> Illusions &amp; occlusion methods</span>
+          <span><span class="dot"></span> Monocular vs. binocular</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARNING OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">By the end of this lesson</div>
+        <h2>Learning objectives</h2>
+        <p>You should be able to:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Describe Milner &amp; Goodale&rsquo;s <strong>Two Visual Systems model</strong> &mdash; vision-for-perception (ventral) vs. vision-for-action (dorsal).</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Explain the supporting evidence: patient <strong>double dissociations</strong> (including blindsight) and the <strong>Ebbinghaus illusion</strong> that fools the eye but not the hand.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain how <strong>temporal</strong> and <strong>event occlusion</strong> methods reveal when and what we look at.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Describe what <strong>binocular</strong> vision adds for movement, and how monocular reaching and stepping change.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 TWO VISUAL SYSTEMS MODEL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Milner &amp; Goodale (1992)</div>
+        <h2>The Two Visual Systems model</h2>
+        <p>Vision isn&rsquo;t one system but two. <strong>Milner and Goodale&rsquo;s Two Visual Systems model</strong> (Milner &amp; Goodale, 1992) proposes that after the retina, visual information splits into <strong>two cortical streams</strong> that do different jobs. One lets you <strong>recognize and describe</strong> what you see; the other <strong>guides your movements</strong> toward it &mdash; often without you being aware of it.</p>
+        <figure class="imgfig" style="max-width:560px">
+          <img src="images/vis-l3-two-streams-brain.png" alt="Lateral view of the brain with the dorsal stream arcing from the occipital lobe up to the parietal lobe labelled 'Dorsal stream: WHERE?' and the ventral stream arcing down to the temporal lobe labelled 'Ventral stream: WHAT?'.">
+          <figcaption>From the occipital lobe (V1), the <strong>dorsal &ldquo;where&rdquo;</strong> stream arcs up to the parietal lobe, while the <strong>ventral &ldquo;what&rdquo;</strong> stream runs down to the temporal lobe. <span style="color:#5a7a80">Image: OpenStax Anatomy &amp; Physiology (CC&nbsp;BY&nbsp;4.0).</span></figcaption>
+        </figure>
+        <p class="flip-hint">Flip each card to compare the two streams.</p>
+        <div class="bflip-grid g2">
+          <button class="bflip b" style="height:230px" onclick="doFlip(this)"><span class="bf-inner">
+            <span class="bf-face bf-front" style="align-items:center">
+              <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true" style="margin-bottom:10px">
+                <ellipse cx="32" cy="32" rx="27" ry="16" fill="none" stroke="#b9802f" stroke-width="3"/>
+                <circle cx="32" cy="32" r="9" fill="none" stroke="#b9802f" stroke-width="3"/>
+                <circle cx="32" cy="32" r="3.5" fill="#e0a458"/>
+              </svg>
+              <span class="bf-h" style="text-align:center">Vision for perception</span><span class="bf-sub" style="text-align:center">ventral stream &middot; &ldquo;what&rdquo;</span><span class="bf-hint">flip &#8635;</span></span>
+            <span class="bf-face bf-back"><span class="bf-h">Vision for perception</span><ul>
+              <li>Analyzes the scene into <strong>form, color &amp; features</strong> &mdash; recognizing objects.</li>
+              <li>V1 &rarr; <strong>temporal lobe</strong> (ventral).</li>
+              <li>Typically <strong>available to consciousness</strong> &mdash; you can report what you see.</li>
+            </ul></span>
+          </span></button>
+          <button class="bflip a" style="height:230px" onclick="doFlip(this)"><span class="bf-inner">
+            <span class="bf-face bf-front" style="align-items:center">
+              <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true" style="margin-bottom:10px">
+                <path d="M22 34 V18 a3.4 3.4 0 0 1 6.8 0 V30 M28.8 30 V15 a3.4 3.4 0 0 1 6.8 0 V30 M35.6 30 V17 a3.4 3.4 0 0 1 6.8 0 V31 M42.4 31 V22 a3.4 3.4 0 0 1 6.8 0 V40 c0 8 -5 16 -14 16 c-6 0 -9 -3 -12 -8 l-5 -8 a3.6 3.6 0 0 1 6 -4 l3 4" fill="none" stroke="#1a7f8e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="bf-h" style="text-align:center">Vision for action</span><span class="bf-sub" style="text-align:center">dorsal stream &middot; &ldquo;where / how&rdquo;</span><span class="bf-hint">flip &#8635;</span></span>
+            <span class="bf-face bf-back"><span class="bf-h">Vision for action</span><ul>
+              <li>Detects <strong>spatial location</strong> &amp; guides the <strong>movement</strong> toward a target.</li>
+              <li>V1 &rarr; <strong>posterior parietal cortex</strong> (dorsal).</li>
+              <li>Typically <strong>not available to consciousness</strong> &mdash; it runs in the background.</li>
+            </ul></span>
+          </span></button>
+        </div>
+        <p class="refline">Milner, A. D., &amp; Goodale, M. A. (1992). Separate visual pathways for perception and action. <em>Trends in Neurosciences, 15</em>(1), 20&ndash;25. &nbsp;&middot;&nbsp; See also Kandel, E. R., Schwartz, J. H., Jessell, T. M., Siegelbaum, S. A., &amp; Hudspeth, A. J. (Eds.). <em>Principles of Neural Science</em> (5th ed.). McGraw Hill.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 PATIENT EVIDENCE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Evidence 1 &middot; patients</div>
+        <h2>When one stream is damaged</h2>
+        <p>Milner and Goodale built their model on two kinds of evidence: <strong>clinical</strong> evidence from brain-damaged patients (this page) and <strong>experimental</strong> evidence from illusions in healthy people (next page). The clinical case is a <strong>double dissociation</strong> &mdash; damage to one stream knocks out <em>its</em> job while leaving the other&rsquo;s intact.</p>
+        <p class="flip-hint">Flip each lobe to see what its damage does.</p>
+        <div class="bflip-grid g2">
+          <button class="bflip b" style="height:260px" onclick="doFlip(this)"><span class="bf-inner">
+            <span class="bf-face bf-front" style="align-items:center">
+              <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true" style="margin-bottom:10px">
+                <ellipse cx="32" cy="32" rx="26" ry="16" fill="none" stroke="#b9802f" stroke-width="3"/>
+                <circle cx="32" cy="32" r="8" fill="#e0a458"/>
+                <line x1="12" y1="52" x2="52" y2="12" stroke="#b9802f" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+              <span class="bf-h" style="text-align:center">Temporal-lobe damage</span><span class="bf-sub" style="text-align:center">ventral / &ldquo;what&rdquo; &mdash; can&rsquo;t recognize</span><span class="bf-hint">flip &#8635;</span></span>
+            <span class="bf-face bf-back"><span class="bf-h">Temporal-lobe damage (ventral)</span><ul>
+              <li><strong>Can&rsquo;t identify</strong> the object &mdash; can&rsquo;t name it or describe its shape.</li>
+              <li>But can still <strong>reach and grasp</strong> it accurately &mdash; the hand &ldquo;knows&rdquo; where and how big it is.</li>
+            </ul></span>
+          </span></button>
+          <button class="bflip a" style="height:260px" onclick="doFlip(this)"><span class="bf-inner">
+            <span class="bf-face bf-front" style="align-items:center">
+              <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true" style="margin-bottom:10px">
+                <circle cx="32" cy="32" r="22" fill="none" stroke="#1a7f8e" stroke-width="3"/>
+                <circle cx="32" cy="32" r="11" fill="none" stroke="#1a7f8e" stroke-width="3"/>
+                <circle cx="32" cy="32" r="3.5" fill="#1a7f8e"/>
+                <line x1="32" y1="4" x2="32" y2="16" stroke="#1a7f8e" stroke-width="3" stroke-linecap="round"/>
+                <line x1="32" y1="48" x2="32" y2="60" stroke="#1a7f8e" stroke-width="3" stroke-linecap="round"/>
+                <line x1="4" y1="32" x2="16" y2="32" stroke="#1a7f8e" stroke-width="3" stroke-linecap="round"/>
+                <line x1="48" y1="32" x2="60" y2="32" stroke="#1a7f8e" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+              <span class="bf-h" style="text-align:center">Parietal-lobe damage</span><span class="bf-sub" style="text-align:center">dorsal / &ldquo;where&rdquo; &mdash; can&rsquo;t locate</span><span class="bf-hint">flip &#8635;</span></span>
+            <span class="bf-face bf-back"><span class="bf-h">Parietal-lobe damage (dorsal)</span><ul>
+              <li><strong>Can identify</strong> the object perfectly well.</li>
+              <li>But <strong>can&rsquo;t locate</strong> it to act on it &mdash; reaches miss, grip is mis-scaled.</li>
+            </ul></span>
+          </span></button>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Blindsight</span>
+          <p>With damage to the <strong>temporal (ventral) pathway</strong>, patients can show <strong>blindsight</strong>: awareness of single visual features such as <strong>edges and motion</strong>, but no holistic visual percept &mdash; they report seeing &ldquo;nothing,&rdquo; yet reach or point at above-chance accuracy. This suggests perceptual awareness is <strong>modular</strong>, and that a normal <strong>binding process</strong> that unifies the features into a whole percept is interrupted.</p>
+        </div>
+        <p class="refline">Derrien, D., Garric, C., Sergent, C., &amp; Chokron, S. (2022). <a href="https://doi.org/10.1093/nc/niab043" target="_blank" rel="noopener noreferrer">The nature of blindsight: implications for current theories of consciousness.</a> <em>Neuroscience of Consciousness, 2022</em>(1), niab043.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 EBBINGHAUS ILLUSION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Evidence 2 &middot; illusions</div>
+        <h2>Fools the eye, not the hand</h2>
+        <p>Here&rsquo;s a second way to demonstrate the operation of the two streams. The <strong>Ebbinghaus illusion</strong>: a circle ringed by <em>large</em> shapes looks smaller than the same circle ringed by <em>small</em> shapes.</p>
+        <div class="svgfig" style="max-width:420px">
+          <svg viewBox="0 0 420 210" role="img" aria-label="The Ebbinghaus illusion: two orange center circles of identical size. The left one is surrounded by large grey circles and looks smaller; the right one is surrounded by small grey circles and looks larger.">
+            <!-- left: center ringed by 6 large circles, spaced clear of the center -->
+            <g>
+              <circle cx="78" cy="105" r="25" fill="#cfd8dd"/>
+              <circle cx="202" cy="105" r="25" fill="#cfd8dd"/>
+              <circle cx="109" cy="51" r="25" fill="#cfd8dd"/>
+              <circle cx="171" cy="51" r="25" fill="#cfd8dd"/>
+              <circle cx="109" cy="159" r="25" fill="#cfd8dd"/>
+              <circle cx="171" cy="159" r="25" fill="#cfd8dd"/>
+              <circle cx="140" cy="105" r="22" fill="#e0a458"/>
+              <text x="140" y="200" font-size="11" fill="#5a7a80" text-anchor="middle">looks smaller</text>
+            </g>
+            <!-- right: center ringed by small circles -->
+            <g>
+              <circle cx="330" cy="105" r="9" fill="#cfd8dd"/>
+              <circle cx="300" cy="78" r="9" fill="#cfd8dd"/>
+              <circle cx="360" cy="78" r="9" fill="#cfd8dd"/>
+              <circle cx="300" cy="132" r="9" fill="#cfd8dd"/>
+              <circle cx="360" cy="132" r="9" fill="#cfd8dd"/>
+              <circle cx="318" cy="60" r="9" fill="#cfd8dd"/>
+              <circle cx="342" cy="60" r="9" fill="#cfd8dd"/>
+              <circle cx="318" cy="150" r="9" fill="#cfd8dd"/>
+              <circle cx="342" cy="150" r="9" fill="#cfd8dd"/>
+              <circle cx="330" cy="105" r="22" fill="#e0a458"/>
+              <text x="330" y="200" font-size="11" fill="#5a7a80" text-anchor="middle">looks larger</text>
+            </g>
+          </svg>
+          <div class="svgcap">Both orange circles are <strong>exactly the same size</strong>. Measure them if you don&rsquo;t believe your eyes.</div>
+        </div>
+        <p style="margin-top:4px"><strong>Now the key study.</strong> Aglioti et al. (1995) built a physical version of the illusion and had people <em>reach out and pick up</em> the center disc with thumb and forefinger, while the opening of their grip was measured.</p>
+        <figure class="imgfig" style="max-width:420px">
+          <img src="images/vis-l3-aglioti-grip.png" alt="A hand reaching to pick up the center disc of a physical Ebbinghaus display, with the thumb and forefinger opening to the disc, while surrounding circles sit on the table.">
+          <figcaption>Reaching to grasp the center disc of a physical Ebbinghaus display &mdash; grip aperture was recorded as the hand approached.<br><span style="color:#5a7a80">Source: Aglioti, DeSouza &amp; Goodale (1995), <em>Current Biology, 5</em>(6), 679&ndash;685.</span></figcaption>
+        </figure>
+        <p><strong>What do you think?</strong> As the hand reached to grasp, did people open their finger grip to match what they <em>perceived</em> (the illusion), or to the <em>real</em> size of the center disc? Predict, then flip:</p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:160px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">Did the grip follow <em>perception</em> (the illusion) or the <em>real</em> disc size?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">People <strong>perceived</strong> the disc as smaller (the illusion worked on conscious vision), yet their <strong>grip aperture scaled to the true physical size</strong> &mdash; the hand wasn&rsquo;t fooled. Perception (ventral) was deceived; <strong>action followed reality</strong>. This indicates that reaching and grasping are under <strong>dorsal (&ldquo;where / how&rdquo;) pathway</strong> control &mdash; the illusion deceives the <strong>eye</strong> but not the <strong>hand</strong>.</span>
+        </span></button>
+        <p class="refline">Aglioti, S., DeSouza, J. F. X., &amp; Goodale, M. A. (1995). Size-contrast illusions deceive the eye but not the hand. <em>Current Biology, 5</em>(6), 679&ndash;685.</p>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Where we go next</span>
+          <p>We&rsquo;ve seen <em>that</em> vision splits into two systems. Next we turn to <strong>how motor-control researchers actually study vision for movement</strong> &mdash; starting with <strong>occlusion methods</strong> that remove vision at precise moments (temporal occlusion) or hide specific parts of a scene (event occlusion).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 TEMPORAL OCCLUSION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Studying vision &middot; method 1</div>
+        <h2>Temporal occlusion: <em>when</em> do you need to see?</h2>
+        <p>To find out <strong>when</strong> during a movement vision matters, researchers take it away at precise moments. There are two ways to do it:</p>
+        <div class="mlist">
+          <div class="mrow"><span class="mn">1</span><div><h4>Occlusion spectacles</h4><p>Specially designed goggles whose lenses switch from clear to opaque on cue &mdash; vision is removed live, during the action.</p></div></div>
+          <div class="mrow"><span class="mn">2</span><div><h4>Editing the video</h4><p>Stop (or cut) a video recording at various times, so the viewer sees only up to a chosen moment.</p></div></div>
+        </div>
+        <p style="margin-top:14px">The classic goggles are the <strong>PLATO</strong> (Portable Liquid-crystal Apparatus for Tachistoscopic Occlusion), whose lenses turn opaque <strong>in milliseconds</strong>, on cue.</p>
+        <figure class="imgfig" style="max-width:560px">
+          <img src="images/vis-l3-goggles-catch.png" alt="Two frames of a person wearing liquid-crystal occlusion goggles while catching a ball: in one frame the lenses are clear, in the other they are blacked out.">
+          <figcaption>Liquid-crystal occlusion goggles: the lenses switch from clear (left) to opaque (right) on cue, so vision can be removed at an exact instant during the catch.<br><span style="color:#5a7a80">Source: liquid-crystal occlusion goggles, after Milgram (PLATO), Translucent Technologies Inc.</span></figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Next</span>
+          <p>Researchers used exactly this tool to find out <em>how late</em> you can still see the ball and make the catch. Let&rsquo;s look at the study.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 SAVELSBERGH CATCHING STUDY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Temporal occlusion &middot; the study</div>
+        <h2>Catching in the dark</h2>
+        <p><strong>Savelsbergh et al. (1993)</strong> used occlusion goggles to pin down <em>when</em> vision is needed to catch. Participants caught a glowing ball swinging on a pendulum in a dark room, and the goggles blacked out at different moments before contact.</p>
+        <figure class="imgfig" style="max-width:520px">
+          <img src="images/vis-l3-savelsbergh-setup.png" alt="Top: a participant wearing PLATO liquid-crystal occlusion goggles with hand raised to catch a glowing ball on a pendulum arm. Bottom: a schematic of the pendulum ball swinging toward the eye, shown with the goggles open versus closed.">
+          <figcaption>The Savelsbergh catching setup: a luminous ball on a pendulum swings toward the catcher in the dark; the goggles black out at a set time before the ball reaches the hand.<br><span style="color:#5a7a80">Source: Savelsbergh, Whiting, Pijpers &amp; Van Santvoord (1993), <em>Experimental Brain Research, 93</em>(1), 148&ndash;156.</span></figcaption>
+        </figure>
+        <div class="callout">
+          <span class="clabel">The manipulation</span>
+          <p>The goggles blacked out <strong>0, 100, 200, or 300 ms before the ball reached the hand</strong> &mdash; so some catches had full vision, others lost sight of the ball at the last moment.</p>
+        </div>
+        <p style="margin-top:4px"><strong>Predict:</strong> which blackout time hurt catching the most &mdash; and what did people do to cope? Flip:</p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:160px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">Which window of vision was critical &mdash; and how did people adapt when it was taken away?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">Seeing the ball in the window <strong>300&ndash;200 ms before contact</strong> was crucial for a successful catch &mdash; lose that window and catching fell apart. To cope with missing vision, participants <strong>widened their hand aperture</strong> (opened the hand more), hedging against uncertainty about where the ball was.</span>
+        </span></button>
+        <p class="refline">Savelsbergh, G. J. P., Whiting, H. T. A., Pijpers, J. R., &amp; Van Santvoord, A. A. M. (1993). The visual guidance of catching. <em>Experimental Brain Research, 93</em>(1), 148&ndash;156.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 EVENT OCCLUSION -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Studying vision &middot; method 2</div>
+        <h2>Event occlusion: <em>what</em> do you look at?</h2>
+        <p>Temporal occlusion asks <em>when</em> vision matters. <strong>Event occlusion</strong> asks <em>what part of the scene</em> carries the information &mdash; by editing a video to hide a specific feature and seeing whether people can still predict what happens.</p>
+        <div class="study">
+          <div class="sname">Abernethy &amp; Russell <span class="syr">(1987)</span> &mdash; badminton</div>
+          <div class="srow"><span class="k">Task</span><span>Watch an opponent begin a shot on video, then predict <strong>where the shuttle will land</strong>.</span></div>
+          <div class="srow"><span class="k">Manipulation</span><span>Different versions masked a different feature of the opponent: the <strong>arm &amp; racquet</strong>, the <strong>racquet</strong> alone, the <strong>head</strong>, or the <strong>legs</strong>.</span></div>
+        </div>
+        <figure class="imgfig" style="max-width:520px">
+          <img src="images/vis-l3-abernethy.png" alt="Five video frames of a badminton player hitting an overhead shot. In each frame a different region is blacked out: the arm and racquet, the racquet alone, the head, the legs, and an unoccluded control.">
+          <figcaption>The occlusion conditions: in each clip a different feature of the opponent is masked (arm &amp; racquet, racquet, head, legs) plus an unoccluded control.<br><span style="color:#5a7a80">Source: Abernethy &amp; Russell (1987), <em>Journal of Sport Psychology, 9</em>(4), 326&ndash;345.</span></figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Logic for the occlusion procedure</span>
+          <p>If hiding a feature <strong>wrecks your prediction</strong>, that feature was carrying the visual information you rely on. This is how researchers find the cues performers actually use.</p>
+        </div>
+        <p style="margin-top:4px"><strong>So which feature mattered?</strong> Predict which mask hurt prediction most, then flip:</p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:150px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">Which masked feature wrecked the shuttle prediction the most &mdash; arm &amp; racquet, head, or legs?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">Masking the <strong>arm and racquet</strong> (and the racquet alone) hurt prediction the most &mdash; so the advance cue for a badminton shot lives in the <strong>arm-and-racquet kinematics</strong>. Masking the head or legs mattered far less. And skilled players relied on these cues <strong>earlier</strong> than novices, letting them anticipate the shot sooner.</span>
+        </span></button>
+        <p class="refline">Abernethy, B., &amp; Russell, D. G. (1987). Expert-novice differences in an applied selective attention task. <em>Journal of Sport Psychology, 9</em>(4), 326&ndash;345.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 MONOCULAR VS BINOCULAR (reflect gate) -->
+  <section class="screen" data-screen data-gate="reflect">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself</div>
+        <h2>One eye or two?</h2>
+        <p>Two eyes give you <strong>binocular vision</strong> &mdash; and with it, <strong>depth perception</strong>. With one eye closed you&rsquo;re left with <strong>monocular vision</strong>. Here&rsquo;s a quick way to feel what monocular viewing costs you.</p>
+        <div class="reflect" style="border-left-color:var(--gold);background:#fdf9f1">
+          <span class="rlabel" style="color:#b9802f">Do this &mdash; the two-pencil test</span>
+          <ol class="reflect-steps">
+            <li><span class="stepn" style="background:var(--gold)">1</span><span>Hold a <strong>pen or pencil in each hand</strong>, arms out, elbows slightly bent.</span></li>
+            <li><span class="stepn" style="background:var(--gold)">2</span><span><strong>Close one eye.</strong> Try to bring the two tips together so they touch, in one smooth move.</span></li>
+            <li><span class="stepn" style="background:var(--gold)">3</span><span>Now do it with <strong>both eyes open</strong>. Notice the difference.</span></li>
+          </ol>
+        </div>
+        <div class="reflect">
+          <span class="rlabel">Reflect &amp; continue</span>
+          <p>Was it harder with one eye? <strong>What made the two-eyes version easier?</strong> Jot down a sentence or two.</p>
+          <textarea class="reflect-input" id="reflectBox" placeholder="Type a few sentences&hellip;"></textarea>
+          <div class="reflect-actions">
+            <button class="reflect-copy" id="reflectSave" type="button">Save my answer</button>
+            <span class="reflect-status" id="reflectStatus"></span>
+          </div>
+          <p class="reflect-note" id="reflectnote">Saved only in your browser, just for you. Jot something down, then continue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 BINOCULAR: WHY IT MATTERS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why it matters for movement</div>
+        <h2>What binocular vision buys you</h2>
+        <p>Depth from two eyes isn&rsquo;t just for party tricks &mdash; it sharpens real motor tasks: reaching and grasping, moving through cluttered spaces, and intercepting moving objects. Two findings show what happens when you take one eye away. <strong>Predict each result, then flip.</strong></p>
+        <h3 style="margin-bottom:6px">Coull et al. (2000) &mdash; reaching</h3>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:130px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">Reaching for an object with <em>one eye</em> &mdash; do people reach accurately, overshoot, or undershoot?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">With <strong>one eye</strong>, people tend to <strong>undershoot</strong> the object&rsquo;s location &mdash; they stop short, because depth is underestimated without binocular information.</span>
+        </span></button>
+        <h3 style="margin:18px 0 6px">Patla et al. (2002) &mdash; stepping over obstacles</h3>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:430px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-q">Stepping over an obstacle with <em>one eye</em> &mdash; how does the lead foot clear it?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back"><p style="margin:0 0 12px">With <strong>monocular</strong> vision, people raised their <strong>toe clearance</strong> &mdash; a more <strong>cautious</strong> strategy to avoid catching a foot, compensating for poorer depth information.</p>
+            <img src="images/vis-l3-patla.png" alt="Left: stick-figure diagram of a person stepping over a 10 cm obstacle between two force plates, labelling the leading and trailing swing limbs. Right: a bar chart of mean lead-limb toe clearance showing higher clearance for left-monocular and right-monocular than for binocular, with asterisks marking the significant differences." style="width:100%;display:block;border-radius:8px;border:1px solid #e0c98a">
+            <span style="display:block;font-size:12px;color:#8a6a2e;margin-top:8px;line-height:1.5">Stepping over a 10&nbsp;cm obstacle (left) and the result (right): toe clearance was <strong>higher under monocular vision</strong> (LM, RM) than binocular (BB). &middot; Source: Patla et al. (2002), <em>Experimental Brain Research, 142</em>(4).</span></span>
+        </span></button>
+        <div class="callout why">
+          <span class="clabel">The pattern</span>
+          <p>Lose binocular depth and the motor system gets <strong>conservative</strong>: it undershoots reaches and over-clears obstacles. Depth perception from two eyes makes guided action more accurate and confident.</p>
+        </div>
+        <p class="refline">Coull, J., Weir, P. L., Tremblay, L., Weeks, D. J., &amp; Elliott, D. (2000). Monocular and binocular vision in the control of goal-directed movement. <em>Journal of Motor Behavior, 32</em>(4), 347&ndash;360. &nbsp;&middot;&nbsp; Patla, A. E., Niechwiej, E., Racco, V., &amp; Goodale, M. A. (2002). Understanding the contribution of binocular vision to the control of adaptive locomotion. <em>Experimental Brain Research, 142</em>(4), 551&ndash;561.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 KNOWLEDGE CHECK + WRAP (sorter gate) -->
+  <section class="screen" data-screen data-gate="sort">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2>Match each clue to its stream</h2>
+        <p style="color:#3d4d5c">Which visual system does each describe? Drag each label onto a stream (or tap one, then tap a target). Place all four to continue.</p>
+        <div class="sorter" id="sorter">
+          <div class="sort-bank" id="sortBank">
+            <button class="chip" id="chip-recognize" data-pc="recognize" draggable="true">Recognizing an object</button>
+            <button class="chip" id="chip-grip" data-pc="grip" draggable="true">Scaling your grip to true size</button>
+            <button class="chip" id="chip-conscious" data-pc="conscious" draggable="true">Available to consciousness</button>
+            <button class="chip" id="chip-temporal" data-pc="temporal" draggable="true">Runs to the temporal lobe</button>
+          </div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Vision for perception</strong> (ventral &middot; &ldquo;what&rdquo;)</span><span class="cell" data-cell="recognize"></span><span class="cell" data-cell="conscious"></span><span class="cell" data-cell="temporal"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Vision for action</strong> (dorsal &middot; &ldquo;where / how&rdquo;)</span><span class="cell" data-cell="grip"></span></div></div>
+          <p class="sort-note" id="sortNote">Placed 0 of 4.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 WRAP -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What you can now do</div>
+        <h2>Summary &amp; the next step</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Describe Milner &amp; Goodale&rsquo;s two visual systems &mdash; vision-for-perception (ventral) vs. vision-for-action (dorsal).</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Explain the evidence: patient double dissociations (including blindsight) and the Ebbinghaus illusion (fools the eye, not the hand).</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain how temporal occlusion (PLATO, Savelsbergh) and event occlusion (Abernethy) reveal <em>when</em> and <em>what</em> we see.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Describe what binocular vision adds for movement &mdash; and how monocular reaching and stepping change (Coull, Patla).</span></li>
+        </ul>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 5 &mdash; Vision Guiding Action in Real Time:</strong> how fast vision can correct a movement, time-to-contact (tau), and how we estimate when a moving object will arrive.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Completion code</span>
+          <p>Your passphrase for this lesson is <strong>TWO-STREAMS</strong>. Enter it in the Canvas quiz to record completion.</p>
+        </div>
+        <p class="refline" style="margin-top:20px"><strong>Figure credits.</strong> Two-streams brain: OpenStax Anatomy &amp; Physiology (CC&nbsp;BY&nbsp;4.0). &middot; Ebbinghaus grasp: Aglioti, DeSouza &amp; Goodale (1995), <em>Current Biology, 5</em>(6). &middot; Occlusion goggles: after Milgram (PLATO), Translucent Technologies Inc. &middot; Catching setup: Savelsbergh, Whiting, Pijpers &amp; Van Santvoord (1993), <em>Experimental Brain Research, 93</em>(1). &middot; Badminton occlusion: Abernethy &amp; Russell (1987), <em>Journal of Sport Psychology, 9</em>(4). &middot; Obstacle stepping &amp; toe clearance: Patla, Niechwiej, Racco &amp; Goodale (2002), <em>Experimental Brain Research, 142</em>(4). Reproduced for educational use in this course.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={sort:"Place all four to continue",reflect:"Write a sentence or two, then continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  // --- Sorter knowledge check (clue -> stream) ---
+  (function(){
+    var sorter=document.getElementById("sorter");
+    if(!sorter) return;
+    var bank=document.getElementById("sortBank");
+    var note=document.getElementById("sortNote");
+    var cells=[].slice.call(sorter.querySelectorAll(".cell"));
+    var LABEL={recognize:"Recognizing an object",grip:"Scaling your grip to true size",conscious:"Available to consciousness",temporal:"Runs to the temporal lobe"};
+    var sel=null;
+    function markChip(pc){ var c=document.getElementById("chip-"+pc); if(c) c.classList.add("placed"); }
+    function tryPlace(pc, cell){
+      if(cell.classList.contains("filled")) return;
+      var ok = cell.dataset.cell===pc;
+      cell.classList.add("filled", ok?"ok":"no");
+      cell.innerHTML = (ok?"&#10003; ":"&#10007; ")+LABEL[pc];
+      if(!ok){
+        setTimeout(function(){ cell.classList.remove("no"); cell.classList.add("ok"); cell.innerHTML="&#10003; "+LABEL[cell.dataset.cell]; markChip(cell.dataset.cell); checkDone(); }, 900);
+      }
+      markChip(pc);
+      markChip(cell.dataset.cell);
+      checkDone();
+    }
+    function checkDone(){
+      var filled = cells.filter(function(c){return c.classList.contains("filled");}).length;
+      if(filled>=4){ note.innerHTML="&#10003; All placed. Perception (ventral) &rarr; recognize, consciousness, temporal lobe. Action (dorsal) &rarr; scaling grip to true size."; openGate("sort"); }
+      else note.textContent="Placed "+filled+" of 4.";
+    }
+    bank.querySelectorAll(".chip").forEach(function(chip){
+      chip.addEventListener("dragstart",function(e){ e.dataTransfer.setData("text/plain", chip.dataset.pc); });
+      chip.addEventListener("click",function(){
+        if(chip.classList.contains("placed")) return;
+        bank.querySelectorAll(".chip").forEach(function(c){c.style.outline="";});
+        sel = sel===chip.dataset.pc ? null : chip.dataset.pc;
+        if(sel) chip.style.outline="3px solid var(--accent)";
+      });
+    });
+    cells.forEach(function(cell){
+      cell.addEventListener("dragover",function(e){ e.preventDefault(); cell.classList.add("over"); });
+      cell.addEventListener("dragleave",function(){ cell.classList.remove("over"); });
+      cell.addEventListener("drop",function(e){ e.preventDefault(); cell.classList.remove("over"); var pc=e.dataTransfer.getData("text/plain"); if(pc) tryPlace(pc,cell); });
+      cell.addEventListener("click",function(){ if(sel){ tryPlace(sel,cell); var c=document.getElementById("chip-"+sel); if(c)c.style.outline=""; sel=null; } });
+    });
+  })();
+
+  // --- Practice reflection gate ---
+  (function(){
+    var box=document.getElementById("reflectBox");
+    if(!box) return;
+    var KEY="hlsc4025-w11l3-reflect";
+    try{ var s=localStorage.getItem(KEY); if(s) box.value=s; }catch(e){}
+    function maybe(){
+      if(box.value.trim().length>=15 && !answered.reflect){
+        document.getElementById("reflectnote").textContent="Thanks — you can continue.";
+        openGate("reflect");
+      }
+    }
+    if(box.value.trim().length>=15){ answered.reflect=true; }
+    box.addEventListener("input", maybe);
+    var save=document.getElementById("reflectSave");
+    if(save) save.addEventListener("click",function(){
+      try{ localStorage.setItem(KEY, box.value); }catch(e){}
+      var st=document.getElementById("reflectStatus");
+      if(st) st.textContent = box.value.trim().length>=15 ? "Saved ✓" : "Write a little more first";
+      maybe();
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
