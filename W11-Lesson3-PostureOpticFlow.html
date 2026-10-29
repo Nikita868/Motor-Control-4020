@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vision Guiding Action</title>
+<!--
+  HLSC 4025 · Vision · Lesson 4 of 4 — Vision Guiding Action in Real Time
+  Shared design system (teal/gold). Screens are <section data-screen>; engine + interactives in <script>.
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#a7c6cc;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:50px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:22px;font-weight:600;line-height:1.42;margin:0}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+
+  /* reflect */
+  .reflect{border-left:4px solid var(--accent);background:var(--accent-soft);padding:20px 24px;border-radius:0 8px 8px 0}
+  .reflect .rlabel{font-weight:800;color:var(--accent-dark);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:10px}
+  .reflect p{margin:0 0 10px;font-size:16px;color:#245a63}
+  .reflect-input{width:100%;margin-top:6px;padding:13px 15px;border:1px solid #bcd7dd;border-radius:8px;
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.55;background:#fff;resize:vertical;min-height:96px}
+  .reflect-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,142,.15)}
+  .reflect-actions{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .reflect-copy{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 18px;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .reflect-copy:hover{background:var(--accent-dark)}
+  .reflect-status{font-size:12.5px;color:var(--accent-dark);font-weight:700;min-height:1em}
+  .reflect-note{font-size:12.5px !important;color:#5a7a80 !important;margin-top:12px !important;font-style:italic}
+  .reflect-steps{margin:4px 0 14px;padding-left:0;list-style:none}
+  .reflect-steps li{display:flex;gap:11px;align-items:flex-start;margin-bottom:10px;font-size:15px;color:#245a63}
+  .reflect-steps .stepn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+
+  /* prose flip answer (auto-fit) */
+  .flipans{--famin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block}
+  .flipans .fa-inner{position:relative;display:block;width:100%;min-height:var(--famin);transition:transform .55s;transform-style:preserve-3d}
+  .flipans.flipped .fa-inner{transform:rotateY(180deg)}
+  .fa-back{position:relative;display:block;box-sizing:border-box;min-height:var(--famin);padding:22px 26px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(180deg);background:#fdf3e0;border:1px solid #e0a458;color:#5a3d12;font-size:14.5px;line-height:1.6;text-align:left}
+  .fa-back strong{color:#9c6a1c}
+  .fa-front{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:22px 26px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;text-align:center}
+  .fa-front .fa-q{font-size:15.5px;font-weight:800}
+  .fa-front .fa-hint{font-size:12px;opacity:.85;margin-top:8px}
+  .fa-front .fa-hint::before{content:"\21BB  "}
+
+  /* refline */
+  .refline{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  /* proprioceptor description list / info panel (explorer) */
+  .pill{font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;background:var(--accent-soft);color:var(--accent-dark);white-space:nowrap}
+  .pill.ms{background:#e8f4f6;color:#146470}
+  .pill.gto{background:#fdf0e0;color:#b9802f}
+  .pill.jr{background:#eef4ec;color:#4a7a3a}
+  .pill.fascia{background:#f1ecf6;color:#6a4a8a}
+
+  .prop-fig{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#f9fcfc,#eef5f7);overflow:hidden;margin-top:12px;max-width:470px}
+  .prop-fig svg{width:100%;height:auto;display:block}
+  .pc-hot{cursor:pointer}
+  .pc-badge{transition:.15s;cursor:pointer}
+  .pc-hot:hover .pc-badge,.pc-hot.sel .pc-badge{stroke-width:3}
+  .pc-hot.sel .pc-badge{fill:#fff8ec}
+  .pc-dot{transition:.15s;transform-box:fill-box;transform-origin:center}
+  .pc-hot:hover .pc-dot,.pc-hot.sel .pc-dot{transform:scale(1.06)}
+  .pc-prompt{font-size:13px;color:var(--muted);font-style:italic;margin-top:12px}
+  .pc-info{border:1px solid var(--line);border-radius:12px;background:#fff;padding:15px 18px;min-height:112px;margin:4px 0 2px}
+  .pc-info-empty{font-size:14px;color:var(--muted);font-style:italic}
+  .pc-info .pci-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .pc-info .pci-num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent-dark);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .pc-info .pci-name{font-size:17px;font-weight:800;color:var(--accent-dark)}
+  .pc-info .pci-pills{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  .pc-info .pci-body{font-size:14px;color:#4a5a68;line-height:1.55;margin-top:4px}
+
+  /* generic SVG figure wrap */
+  .svgfig{margin:16px auto 6px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(170deg,#f9fcfc,#eef5f7);padding:14px 12px 6px;max-width:480px}
+  .svgfig svg{width:100%;height:auto;display:block}
+  .svgcap{font-size:12.5px;color:var(--muted);text-align:center;margin:8px 12px 4px}
+
+  /* study block */
+  .study{border:1px solid var(--line);border-radius:9px;padding:16px 18px;margin:14px 0;background:#fff}
+  .study .sname{font-size:15px;font-weight:800;color:var(--accent-dark);margin-bottom:3px}
+  .study .syr{color:var(--muted);font-weight:600;font-size:13px}
+  .study .srow{display:grid;grid-template-columns:96px 1fr;gap:10px;margin-top:8px;font-size:14px}
+  .study .srow .k{font-weight:700;color:var(--ink)}
+  .study .takeaway{margin-top:9px;font-size:14.3px;background:var(--accent-soft);border-radius:7px;padding:10px 13px;color:#245a63}
+  .study .takeaway b{color:var(--accent-dark)}
+
+  /* two-column compare */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .cmp .col{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#fafbfc}
+  .cmp .col .h{font-size:14.5px;font-weight:800;margin-bottom:6px}
+  .cmp .col p{font-size:13.4px;margin:0 0 8px;color:#556}
+  .cmp .col ul{margin:0;padding-left:17px}
+  .cmp .col li{font-size:13px;color:#445;margin-bottom:5px;line-height:1.45}
+  .cmp .col.a{border-top:3px solid var(--accent)}.cmp .col.a .h{color:var(--accent-dark)}
+  .cmp .col.b{border-top:3px solid var(--gold)}.cmp .col.b .h{color:#b9802f}
+  @media(max-width:600px){.cmp{grid-template-columns:1fr}}
+
+  /* qualities chips */
+  .qual-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+  @media(max-width:600px){.qual-grid{grid-template-columns:1fr}}
+  .qual{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:13px 16px;background:#fff}
+  .qual h4{font-size:14.5px;margin:0 0 3px;color:var(--ink)}
+  .qual p{font-size:13.6px;margin:0;color:#556}
+
+  /* reusable flip boxes (bflip) */
+  .flip-hint{font-size:12.5px;color:var(--muted);font-weight:700;margin:14px 0 0}
+  .bflip-grid{display:grid;gap:14px;margin:10px 0 4px}
+  .bflip-grid.g2{grid-template-columns:1fr 1fr}
+  .bflip-grid.g4{grid-template-columns:1fr 1fr}
+  @media(max-width:600px){.bflip-grid.g2,.bflip-grid.g4{grid-template-columns:1fr}}
+  .bflip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1300px;width:100%;display:block;height:150px}
+  .bflip.tall{height:184px}
+  .bflip .bf-inner{position:relative;display:block;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .bflip.flipped .bf-inner{transform:rotateY(180deg)}
+  .bf-face{position:absolute;top:0;left:0;right:0;bottom:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:12px;box-sizing:border-box;padding:15px 17px;display:flex;flex-direction:column;text-align:left;overflow:auto;background:#fff}
+  .bflip.a .bf-face{border-top:4px solid var(--accent)}
+  .bflip.b .bf-face{border-top:4px solid var(--gold)}
+  .bf-front{justify-content:center}
+  .bf-h{font-size:15px;font-weight:800;margin-bottom:4px}
+  .bflip.a .bf-h{color:var(--accent-dark)}
+  .bflip.b .bf-h{color:#b9802f}
+  .bf-sub{font-size:13px;color:#556}
+  .bf-hint{font-size:11.5px;font-weight:700;margin-top:10px}
+  .bflip.a .bf-hint{color:var(--accent)}
+  .bflip.b .bf-hint{color:#b9802f}
+  .bf-back{transform:rotateY(180deg)}
+  .bflip.a .bf-back{background:var(--accent-soft)}
+  .bflip.b .bf-back{background:#faf3e6}
+  .bf-gif{width:100%;max-height:92px;object-fit:cover;border-radius:7px;margin-bottom:8px;border:1px solid rgba(0,0,0,.08)}
+  .bf-flag{font-size:10px;color:#b9802f;line-height:1.35;margin-top:2px}
+  .bf-back .bf-h{font-size:12.5px;letter-spacing:.2px;text-transform:uppercase;margin-bottom:7px}
+  .bf-back p{font-size:13px;line-height:1.5;margin:0 0 7px;color:#445}
+  .bf-back ul{margin:0;padding-left:17px}
+  .bf-back li{font-size:12.8px;color:#445;margin-bottom:5px;line-height:1.45}
+  .bflip.flipped .bf-front{border-color:#2e9e6b}
+
+  /* methods overview chips */
+  .mlist{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .mrow{display:flex;gap:13px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:13px 16px;background:#fff}
+  .mrow .mn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .mrow h4{font-size:14.5px;margin:0 0 2px}
+  .mrow p{font-size:13.2px;margin:0;color:#556}
+
+  /* video placeholder */
+  .vph{border:1px dashed #b9cdd2;border-radius:12px;background:linear-gradient(160deg,#20323a,#15414c);color:#cfe0e5;padding:30px 24px;text-align:center;margin:14px 0 4px}
+  .vph .vph-ic{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+  .vph .vph-ic svg{width:22px;height:22px;fill:#fff;margin-left:3px}
+  .vph .vph-t{font-size:13px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#bfe3e8;margin-bottom:4px}
+  .vph .vph-d{font-size:14px;line-height:1.5;color:#dbe7ec;max-width:460px;margin:0 auto}
+  .vph .vph-f{font-size:12px;color:#9fc0c6;margin-top:9px;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+
+  /* local video (mp4) */
+  .localvid{margin:16px auto 6px;max-width:480px}
+  .localvid video{width:100%;height:auto;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+  .localvid figcaption{font-size:12.5px;color:var(--muted);line-height:1.5;text-align:center;margin-top:9px}
+  .localvid figcaption a{color:var(--accent-dark)}
+
+  /* embedded video */
+  .video-embed{margin:14px 0 4px}
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000}
+  .video-frame iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+  .video-embed figcaption{font-size:12.5px;color:var(--muted);text-align:center;margin-top:9px}
+
+  /* portrait figure (text wraps beside a small image) */
+  .portrait{display:flex;gap:16px;align-items:flex-start;margin:14px 0;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+  .portrait img{flex:none;width:96px;height:auto;border-radius:8px;border:1px solid var(--line)}
+  .portrait figcaption{font-size:13.5px;color:#4a5a68;line-height:1.5}
+  .portrait figcaption a{color:var(--accent-dark)}
+  @media(max-width:520px){.portrait{flex-direction:column;align-items:center;text-align:center}}
+
+  /* generic image figure (photo / external diagram) */
+  .imgfig{margin:16px auto 6px;max-width:480px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .imgfig img{width:100%;height:auto;display:block}
+  .imgfig figcaption{font-size:12.5px;color:var(--muted);line-height:1.5;padding:10px 14px;background:#fff;border-top:1px solid var(--line);text-align:center}
+  .imgfig figcaption a{color:var(--accent-dark)}
+
+  /* sorter grid (knowledge check) */
+  .sorter{margin-top:18px}
+  .sort-bank{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;min-height:46px}
+  .chip{border:2px solid var(--accent);background:#fff;border-radius:8px;padding:10px 15px;font-size:14px;font-weight:700;color:var(--accent-dark);cursor:grab;font-family:inherit;transition:.12s}
+  .chip:hover{background:var(--accent-soft)}
+  .chip.placed{opacity:.45;cursor:default;border-style:dashed}
+  .sort-q{margin-top:16px}
+  .sort-q:first-of-type{margin-top:0}
+  .sort-prompt{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+  .sort-prompt .cell{min-width:150px}
+  .cell{border:2px dashed #cdd8df;border-radius:9px;min-height:50px;min-width:150px;display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;background:#fafbfc;transition:.15s;text-align:center;font-size:13.5px}
+  .cell.over{border-color:var(--accent);background:var(--accent-soft)}
+  .cell.filled{border-style:solid}
+  .cell.ok{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47;font-weight:700}
+  .cell.no{border-color:#d9534f;background:#fdeeee;color:#a3403c;font-weight:700}
+  .sort-note{font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center}
+
+  /* navbar */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:6px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+#visualPathExplorer .vp-key{padding:14px 18px;background:#eaf4f6;border-left:4px solid #1a7f8e;border-radius:7px;margin:16px 0;font-size:14px;line-height:1.6}
+#visualPathExplorer button,#visualPathExplorer select{font:inherit;font-size:13px;border:1px solid #a9bac5;border-radius:7px;padding:9px 12px;background:white;color:#264653;cursor:pointer}
+#visualPathExplorer button:focus-visible,#visualPathExplorer select:focus-visible{outline:3px solid #b9802f;outline-offset:3px}
+#visualPathExplorer button[aria-pressed=true],#visualPathExplorer button[aria-current=step]{background:#146470;color:white;border-color:#146470}
+#visualPathExplorer button:disabled{opacity:.45;cursor:default}
+.vp-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:14px 0}.vp-controls fieldset{border:0;padding:0;display:flex;flex-wrap:wrap;gap:7px}.vp-controls legend{font-size:13px;font-weight:700;margin-bottom:8px}.vp-controls label{font-size:13px;font-weight:700;display:grid;gap:8px;margin-left:auto}
+.vp-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:18px 0 10px}.vp-explain{min-height:96px;padding:14px 17px;border:1px solid #c9dce1;background:#f5fafb;border-radius:9px;font-size:14px;line-height:1.55}
+.vp-layout{display:grid;grid-template-columns:minmax(0,3fr) minmax(180px,1fr);gap:16px;align-items:start;margin-top:16px}.vp-diagram svg{width:100%;height:auto;display:block}.vp-diagram text{font-family:Arial,sans-serif;font-size:14px;fill:#344859}.vp-diagram [data-vp-field]{transition:opacity .2s}.vp-side{background:#f6f8fa;border-radius:9px;padding:16px}.vp-side h3{font-size:15px;margin:0 0 12px}.vp-side p,.vp-small{font-size:12.5px!important;line-height:1.55!important}.vp-route{border-left:3px solid #bbc8d1;padding-left:10px;margin:0 0 14px!important}.vp-check,.vp-reference{border:1px solid #c9dce1;padding:15px 18px;border-radius:9px;margin:18px 0}.vp-check summary,.vp-reference summary{cursor:pointer;font-weight:700;color:#146470}.vp-check label{display:grid;gap:7px;margin:13px 0;font-size:14px}.vp-check select{max-width:300px}
+@media(max-width:800px){.vp-layout{grid-template-columns:1fr}.vp-side{display:block}.vp-controls label{margin-left:0}.vp-steps{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){.vp-diagram [data-vp-field]{transition:none}}
+
+.receptor-memory{display:block;width:160px;height:58px;flex-shrink:0;margin:0 0 9px}
+
+  /* single-answer quick-check (quiz) */
+  .quiz{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .qopt{text-align:left;border:2px solid #cfe0e4;background:#fff;border-radius:9px;padding:12px 15px;font-family:inherit;font-size:14.5px;color:var(--ink);cursor:pointer;transition:.14s;line-height:1.45}
+  .qopt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+  .qopt:disabled{cursor:default}
+  .qopt.ok{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47;font-weight:700}
+  .qopt.no{border-color:#d9534f;background:#fdeeee;color:#a3403c}
+  .quiz-fb{font-size:14px;margin-top:12px;min-height:1em;line-height:1.5}
+  .quiz-fb.ok{color:#1d6b47}
+  .quiz-fb.no{color:#a3403c;font-weight:600}
+
+
+  /* ---- interactive: tau / optical expansion ---- */
+  .iastage{border:1px solid var(--line);border-radius:12px;background:linear-gradient(170deg,#0f2e37,#15414c);padding:16px;margin:14px 0 6px}
+  .iacanvas{position:relative;width:100%;height:220px;border-radius:9px;background:#0c252d;overflow:hidden}
+  .iaball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 38% 34%,#f2d6a6,#e0a458 60%,#b9802f);box-shadow:0 0 18px rgba(224,164,88,.35)}
+  .iaeye{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:#bfe9ee;text-align:center}
+  .iacontrols{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}
+  .iacontrols label{font-size:12.5px;color:#bfe9ee;font-weight:700;display:flex;align-items:center;gap:9px}
+  .iacontrols input[type=range]{accent-color:#e0a458;width:150px}
+  .iabtn{border:none;border-radius:7px;background:#e0a458;color:#15414c;font-family:inherit;font-weight:800;font-size:13.5px;padding:9px 18px;cursor:pointer;transition:.15s}
+  .iabtn:hover{background:#eab971}
+  .iareadout{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px}
+  .iastat{background:rgba(255,255,255,.08);border-radius:8px;padding:9px 14px;min-width:120px}
+  .iastat .k{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:#9fc0c6;font-weight:700}
+  .iastat .v{font-size:19px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+  .iastat .v small{font-size:12px;font-weight:600;color:#bfe9ee}
+
+  /* ---- interactive: reach / target-jump demo ---- */
+  .reacharea{position:relative;width:100%;height:280px;border-radius:9px;background:#fff;border:1px solid #cfe0e4;overflow:hidden;cursor:crosshair;touch-action:none}
+  .reachcursor{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--accent);box-shadow:0 1px 6px rgba(26,127,142,.45);transform:translate(-50%,-50%);pointer-events:none;transition:none;z-index:3}
+  .reachtarget{position:absolute;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f2d6a6,#e0a458 62%,#b9802f);box-shadow:0 0 12px rgba(224,164,88,.5);transform:translate(-50%,-50%);transition:top .05s linear;z-index:2}
+  .reachtarget.hidden{display:none}
+  .reachstart{position:absolute;left:4%;top:50%;width:26px;height:26px;border-radius:50%;border:3px dashed #8aa4ac;transform:translate(-50%,-50%);z-index:2}
+  .reachhint{position:absolute;left:50%;top:14px;transform:translateX(-50%);font-size:12.5px;color:#7a8a99;z-index:1;text-align:center;width:90%}
+  .reachbtnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+
+  /* ---- interactive: prediction-motion (TTC) demo ---- */
+  .pmstage{border:1px solid var(--line);border-radius:12px;background:#eef5f7;padding:16px;margin:14px 0 6px}
+  .pmtrack{position:relative;width:100%;height:120px;border-radius:9px;background:#fff;border:1px solid #cfe0e4;overflow:hidden}
+  .pmdot{position:absolute;top:50%;left:0;width:22px;height:22px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);box-shadow:0 1px 5px rgba(26,127,142,.4)}
+  .pmocc{position:absolute;top:0;height:100%;background:repeating-linear-gradient(135deg,#9fb6bd,#9fb6bd 8px,#8aa4ac 8px,#8aa4ac 16px);opacity:.92}
+  .pmgoal{position:absolute;top:0;height:100%;width:3px;background:#c0392b}
+  .pmgoal::after{content:"arrive";position:absolute;top:2px;left:5px;font-size:9.5px;color:#c0392b;font-weight:700;white-space:nowrap}
+  .pmbtnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .pmbtn{border:none;border-radius:7px;font-family:inherit;font-weight:800;font-size:13.5px;padding:10px 18px;cursor:pointer;transition:.15s}
+  .pmbtn.start{background:var(--accent);color:#fff}.pmbtn.start:hover{background:var(--accent-dark)}
+  .pmbtn.tap{background:var(--gold);color:#5a3d12}.pmbtn.tap:hover{background:#eab971}
+  .pmbtn:disabled{opacity:.4;cursor:not-allowed}
+  .pmfb{font-size:14.5px;margin-top:12px;min-height:1.3em;line-height:1.5}
+  .pmfb .good{color:#1d6b47;font-weight:700}.pmfb .mid{color:#b9802f;font-weight:700}
+
+
+  /* animated optic-flow boxes */
+  .flowbox{position:relative;width:100%;height:150px;background:radial-gradient(circle at 50% 50%,#17424d,#0f2e37);overflow:hidden;border-radius:5px 5px 0 0}
+  .flowbox svg{width:100%;height:100%;display:block}
+  .flow-streak{stroke:#7fd3dd;stroke-width:2.4;stroke-linecap:round}
+  .flow-foe{fill:#e0a458}
+  @keyframes flowExpand{0%{transform:scale(.18);opacity:0}15%{opacity:1}100%{transform:scale(1);opacity:0}}
+  @keyframes flowContract{0%{transform:scale(1);opacity:0}15%{opacity:1}100%{transform:scale(.18);opacity:0}}
+  .flowbox.expand .flow-g{transform-box:view-box;transform-origin:center;animation:flowExpand 2.4s linear infinite}
+  .flowbox.contract .flow-g{transform-box:view-box;transform-origin:center;animation:flowContract 2.4s linear infinite}
+  .flowbox .d2{animation-delay:.8s}.flowbox .d3{animation-delay:1.6s}
+  @media(prefers-reduced-motion:reduce){.flowbox .flow-g{animation:none!important;opacity:.9!important;transform:scale(.7)!important}}
+
+  /* ---- clinical translation blocks ---- */
+  .clin{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:#fafbfc;padding:14px 18px 16px;margin:14px 0}
+  .clin-head{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .clin-head h3{margin:0;font-size:17px;color:var(--accent-dark)}
+  .clin p{font-size:14.5px;line-height:1.6;margin:6px 0 0}
+  .clin-badge{flex:none;font-size:12px;font-weight:800;letter-spacing:.03em;color:#fff;border-radius:6px;padding:4px 9px}
+  .clin-badge.pt{background:#1a7f8e}
+  .clin-badge.ot{background:#b9802f}
+  .clin-badge.pa{background:#4a6b8a}
+  .clin-badge.all{background:#5a6b78}
+  .clin a{color:var(--accent-dark);font-weight:600;text-decoration:none;font-size:12px}
+  .clin a:hover{text-decoration:underline}
+  /* flippable clinical boxes */
+  .clinflip{background:none;border:0;padding:0;margin:14px 0;font-family:inherit;cursor:pointer;perspective:1600px;display:block;width:100%;text-align:left}
+  .clinflip .cl-in{display:grid;width:100%;transition:transform .55s;transform-style:preserve-3d}
+  .clinflip .cl-in>*{grid-area:1/1}
+  .clinflip.flipped .cl-in{transform:rotateY(180deg)}
+  .clinflip .cl-face{box-sizing:border-box;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:14px 18px 16px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column}
+  .clinflip .cl-front{background:#fafbfc}
+  .clinflip .cl-back{background:#fdf7ee;border-left-color:var(--gold);transform:rotateY(180deg)}
+  .clinflip .clin-head{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .clinflip .clin-head h3{margin:0;font-size:17px;color:var(--accent-dark)}
+  .clinflip p{font-size:14px;line-height:1.55;margin:6px 0 0}
+  .clinflip .cl-label{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#b9802f;margin-bottom:2px}
+  .clinflip .cl-flip-hint{font-size:12px;color:#6a7a86;margin-top:auto;padding-top:10px}
+  .clinflip .cl-flip-hint::before{content:"\21BB  "}
+  .clinflip a{color:var(--accent-dark);font-weight:600;text-decoration:none}
+  .clinflip a:hover{text-decoration:underline}
+</style>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Vision &nbsp;&rsaquo;&nbsp; <b>Lesson 3: Posture &amp; Optic Flow</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">10</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Vision &middot; Lesson 3 of 5</div>
+        <h1>Vision, Posture &amp; Optic Flow</h1>
+        <p>Your wide peripheral vision has a starring role: sensing self-motion. This lesson follows that thread &mdash; how vision keeps you balanced, and how the streaming pattern of light steers you through the world.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> The moving room &amp; balance</span>
+          <span><span class="dot"></span> Optic flow &amp; the focus of expansion</span>
+          <span><span class="dot"></span> Steering by optic flow</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 LEARNING OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">By the end of this lesson</div>
+        <h2>Learning objectives</h2>
+        <p>You should be able to:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Explain the <strong>moving-room</strong> experiment and what it shows about how vision is prioritized for balance &mdash; and how adults differ from infants.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Define <strong>optic flow</strong> and the <strong>focus of expansion</strong>, and distinguish forward from backward self-motion.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Describe the <strong>perception&ndash;action cycle</strong> and the principle that action is controlled by moving to achieve a desired perceptual state.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Explain how optic flow is used to <strong>steer</strong> locomotion (Warren).</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+<!-- 3 MOVING ROOM (reflect gate) -->
+  <section class="screen" data-screen data-gate="reflect">
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Predict, then read</div>
+        <h2>The moving room</h2>
+        <p>In a classic experiment (<strong>Lee &amp; Aronson, 1974</strong>), infants stood inside a room whose <strong>walls could slide</strong> toward or away from them &mdash; but the <strong>floor stayed still</strong>. Vision said &ldquo;you&rsquo;re swaying,&rdquo; while touch and proprioception said &ldquo;you&rsquo;re perfectly still.&rdquo;</p>
+        <div class="svgfig" style="max-width:420px">
+          <svg viewBox="0 0 420 200" role="img" aria-label="A room where the walls and ceiling slide toward a standing child while the floor stays fixed in place.">
+            <!-- fixed floor -->
+            <rect x="40" y="168" width="340" height="14" rx="2" fill="#e7ddcb" stroke="#c9ba9e" stroke-width="1.5"/>
+            <text x="210" y="196" font-size="10.5" fill="#a08a52" text-anchor="middle">floor &mdash; FIXED</text>
+            <!-- moving walls + ceiling (as one sliding box) -->
+            <path d="M70 168 V54 H350 V168" fill="none" stroke="#1a7f8e" stroke-width="3"/>
+            <!-- motion arrows on walls -->
+            <path d="M92 100 H128" fill="none" stroke="#c0392b" stroke-width="2.4" marker-end="url(#mr)"/>
+            <path d="M328 100 H292" fill="none" stroke="#c0392b" stroke-width="2.4" marker-end="url(#mr)"/>
+            <text x="210" y="46" font-size="10.5" font-weight="700" fill="#1a7f8e" text-anchor="middle">walls &amp; ceiling slide</text>
+            <!-- child -->
+            <circle cx="210" cy="120" r="12" fill="#f3e7d4" stroke="#d2bd8c" stroke-width="1.5"/>
+            <rect x="202" y="132" width="16" height="30" rx="5" fill="#b9802f"/>
+            <defs><marker id="mr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#c0392b"/></marker></defs>
+          </svg>
+          <div class="svgcap">The walls move; the floor doesn&rsquo;t. Vision and the body&rsquo;s other senses now <strong>disagree</strong>.</div>
+        </div>
+        <div class="reflect">
+          <span class="rlabel">Predict &amp; continue</span>
+          <p>The walls move toward the standing infant, but the floor is solid and still. <strong>What do you think the infants did?</strong> Jot down your prediction in a sentence or two.</p>
+          <textarea class="reflect-input" id="reflectBox" placeholder="Type a few sentences&hellip;"></textarea>
+          <div class="reflect-actions">
+            <button class="reflect-copy" id="reflectSave" type="button">Save my answer</button>
+            <span class="reflect-status" id="reflectStatus"></span>
+          </div>
+          <p class="reflect-note" id="reflectnote">Saved only in your browser, just for you. Jot something down, then continue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 MOVING ROOM RESULT — INFANTS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The result &mdash; infants</div>
+        <h2>Vision wins</h2>
+        <p>The infants <strong>swayed, staggered, and often fell</strong> &mdash; making unnecessary postural corrections to &ldquo;catch&rdquo; a loss of balance that was never happening. Their visual system reported self-motion, and they trusted it over the accurate information from touch and proprioception.</p>
+        <figure class="localvid">
+          <video controls preload="metadata" poster="images/vis-movingroom-infants-poster.jpg" playsinline>
+            <source src="images/vis-movingroom-infants.mp4" type="video/mp4">
+            Your browser can&rsquo;t play this video. The clip shows an infant in a moving room losing balance as the walls slide.
+          </video>
+          <figcaption>An infant in the moving room. As the walls slide, the infant sways or falls &mdash; even though the floor never moved. (Lee &amp; Aronson, 1974)</figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">The headline</span>
+          <p>When the senses conflict, <strong>vision dominates</strong> for standing balance &mdash; especially early in development. This is the clearest demonstration that vision is our preferred source of information for motor control.</p>
+        </div>
+        <p class="refline">Lee, D. N., &amp; Aronson, E. (1974). Visual proprioceptive control of standing in human infants. <em>Perception &amp; Psychophysics, 15</em>(3), 529&ndash;532.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 MOVING ROOM — ADULTS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The result &mdash; adults</div>
+        <h2>What about adults?</h2>
+        <p>Adults show the same postural compensation in a moving room &mdash; but only when balance is already <strong>challenging</strong> (e.g., standing on a narrow beam, a small base of support). And unlike infants, adults can <strong>modulate the response at will</strong> &mdash; dialing down their reliance on vision when they choose to.</p>
+        <figure class="localvid">
+          <video controls preload="metadata" poster="images/vis-movingroom-adults-poster.jpg" playsinline>
+            <source src="images/vis-movingroom-adults.mp4" type="video/mp4">
+            Your browser can&rsquo;t play this video. The clip shows an adult swaying in response to a moving room.
+          </video>
+          <figcaption>An adult in the moving room. The involuntary sway is smaller and more controlled than an infant&rsquo;s &mdash; and adults can suppress it on purpose. (Stoffregen et al., 2006)</figcaption>
+        </figure>
+        <div class="callout">
+          <span class="clabel">Infants vs. adults</span>
+          <p>Same mechanism &mdash; imposed <strong>optic flow</strong> drives a postural response &mdash; but with development comes <strong>control</strong>: adults weight vision against the other senses rather than being driven by it.</p>
+        </div>
+        <p class="refline">Stoffregen, T. A., Hove, P., Schmit, J., &amp; Bardy, B. G. (2006). Voluntary and involuntary postural responses to imposed optic flow. <em>Motor Control, 10</em>(1), 24&ndash;33.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5b MULTISENSORY POSTURAL CONTROL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">How balance really works</div>
+        <h2>Posture is a multisensory process</h2>
+        <p>Why can adults &ldquo;dial down&rdquo; vision? Because standing balance isn&rsquo;t driven by any one sense. The <strong>central nervous system (CNS) integrates</strong> several streams of information &mdash; <strong>vision</strong>, the <strong>vestibular</strong> system (inner-ear balance), <strong>proprioception</strong> (joint &amp; muscle sense), and <strong>mechanoreceptors</strong> (skin/pressure sense) &mdash; then sends <strong>motor commands</strong> that produce corrective motions, which change the sensory information coming back. It&rsquo;s a continuous loop.</p>
+        <figure class="imgfig" style="max-width:600px">
+          <img src="images/vis-l3-multisensory-postural.png" alt="A loop diagram of postural control. On the left, four sensory inputs — Vision (eye), Vestibular info (inner ear), Proprioception (muscle), and Mechanoreceptors (foot) — feed 'Information' up into the CNS (brain), labeled Integration. The CNS sends 'Motor commands' to a muscular body, producing 'Motions' that act within 'Biomechanical constraints', and the resulting 'Information' feeds back to the senses, closing the loop.">
+          <figcaption>Postural control is a closed <strong>perception&ndash;action loop</strong>: multiple senses feed information to the CNS, which integrates them and issues motor commands; the resulting motions (within the body&rsquo;s biomechanical constraints) generate new sensory information.</figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Sensory reweighting</span>
+          <p>Because the CNS <em>combines</em> these senses, it can shift how much it <strong>trusts each one</strong> depending on the situation &mdash; leaning on vision when the surface is unstable, or downweighting vision when it&rsquo;s unreliable (as in the moving room). This flexible reliance is called <strong>sensory reweighting</strong>, and it&rsquo;s exactly what adults are doing when they suppress the moving-room response. Keep this idea in mind &mdash; it&rsquo;s the key to the clinical applications later in this lesson.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HINGE: why vision won -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Connecting the dots</div>
+        <h2>Why did vision win?</h2>
+        <p>The moving room worked because the sliding walls filled the room with <strong>motion across the whole visual field</strong> &mdash; exactly the signal your <strong>peripheral vision</strong> is tuned to detect (Lesson 1). Your brain read that whole-field motion as &ldquo;<em>I</em> am swaying,&rdquo; and corrected a sway that wasn&rsquo;t real.</p>
+        <div class="callout why">
+          <span class="clabel">The key idea</span>
+          <p>That streaming, whole-field pattern of motion has a name: <strong>optic flow</strong>. It&rsquo;s how vision senses your own movement &mdash; and, as we&rsquo;ll see, how it steers you. Let&rsquo;s look at it directly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- 5 OPTIC FLOW -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Moving through the world</div>
+        <h2>Optic flow</h2>
+        <p>We just named the signal behind the moving room: <strong>optic flow</strong>. Let&rsquo;s look at it directly. When you <strong>move through the world</strong>, the <em>entire scene</em> streams across your retina in a structured pattern &mdash; the moving array of light that strikes the retina from all parts of the scene as your point of observation moves through space. Your wide, motion-sensitive <strong>peripheral vision</strong> is especially tuned to it, and the <em>shape</em> of that flow tells you which way you&rsquo;re going.</p>
+        <p class="flip-hint">Watch each flow pattern, then flip for what it means.</p>
+        <div class="bflip-grid g2">
+          <button class="bflip a" style="height:260px" onclick="doFlip(this)"><span class="bf-inner">
+            <span class="bf-face bf-front" style="padding:0;overflow:hidden;justify-content:flex-start">
+              <div class="flowbox expand"><svg viewBox="0 0 200 150" role="img" aria-label="Animated optic flow expand"><g class="flow-g"><line class="flow-streak" x1="114.0" y1="75.0" x2="195.0" y2="75.0"/><line class="flow-streak" x1="112.1" y1="80.2" x2="182.3" y2="110.6"/><line class="flow-streak" x1="107.0" y1="84.1" x2="147.5" y2="136.7"/><line class="flow-streak" x1="100.0" y1="85.5" x2="100.0" y2="146.2"/><line class="flow-streak" x1="93.0" y1="84.1" x2="52.5" y2="136.7"/><line class="flow-streak" x1="87.9" y1="80.2" x2="17.7" y2="110.6"/><line class="flow-streak" x1="86.0" y1="75.0" x2="5.0" y2="75.0"/><line class="flow-streak" x1="87.9" y1="69.8" x2="17.7" y2="39.4"/><line class="flow-streak" x1="93.0" y1="65.9" x2="52.5" y2="13.3"/><line class="flow-streak" x1="100.0" y1="64.5" x2="100.0" y2="3.8"/><line class="flow-streak" x1="107.0" y1="65.9" x2="147.5" y2="13.3"/><line class="flow-streak" x1="112.1" y1="69.8" x2="182.3" y2="39.4"/></g><g class="flow-g d2"><line class="flow-streak" x1="114.0" y1="75.0" x2="195.0" y2="75.0"/><line class="flow-streak" x1="112.1" y1="80.2" x2="182.3" y2="110.6"/><line class="flow-streak" x1="107.0" y1="84.1" x2="147.5" y2="136.7"/><line class="flow-streak" x1="100.0" y1="85.5" x2="100.0" y2="146.2"/><line class="flow-streak" x1="93.0" y1="84.1" x2="52.5" y2="136.7"/><line class="flow-streak" x1="87.9" y1="80.2" x2="17.7" y2="110.6"/><line class="flow-streak" x1="86.0" y1="75.0" x2="5.0" y2="75.0"/><line class="flow-streak" x1="87.9" y1="69.8" x2="17.7" y2="39.4"/><line class="flow-streak" x1="93.0" y1="65.9" x2="52.5" y2="13.3"/><line class="flow-streak" x1="100.0" y1="64.5" x2="100.0" y2="3.8"/><line class="flow-streak" x1="107.0" y1="65.9" x2="147.5" y2="13.3"/><line class="flow-streak" x1="112.1" y1="69.8" x2="182.3" y2="39.4"/></g><g class="flow-g d3"><line class="flow-streak" x1="114.0" y1="75.0" x2="195.0" y2="75.0"/><line class="flow-streak" x1="112.1" y1="80.2" x2="182.3" y2="110.6"/><line class="flow-streak" x1="107.0" y1="84.1" x2="147.5" y2="136.7"/><line class="flow-streak" x1="100.0" y1="85.5" x2="100.0" y2="146.2"/><line class="flow-streak" x1="93.0" y1="84.1" x2="52.5" y2="136.7"/><line class="flow-streak" x1="87.9" y1="80.2" x2="17.7" y2="110.6"/><line class="flow-streak" x1="86.0" y1="75.0" x2="5.0" y2="75.0"/><line class="flow-streak" x1="87.9" y1="69.8" x2="17.7" y2="39.4"/><line class="flow-streak" x1="93.0" y1="65.9" x2="52.5" y2="13.3"/><line class="flow-streak" x1="100.0" y1="64.5" x2="100.0" y2="3.8"/><line class="flow-streak" x1="107.0" y1="65.9" x2="147.5" y2="13.3"/><line class="flow-streak" x1="112.1" y1="69.8" x2="182.3" y2="39.4"/></g><circle class="flow-foe" cx="100" cy="75" r="5"/></svg></div>
+              <span style="padding:12px 15px;display:block"><span class="bf-h" style="display:block">Flow <em>expands</em> &rarr; moving forward</span><span class="bf-hint">flip &#8635;</span></span></span>
+            <span class="bf-face bf-back"><span class="bf-h">Expanding flow &mdash; forward</span><p>As you move <strong>forward</strong>, the whole scene streams <strong>outward</strong> from one still point &mdash; the <strong>focus of expansion</strong>. That still point marks <strong>where you&rsquo;re heading</strong>.</p></span>
+          </span></button>
+          <button class="bflip b" style="height:260px" onclick="doFlip(this)"><span class="bf-inner">
+            <span class="bf-face bf-front" style="padding:0;overflow:hidden;justify-content:flex-start">
+              <div class="flowbox contract"><svg viewBox="0 0 200 150" role="img" aria-label="Animated optic flow contract"><g class="flow-g"><line class="flow-streak" x1="114.0" y1="75.0" x2="195.0" y2="75.0"/><line class="flow-streak" x1="112.1" y1="80.2" x2="182.3" y2="110.6"/><line class="flow-streak" x1="107.0" y1="84.1" x2="147.5" y2="136.7"/><line class="flow-streak" x1="100.0" y1="85.5" x2="100.0" y2="146.2"/><line class="flow-streak" x1="93.0" y1="84.1" x2="52.5" y2="136.7"/><line class="flow-streak" x1="87.9" y1="80.2" x2="17.7" y2="110.6"/><line class="flow-streak" x1="86.0" y1="75.0" x2="5.0" y2="75.0"/><line class="flow-streak" x1="87.9" y1="69.8" x2="17.7" y2="39.4"/><line class="flow-streak" x1="93.0" y1="65.9" x2="52.5" y2="13.3"/><line class="flow-streak" x1="100.0" y1="64.5" x2="100.0" y2="3.8"/><line class="flow-streak" x1="107.0" y1="65.9" x2="147.5" y2="13.3"/><line class="flow-streak" x1="112.1" y1="69.8" x2="182.3" y2="39.4"/></g><g class="flow-g d2"><line class="flow-streak" x1="114.0" y1="75.0" x2="195.0" y2="75.0"/><line class="flow-streak" x1="112.1" y1="80.2" x2="182.3" y2="110.6"/><line class="flow-streak" x1="107.0" y1="84.1" x2="147.5" y2="136.7"/><line class="flow-streak" x1="100.0" y1="85.5" x2="100.0" y2="146.2"/><line class="flow-streak" x1="93.0" y1="84.1" x2="52.5" y2="136.7"/><line class="flow-streak" x1="87.9" y1="80.2" x2="17.7" y2="110.6"/><line class="flow-streak" x1="86.0" y1="75.0" x2="5.0" y2="75.0"/><line class="flow-streak" x1="87.9" y1="69.8" x2="17.7" y2="39.4"/><line class="flow-streak" x1="93.0" y1="65.9" x2="52.5" y2="13.3"/><line class="flow-streak" x1="100.0" y1="64.5" x2="100.0" y2="3.8"/><line class="flow-streak" x1="107.0" y1="65.9" x2="147.5" y2="13.3"/><line class="flow-streak" x1="112.1" y1="69.8" x2="182.3" y2="39.4"/></g><g class="flow-g d3"><line class="flow-streak" x1="114.0" y1="75.0" x2="195.0" y2="75.0"/><line class="flow-streak" x1="112.1" y1="80.2" x2="182.3" y2="110.6"/><line class="flow-streak" x1="107.0" y1="84.1" x2="147.5" y2="136.7"/><line class="flow-streak" x1="100.0" y1="85.5" x2="100.0" y2="146.2"/><line class="flow-streak" x1="93.0" y1="84.1" x2="52.5" y2="136.7"/><line class="flow-streak" x1="87.9" y1="80.2" x2="17.7" y2="110.6"/><line class="flow-streak" x1="86.0" y1="75.0" x2="5.0" y2="75.0"/><line class="flow-streak" x1="87.9" y1="69.8" x2="17.7" y2="39.4"/><line class="flow-streak" x1="93.0" y1="65.9" x2="52.5" y2="13.3"/><line class="flow-streak" x1="100.0" y1="64.5" x2="100.0" y2="3.8"/><line class="flow-streak" x1="107.0" y1="65.9" x2="147.5" y2="13.3"/><line class="flow-streak" x1="112.1" y1="69.8" x2="182.3" y2="39.4"/></g><circle class="flow-foe" cx="100" cy="75" r="5"/></svg></div>
+              <span style="padding:12px 15px;display:block"><span class="bf-h" style="display:block">Flow <em>contracts</em> &rarr; moving backward</span><span class="bf-hint">flip &#8635;</span></span></span>
+            <span class="bf-face bf-back"><span class="bf-h">Contracting flow &mdash; backward</span><p>Move <strong>backward</strong> and the pattern <strong>reverses</strong>: the scene streams <strong>inward</strong> toward a point. The direction of flow alone tells you whether you&rsquo;re advancing or retreating.</p></span>
+          </span></button>
+        </div></div>
+        <div class="callout">
+          <span class="clabel">A fun example: watch the flow</span>
+          <p>Watch how the world streams outward from a single point as the camera moves forward. The point things flow <em>away from</em> is exactly where the camera is heading.</p>
+        </div>
+        <figure class="video-embed"><div class="video-frame" id="flowVideoFrame"><iframe src="https://www.youtube.com/embed/m80b6esRpaQ" title="Example of optic flow" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div><figcaption>Optic flow is the transformation of the visual field that occurs when the point of observation moves.</figcaption><p style="text-align:center;margin-top:12px"><a href="https://youtu.be/m80b6esRpaQ" target="_blank" rel="noopener noreferrer">Watch on YouTube</a></p></figure>
+      </div>
+    </div>
+  </section><!-- 6 PERCEPTION-ACTION CYCLE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A general principle</div>
+        <h2>The perception&ndash;action cycle</h2>
+        <p>Optic flow is one example of a deeper idea. Perception and action form a <strong>continuous loop</strong> &mdash; the <strong>perception&ndash;action cycle</strong>: you perceive, you move, the movement changes what you perceive, and that reshapes the next move.</p>
+        <div class="svgfig" style="max-width:380px">
+          <svg viewBox="0 0 360 150" role="img" aria-label="A closed loop between perception and action: an arrow from perception to action and back, forming a cycle.">
+            <circle cx="92" cy="75" r="40" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+            <text x="92" y="80" font-size="14" font-weight="800" fill="var(--accent-dark)" text-anchor="middle">Perception</text>
+            <circle cx="268" cy="75" r="40" fill="#fdf3e0" stroke="var(--gold)" stroke-width="2"/>
+            <text x="268" y="80" font-size="14" font-weight="800" fill="#b9802f" text-anchor="middle">Action</text>
+            <path d="M134 55 Q180 22 226 55" fill="none" stroke="#146470" stroke-width="2.6" marker-end="url(#pa1)"/>
+            <path d="M226 96 Q180 128 134 96" fill="none" stroke="#b9802f" stroke-width="2.6" marker-end="url(#pa2)"/>
+            <defs>
+              <marker id="pa1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#146470"/></marker>
+              <marker id="pa2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#b9802f"/></marker>
+            </defs>
+          </svg>
+          <div class="svgcap">Each action reshapes perception, which shapes the next action &mdash; a closed loop.</div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The general principle</span>
+          <p><strong>Action is controlled by moving so as to achieve a desired perceptual state.</strong> You don&rsquo;t compute the world and then act on a model of it &mdash; you act to make what you perceive match a goal. This perception&ndash;action view is the heart of closed-loop control.</p>
+        </div>
+        <p class="refline">Warren, W. H. (2006). The dynamics of perception and action. <em>Psychological Review, 113</em>(2), 358&ndash;389.</p>
+      </div>
+    </div>
+  </section><!-- 7 WARREN STEERING (evidence) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Evidence &middot; steering</div>
+        <h2>Steering locomotion by optic flow</h2>
+        <p>Here is the perception&ndash;action cycle in action. To walk toward a target, you don&rsquo;t calculate a heading angle &mdash; you move so the <strong>optic flow looks the way it should</strong>: you <strong>steer to keep the focus of expansion on the goal</strong>.</p>
+        <div class="callout">
+          <span class="clabel">What &ldquo;steering&rdquo; means here</span>
+          <p>&ldquo;Steering&rdquo; doesn&rsquo;t mean turning a steering wheel &mdash; it means <strong>directing your own locomotion</strong>: walking, running, wheeling, or any self-propelled movement through space. You control <em>where your body goes</em> by adjusting it so the optic flow matches your goal.</p>
+        </div>
+        <figure class="imgfig" style="max-width:360px">
+          <img src="images/vis-l3-warren-foe-goal.png" alt="A walker (rectangle with a dot) with optic-flow arrows radiating outward; the focus of expansion is offset toward the goal. Caption: steer so as to locate the focus of expansion of optic flow on the goal location.">
+          <figcaption>The strategy: steer so the <strong>focus of expansion (FOE)</strong> sits on the <strong>goal</strong>.</figcaption>
+        </figure>
+        <div class="study">
+          <div class="sname">Warren et al. <span class="syr">(2001)</span> &mdash; walking to a goal</div>
+          <div class="srow"><span class="k">Method</span><span>Using <strong>virtual-reality goggles</strong>, the researchers could <strong>dissociate the direction you&rsquo;re actually heading from the visual focus of expansion</strong> &mdash; displacing the FOE to one side of your true heading, something impossible in the real world.</span></div>
+          <div class="takeaway"><b>Finding:</b> When the FOE was shifted to the side, people trying to walk straight to a target produced <strong>curved walking trajectories</strong> &mdash; they steered to re-center the flow rather than relying on their felt heading. <b>Optic flow, not just the target&rsquo;s felt direction, controls walking.</b></div>
+        </div>
+        <figure class="imgfig" style="max-width:440px">
+          <img src="images/vis-l3-warren-vr-heading.png" alt="A virtual-reality scene: the walker's physical heading points straight ahead, while the optic-flow focus of expansion (virtual heading) is offset to the right by an angle delta.">
+          <figcaption>In VR, the <strong>physical heading</strong> (where the body actually moves) and the <strong>virtual heading</strong> (the displaced focus of expansion) are split apart by an angle &mdash; the manipulation that produced the curved paths.<br><span style="color:#5a7a80">Source: Warren et al. (2001), <em>Nature Neuroscience</em>.</span></figcaption>
+        </figure>
+        <div class="callout">
+          <span class="clabel">Why it matters</span>
+          <p>It&rsquo;s direct evidence for the principle on the last page: you achieve the goal by <strong>moving to make the perception match</strong> (focus of expansion on target), rather than by computing and executing a path. When the optics lie, so does the path.</p>
+        </div>
+        <p class="refline">Warren, W. H., Kay, B. A., Zosh, W. D., Duchon, A. P., &amp; Sahuc, S. (2001). <a href="https://doi.org/10.1038/84054" target="_blank" rel="noopener noreferrer">Optic flow is used to control human walking.</a> <em>Nature Neuroscience, 4</em>(2), 213&ndash;216.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLINICAL RELEVANCE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why this matters for your practice</div>
+        <h2>Clinical relevance: optic flow, posture &amp; sensory reweighting</h2>
+        <p>These aren&rsquo;t just laboratory ideas. Knowledge of optic flow provides foundational insights into how humans coordinate <strong>visuomotor control</strong>, <strong>navigate physical environments</strong>, and <strong>adapt postural balance</strong> <a href="https://consensus.app/papers/report-optic-flow-drives-human-visuolocomotor-adaptation-bruggeman-warren/c44e539d063d5883bb057eca576db413/" target="_blank" rel="noopener">[Bruggeman]</a><a href="https://consensus.app/papers/walking-humans-and-running-mice-perception-and-neural-horrocks-mareschal/10f2aadd2d7b5194bc8c5590aecc29fa/" target="_blank" rel="noopener">[Horrocks 2022]</a><a href="https://consensus.app/papers/optic-flow-simulating-selfmotion-does-not-modulate-the-barbanchon-baudry/b3afbb33fe8159869506401b0ab2f3ce/" target="_blank" rel="noopener">[Barbanchon 2026]</a>. Read each profession&rsquo;s scenario, think about the application &mdash; then flip the box.</p>
+
+        <button type="button" class="clinflip" onclick="doFlip(this)"><span class="cl-in">
+          <span class="cl-face cl-front">
+            <div class="clin-head"><span class="clin-badge pt">PT</span><h3>Gait retraining &amp; balance recovery</h3></div>
+            <p>For physical therapy students, optic flow principles are essential for <strong>gait retraining and balance recovery</strong> <a href="https://consensus.app/papers/report-optic-flow-drives-human-visuolocomotor-adaptation-bruggeman-warren/c44e539d063d5883bb057eca576db413/" target="_blank" rel="noopener">[Bruggeman]</a><a href="https://consensus.app/papers/sinusoidal-optic-flow-perturbations-reduce-transient-but-ketterer-ringhof/a5bed81d1cb1504087ea6c214518d3db/" target="_blank" rel="noopener">[Ketterer 2022]</a>. Locomotion relies heavily on optic flow to <strong>scale forward trajectory</strong> and adapt to changing environments <a href="https://consensus.app/papers/report-optic-flow-drives-human-visuolocomotor-adaptation-bruggeman-warren/c44e539d063d5883bb057eca576db413/" target="_blank" rel="noopener">[Bruggeman]</a><a href="https://consensus.app/papers/sensory-evidence-accumulation-using-optic-flow-in-a-alefantis-lakshminarasimhan/7c413bcd171859e4bffa8b901bfd7222/" target="_blank" rel="noopener">[Alefantis 2021]</a><a href="https://consensus.app/papers/learning-novel-mappings-from-optic-flow-to-the-control-of-fajen/916b1c46020a577a9ebbf5ee1ef350e4/" target="_blank" rel="noopener">[Fajen 2008]</a>.</p>
+            <div class="cl-flip-hint">How do therapists use this?</div>
+          </span>
+          <span class="cl-face cl-back">
+            <div class="cl-label">PT &middot; In the clinic</div>
+            <p>Because <strong>older adults frequently over-rely on visual input</strong>, sudden visual shifts can trigger destabilization <a href="https://consensus.app/papers/sinusoidal-optic-flow-perturbations-reduce-transient-but-ketterer-ringhof/a5bed81d1cb1504087ea6c214518d3db/" target="_blank" rel="noopener">[Ketterer 2022]</a>. Modern <strong>virtual-reality paradigms</strong> allow physical therapists to deliver <em>controlled visual perturbations</em> that induce <strong>sensory reweighting</strong> &mdash; driving reliance onto intact <strong>somatosensory and vestibular</strong> systems <a href="https://consensus.app/papers/sinusoidal-optic-flow-perturbations-reduce-transient-but-ketterer-ringhof/a5bed81d1cb1504087ea6c214518d3db/" target="_blank" rel="noopener">[Ketterer 2022]</a>.</p>
+          </span>
+        </span></button>
+
+        <button type="button" class="clinflip" onclick="doFlip(this)"><span class="cl-in">
+          <span class="cl-face cl-front">
+            <div class="clin-head"><span class="clin-badge ot">OT</span><h3>Functional mobility &amp; the visual environment</h3></div>
+            <p>For occupational therapists, the same principles explain why <strong>cluttered, high-motion, or visually ambiguous environments</strong> (busy hallways, scrolling screens, patterned floors) can throw off balance and navigation during daily activities.</p>
+            <div class="cl-flip-hint">What can an OT do about it?</div>
+          </span>
+          <span class="cl-face cl-back">
+            <div class="cl-label">OT &middot; In the clinic</div>
+            <p>Understanding that posture is <strong>multisensory</strong> lets OTs <strong>modify the visual environment</strong> and grade activities &mdash; so clients can function safely while the other senses carry more of the load during ADLs and community mobility.</p>
+          </span>
+        </span></button>
+
+        <button type="button" class="clinflip" onclick="doFlip(this)"><span class="cl-in">
+          <span class="cl-face cl-front">
+            <div class="clin-head"><span class="clin-badge pa">PA</span><h3>Screening balance &amp; visual dependence</h3></div>
+            <p>For physician-assistant practice, recognizing <strong>visual over-dependence</strong> helps distinguish a balance problem rooted in <strong>sensory integration</strong> from one rooted in strength, vestibular, or neurological pathology.</p>
+            <div class="cl-flip-hint">What&rsquo;s the tell-tale sign?</div>
+          </span>
+          <span class="cl-face cl-back">
+            <div class="cl-label">PA &middot; At the bedside</div>
+            <p>A patient who <strong>sways or staggers when the visual scene moves</strong>, yet is <strong>stable with eyes closed on firm ground</strong>, is showing a <em>reweighting</em> signature &mdash; not simple weakness. That pattern informs referral and work-up.</p>
+          </span>
+        </span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- KNOWLEDGE CHECK (sorter gate) -->
+  <section class="screen" data-screen data-gate="sort">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2>Match each idea to its description</h2>
+        <p style="color:#3d4d5c">Drag each term onto what it means (or tap one, then tap a target). Place all four to continue.</p>
+        <div class="sorter" id="sorter">
+          <div class="sort-bank" id="sortBank">
+            <button class="chip" id="chip-flow" data-pc="flow" draggable="true">Optic flow</button>
+            <button class="chip" id="chip-foe" data-pc="foe" draggable="true">Focus of expansion</button>
+            <button class="chip" id="chip-room" data-pc="room" draggable="true">Moving room</button>
+            <button class="chip" id="chip-steer" data-pc="steer" draggable="true">Steering principle</button>
+          </div>
+          <div class="sort-q"><div class="sort-prompt"><span>Whole-field motion on the retina as you move</span><span class="cell" data-cell="flow"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span>The still point flow streams out from &mdash; your heading</span><span class="cell" data-cell="foe"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span>Shows vision dominates balance when senses conflict</span><span class="cell" data-cell="room"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span>Move to make the perception match the goal</span><span class="cell" data-cell="steer"></span></div></div>
+          <p class="sort-note" id="sortNote">Placed 0 of 4.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What you can now do</div>
+        <h2>Summary &amp; the next step</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Explain the moving-room experiment: vision dominates balance when the senses conflict, and adults can modulate that reliance.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Define optic flow and the focus of expansion, and read forward vs. backward self-motion from the flow pattern.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Describe the perception&ndash;action cycle and the steering principle &mdash; move so the flow looks the way it should.</span></li>
+        </ul>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 4 &mdash; Two Visual Systems &amp; How We Study Vision&rsquo;s Role:</strong> the vision-for-perception vs. vision-for-action model, the illusion that fools the eye but not the hand, the occlusion methods, and monocular vs. binocular vision.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Completion code</span>
+          <p>Your passphrase for this lesson is <strong>OPTIC-FLOW</strong>. Enter it in the Canvas quiz to record completion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={sort:"Place all four to continue",reflect:"Write a sentence or two, then continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  // --- Sorter knowledge check ---
+  (function(){
+    var sorter=document.getElementById("sorter"); if(!sorter) return;
+    var bank=document.getElementById("sortBank");
+    var note=document.getElementById("sortNote");
+    var cells=[].slice.call(sorter.querySelectorAll(".cell"));
+    var LABEL={flow:"Optic flow",foe:"Focus of expansion",room:"Moving room",steer:"Steering principle"};
+    var sel=null;
+    function markChip(pc){ var c=document.getElementById("chip-"+pc); if(c) c.classList.add("placed"); }
+    function tryPlace(pc, cell){
+      if(cell.classList.contains("filled")) return;
+      var ok = cell.dataset.cell===pc;
+      cell.classList.add("filled", ok?"ok":"no");
+      cell.innerHTML = (ok?"&#10003; ":"&#10007; ")+LABEL[pc];
+      if(!ok){ setTimeout(function(){ cell.classList.remove("no"); cell.classList.add("ok"); cell.innerHTML="&#10003; "+LABEL[cell.dataset.cell]; markChip(cell.dataset.cell); checkDone(); }, 900); }
+      markChip(pc); markChip(cell.dataset.cell); checkDone();
+    }
+    function checkDone(){
+      var filled = cells.filter(function(c){return c.classList.contains("filled");}).length;
+      if(filled>=4){ note.innerHTML="&#10003; All placed. Optic flow = whole-field motion; focus of expansion = heading; moving room = vision dominates balance; steering = move to match the goal."; openGate("sort"); }
+      else note.textContent="Placed "+filled+" of 4.";
+    }
+    bank.querySelectorAll(".chip").forEach(function(chip){
+      chip.addEventListener("dragstart",function(e){ e.dataTransfer.setData("text/plain", chip.dataset.pc); });
+      chip.addEventListener("click",function(){
+        if(chip.classList.contains("placed")) return;
+        bank.querySelectorAll(".chip").forEach(function(c){c.style.outline="";});
+        sel = sel===chip.dataset.pc ? null : chip.dataset.pc;
+        if(sel) chip.style.outline="3px solid var(--accent)";
+      });
+    });
+    cells.forEach(function(cell){
+      cell.addEventListener("dragover",function(e){ e.preventDefault(); cell.classList.add("over"); });
+      cell.addEventListener("dragleave",function(){ cell.classList.remove("over"); });
+      cell.addEventListener("drop",function(e){ e.preventDefault(); cell.classList.remove("over"); var pc=e.dataTransfer.getData("text/plain"); if(pc) tryPlace(pc,cell); });
+      cell.addEventListener("click",function(){ if(sel){ tryPlace(sel,cell); var c=document.getElementById("chip-"+sel); if(c)c.style.outline=""; sel=null; } });
+    });
+  })();
+
+  // --- Reflection gate (moving-room predict) ---
+  (function(){
+    var box=document.getElementById("reflectBox"); if(!box) return;
+    var KEY="hlsc4025-w11l3-reflect";
+    try{ var sv=localStorage.getItem(KEY); if(sv) box.value=sv; }catch(e){}
+    function maybe(){ if(box.value.trim().length>=15 && !answered.reflect){ var n=document.getElementById("reflectnote"); if(n)n.textContent="Thanks — you can continue."; openGate("reflect"); } }
+    if(box.value.trim().length>=15){ answered.reflect=true; }
+    box.addEventListener("input", maybe);
+    var save=document.getElementById("reflectSave");
+    if(save) save.addEventListener("click",function(){ try{ localStorage.setItem(KEY, box.value); }catch(e){} var st=document.getElementById("reflectStatus"); if(st) st.textContent = box.value.trim().length>=15 ? "Saved ✓" : "Write a little more first"; maybe(); });
+  })();
+
+  // --- Video embed activation (http/https only) ---
+
+  show(0);
+})();
+</script>
+</body>
+</html>
