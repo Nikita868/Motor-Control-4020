@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speed-Accuracy in Practice</title>
+<!--
+  HLSC 4025 · Speed-Accuracy · Lesson 4 of 5 — Speed-Accuracy in Practice: Clinical Case Studies
+  Shared design system (teal/gold). Screens are <section data-screen>; engine + interactives in <script>.
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#fff}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#fff;font-size:17px}
+  .title-inner p strong,.title-inner p em{color:#fff}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#fff}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#fff;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+
+  /* portrait / person callout */
+  .person{display:flex;gap:16px;align-items:flex-start;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+  .person .pface{flex:none;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px}
+  .person .pphoto{flex:none;width:92px;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+  @media(max-width:520px){.person{flex-direction:column;align-items:center;text-align:center}.person .pphoto{width:110px}}
+  .person .pbody p{margin:0;font-size:14px;color:#556;line-height:1.55}
+  .person .pbody .pn{font-weight:800;color:var(--ink);font-size:15px;margin-bottom:2px}
+
+  /* two innovations */
+  .innov{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .innov .ic{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fafbfc}
+  .innov .ic .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;align-items:center;justify-content:center;margin-bottom:8px}
+  .innov .ic .ih{font-size:15px;font-weight:800;color:var(--accent-dark);margin-bottom:5px}
+  .innov .ic p{font-size:13.6px;margin:0;color:#556;line-height:1.5}
+  .innov .ic.b .num{background:var(--gold)}.innov .ic.b .ih{color:#b9802f}
+  @media(max-width:600px){.innov{grid-template-columns:1fr}}
+  /* flippable innovation boxes */
+  .innov.flip{align-items:stretch}
+  .tf{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1500px;display:block;width:100%;height:100%;text-align:left}
+  .tf .tf-in{display:grid;width:100%;height:100%;min-height:200px;transition:transform .55s;transform-style:preserve-3d}
+  .tf .tf-in>*{grid-area:1/1}
+  .tf.flipped .tf-in{transform:rotateY(180deg)}
+  .tf .tf-face{box-sizing:border-box;height:100%;border:1px solid var(--line);border-radius:10px;padding:16px 18px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;background:#fafbfc}
+  .tf .tf-back{transform:rotateY(180deg);background:#fff}
+  .tf.a .tf-face{border-top:3px solid var(--accent)}
+  .tf.b .tf-face{border-top:3px solid var(--gold)}
+  .tf .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;align-items:center;justify-content:center;margin-bottom:8px}
+  .tf.b .num{background:var(--gold)}
+  .tf .ih{font-size:15px;font-weight:800;color:var(--accent-dark);margin-bottom:5px}
+  .tf.b .ih{color:#b9802f}
+  .tf p{font-size:13.6px;margin:0;color:#556;line-height:1.5}
+  .tf .tf-prompt{font-size:12px;color:#6a7a86;margin-top:auto;padding-top:10px}
+  .tf .tf-prompt::before{content:"\21BB  "}
+
+  /* bits ladder */
+  .bits{border:1px solid var(--line);border-radius:10px;background:#f8fafb;padding:16px 18px;margin:14px 0}
+  .bits .brow{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px dashed #e0e7ec;font-size:14px}
+  .bits .brow:last-child{border-bottom:none}
+  .bits .bopts{flex:none;width:118px;font-weight:700;color:var(--ink)}
+  .bits .bbar{flex:1;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--accent),#7fc3cc)}
+  .bits .bval{flex:none;width:58px;text-align:right;font-weight:800;color:var(--accent-dark)}
+
+  /* AW ratio compare */
+  .awcmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .awcmp .awc{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff;text-align:center}
+  .awcmp .awc svg{width:100%;height:auto;max-width:230px;margin:0 auto}
+  .awcmp .awc .awlab{font-size:13px;font-weight:800;margin-top:6px}
+  .awcmp .awc.easy{border-top:3px solid var(--accent)}.awcmp .awc.easy .awlab{color:var(--accent-dark)}
+  .awcmp .awc.hard{border-top:3px solid var(--gold)}.awcmp .awc.hard .awlab{color:#b9802f}
+  @media(max-width:560px){.awcmp{grid-template-columns:1fr}}
+
+  /* flip (dig deeper) */
+  .flipans{--famin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block;margin:14px 0}
+  .flipans .fa-inner{position:relative;display:block;width:100%;min-height:var(--famin);transition:transform .55s;transform-style:preserve-3d}
+  .flipans.flipped .fa-inner{transform:rotateY(180deg)}
+  .fa-back{position:relative;display:block;box-sizing:border-box;min-height:var(--famin);padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(180deg);background:#fdf3e0;border:1px solid #e0a458;color:#5a3d12;font-size:14px;line-height:1.6;text-align:left}
+  .fa-back strong{color:#9c6a1c}
+  .fa-back .fa-eq{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff7ea;border:1px solid #ecd6ae;border-radius:6px;padding:2px 7px;font-size:13px;color:#7a531a;display:inline-block;margin:3px 0}
+  .fa-front{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;text-align:center}
+  .fa-front strong,.fa-front em{color:#fff}
+  .fa-front .fa-optbadge{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.2);color:#eaf6f8;border-radius:20px;padding:3px 11px;margin-bottom:10px}
+  .fa-front .fa-q{font-size:15px;font-weight:800}
+  .fa-front .fa-hint{font-size:12px;opacity:.85;margin-top:8px}
+  .fa-front .fa-hint::before{content:"\21BB  "}
+  /* reveal-after-flip containers */
+  .revealclinic{max-height:0;overflow:hidden;opacity:0;transition:max-height .55s ease,opacity .4s ease,margin .4s ease;margin:0}
+  .revealclinic.show{max-height:1000px;opacity:1;margin:16px 0}
+  .flip-hint-line{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0;font-style:italic;transition:opacity .3s}
+  .flip-hint-line.gone{opacity:0}
+
+  /* formula block */
+  .formula{background:#0f3b44;color:#eaf6f8;border-radius:12px;padding:22px 24px;margin:16px 0;text-align:center}
+  .formula .eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:21px;font-weight:700;letter-spacing:.3px}
+  .formula .eq .v{color:var(--gold)}
+  .formula .note{font-size:13px;color:#9fc6cd;margin-top:10px}
+  .defs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+  .defs .d{border:1px solid var(--line);border-radius:8px;padding:11px 14px;background:#fafbfc;font-size:14px}
+  .defs .d b{color:var(--accent-dark)}
+  @media(max-width:560px){.defs{grid-template-columns:1fr}}
+
+  /* two-component numbered list (Woodworth) */
+  .mlist{margin:14px 0}
+  .mrow{display:flex;gap:14px;align-items:flex-start;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:#fafbfc;margin-bottom:10px}
+  .mrow .mn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .mrow:nth-of-type(2) .mn{background:var(--gold)}
+  .mrow h4{margin:0 0 3px;font-size:15px;color:var(--ink)}
+  .mrow p{margin:0;font-size:13.8px;color:#556;line-height:1.5}
+  .portrait{max-width:150px;margin:14px auto 4px}
+  .portrait img{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+  .portrait figcaption{font-size:11.5px;color:var(--muted);text-align:center;margin-top:7px;line-height:1.45}
+  .portrait-right{float:right;width:150px;margin:0 0 12px 20px}
+  .portrait-right img{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+  .portrait-right figcaption{font-size:11.5px;color:var(--muted);text-align:center;margin-top:7px;line-height:1.45}
+  @media(max-width:560px){.portrait-right{float:none;width:140px;margin:14px auto 4px}}
+
+  /* phase-contrast two cards (explanations of Fitts' Law) */
+  .phase{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  @media(max-width:620px){.phase{grid-template-columns:1fr}}
+  .phase .pc{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fafbfc;display:flex;flex-direction:column}
+  .phase .pc.open{border-top:3px solid var(--gold)}
+  .phase .pc.closed{border-top:3px solid var(--accent)}
+  .phase .pc .ptag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:3px 11px;align-self:flex-start;margin-bottom:8px}
+  .phase .pc.open .ptag{background:#fdf3e0;color:#b9802f}
+  .phase .pc.closed .ptag{background:var(--accent-soft);color:var(--accent-dark)}
+  .phase .pc h4{margin:0 0 6px;font-size:16px}
+  .phase .pc.open h4{color:#b9802f}.phase .pc.closed h4{color:var(--accent-dark)}
+  .phase .pc p{font-size:13.8px;color:#556;line-height:1.55;margin:0 0 9px}
+  .phase .pc .prow{font-size:12.6px;color:#45555f;padding:6px 0;border-top:1px dashed #e0e7ec;display:flex;gap:8px}
+  .phase .pc .prow b{flex:none;color:var(--ink);min-width:72px}
+  .phase .pc .plead{font-weight:800;font-size:13px;margin-top:auto;padding-top:10px}
+  .phase .pc.open .plead{color:#b9802f}.phase .pc.closed .plead{color:var(--accent-dark)}
+  /* flippable phase cards */
+  .phase.flip{align-items:stretch}
+  .pcf{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1600px;display:block;width:100%;height:100%;text-align:left}
+  .pcf .pcf-in{display:grid;width:100%;height:100%;min-height:250px;transition:transform .55s;transform-style:preserve-3d}
+  .pcf .pcf-in>*{grid-area:1/1}
+  .pcf.flipped .pcf-in{transform:rotateY(180deg)}
+  .pcf .pcf-face{box-sizing:border-box;height:100%;border:1px solid var(--line);border-radius:11px;padding:16px 18px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;background:#fafbfc}
+  .pcf .pcf-back{transform:rotateY(180deg);background:#fff}
+  .pcf.open .pcf-face{border-top:3px solid var(--gold)}
+  .pcf.closed .pcf-face{border-top:3px solid var(--accent)}
+  .pcf .ptag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:3px 11px;align-self:flex-start;margin-bottom:8px}
+  .pcf.open .ptag{background:#fdf3e0;color:#b9802f}
+  .pcf.closed .ptag{background:var(--accent-soft);color:var(--accent-dark)}
+  .pcf h4{margin:0 0 6px;font-size:16px}
+  .pcf.open h4{color:#b9802f}.pcf.closed h4{color:var(--accent-dark)}
+  .pcf p{font-size:13.8px;color:#556;line-height:1.55;margin:0 0 9px}
+  .pcf .prow{font-size:12.6px;color:#45555f;padding:6px 0;border-top:1px dashed #e0e7ec;display:flex;gap:8px}
+  .pcf .prow b{flex:none;color:var(--ink);min-width:72px}
+  .pcf .plead{font-weight:800;font-size:13px;margin-top:auto;padding-top:10px}
+  .pcf.open .plead{color:#b9802f}.pcf.closed .plead{color:var(--accent-dark)}
+  .pcf .pcf-prompt{font-size:12px;color:#6a7a86;margin-top:auto;padding-top:10px}
+  .pcf .pcf-prompt::before{content:"\21BB  "}
+
+  /* static phase cards with animation */
+  .pca{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fafbfc;display:flex;flex-direction:column}
+  .pca.open{border-top:3px solid var(--gold)}
+  .pca.closed{border-top:3px solid var(--accent)}
+  .pca .ptag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:3px 11px;align-self:flex-start;margin-bottom:8px}
+  .pca.open .ptag{background:#fdf3e0;color:#b9802f}
+  .pca.closed .ptag{background:var(--accent-soft);color:var(--accent-dark)}
+  .pca h4{margin:0 0 6px;font-size:16px}
+  .pca.open h4{color:#b9802f}.pca.closed h4{color:var(--accent-dark)}
+  .pca p.claim{font-size:13.6px;color:#556;line-height:1.5;margin:0 0 10px}
+  .pca .anim{position:relative;background:#fff;border:1px solid #e3e9ee;border-radius:9px;overflow:hidden}
+  .pca .anim svg{display:block;width:100%;height:auto}
+  .pca .anim-cap{font-size:11.5px;color:#6a7a86;text-align:center;margin:8px 0 2px;min-height:1.3em}
+  .pca .playbtn{align-self:center;background:var(--accent);color:#fff;border:none;border-radius:7px;padding:8px 18px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;margin:10px 0 4px}
+  .pca.open .playbtn{background:var(--gold);color:#5a3d12}
+  .pca .playbtn:hover{filter:brightness(.95)}
+  .pca .prow{font-size:12.4px;color:#45555f;padding:6px 0;border-top:1px dashed #e0e7ec;display:flex;gap:8px}
+  .pca .prow:first-of-type{margin-top:4px}
+  .pca .prow b{flex:none;color:var(--ink);min-width:70px}
+  .pca .plead{font-weight:800;font-size:12.8px;margin-top:10px;padding-top:4px}
+  .pca.open .plead{color:#b9802f}.pca.closed .plead{color:var(--accent-dark)}
+
+  /* everyday example rows */
+  .eg{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:#fafbfc;padding:14px 18px;margin:14px 0}
+  .eg:nth-of-type(even){border-left-color:var(--gold)}
+  .eg-ico{flex:none;font-size:30px;line-height:1.1}
+  .eg-body .eg-h{font-size:16px;font-weight:800;color:var(--accent-dark);margin-bottom:4px}
+  .eg:nth-of-type(even) .eg-body .eg-h{color:#b9802f}
+  .eg-body p{font-size:14.5px;margin:0;color:#45555f;line-height:1.55}
+
+  /* figure */
+  .imgfig{margin:16px auto 4px;max-width:520px}
+  .imgfig svg,.imgfig img{width:100%;height:auto;display:block;border-radius:10px}
+  .imgfig img{border:1px solid var(--line)}
+  .imgfig figcaption{font-size:12.5px;color:var(--muted);line-height:1.5;text-align:center;margin-top:9px}
+
+  /* Fitts demo */
+  .fdemo{border:1px solid var(--line);border-radius:12px;background:#f8fafb;padding:18px 20px;margin:16px 0}
+  .fd-cond{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:10px 14px;background:#fff;border:1px solid var(--line);border-radius:9px}
+  .fd-cbadge{flex:none;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:var(--accent);border-radius:6px;padding:4px 10px}
+  .fd-cdesc{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .fd-arena{position:relative;height:150px;border-radius:10px;background:#fff;border:1px solid #e3e9ee;overflow:hidden;touch-action:none}
+  .fd-target{position:absolute;top:12px;bottom:12px;background:var(--accent-soft);border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent-dark);font-weight:800;font-size:13px;cursor:pointer;user-select:none;transition:background .1s}
+  .fd-target.hot{background:#cdebef}
+  .fd-target.lit{background:var(--gold);border-color:#b9802f;color:#5a3d12}
+  .fd-ctrls{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+  .fd-ctrls label{font-size:13px;font-weight:700;color:var(--ink);display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
+  .fd-ctrls input[type=range]{accent-color:var(--accent)}
+  .fd-ctrls .cval{color:var(--accent-dark);font-weight:800}
+  .fd-stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .fd-stat .st{flex:1;min-width:92px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;text-align:center}
+  .fd-stat .st .k{font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .fd-stat .st .v{font-size:17px;font-weight:800;color:var(--accent-dark);margin-top:2px}
+  .fd-plot{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .fd-plot svg{width:100%;height:auto;display:block}
+  .fd-msg{font-size:13px;color:#556;margin-top:10px;min-height:1.3em;text-align:center}
+  .fd-btn{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 16px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer}
+  .fd-btn:hover{background:var(--accent-dark)}
+  .fd-btn.ghost{background:#fff;color:var(--accent-dark);border:1px solid var(--accent)}
+
+  /* sorter / compare check */
+  .cmpcheck{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .cmpcheck .opt{border:2px solid var(--line);border-radius:10px;padding:16px;background:#fff;cursor:pointer;text-align:center;font-family:inherit;transition:.14s}
+  .cmpcheck .opt:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .cmpcheck .opt.right{border-color:#2e9e6b;background:#eafaf1}
+  .cmpcheck .opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .cmpcheck .opt svg{width:100%;max-width:200px;height:auto;margin:0 auto 8px}
+  .cmpcheck .opt .ol{font-size:13.5px;font-weight:700;color:var(--ink)}
+  @media(max-width:560px){.cmpcheck{grid-template-columns:1fr}}
+  .kc-feedback{font-size:14.5px;margin-top:12px;min-height:1.4em;font-weight:600}
+  .kc-feedback.ok{color:#1d6b47}.kc-feedback.no{color:#a3403c}
+
+  /* refline */
+  .refline{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  /* navbar */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:7px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+
+  /* ===== L3 additions ===== */
+  /* generic demo frame (reuses fdemo look) */
+  .sdemo{border:1px solid var(--line);border-radius:12px;background:#f8fafb;padding:18px 20px;margin:16px 0}
+  /* wide demo: pull out past the card padding to use full card width */
+  .wide-demo{margin-left:-24px;margin-right:-24px}
+  @media(max-width:640px){.wide-demo{margin-left:-10px;margin-right:-10px}}
+  .sd-row{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .sd-row label{font-size:13px;font-weight:700;color:var(--ink);display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
+  .sd-row input[type=range]{accent-color:var(--accent)}
+  .sd-row .cval{color:var(--accent-dark);font-weight:800}
+  .sd-arena{position:relative;background:#fff;border:1px solid #e3e9ee;border-radius:10px;overflow:hidden}
+  .sd-arena svg{display:block;width:100%;height:auto}
+  .sd-stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .sd-stat .st{flex:1;min-width:92px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;text-align:center}
+  .sd-stat .st .k{font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .sd-stat .st .v{font-size:17px;font-weight:800;color:var(--accent-dark);margin-top:2px}
+  .sd-msg{font-size:13px;color:#556;margin-top:12px;min-height:1.3em;text-align:center}
+  .sd-ctrls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+  .sd-btn{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:10px 20px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer}
+  .sd-btn:hover:not(:disabled){background:var(--accent-dark)}
+  .sd-btn:disabled{background:#c3ced4;cursor:not-allowed}
+  .sd-btn.ghost{background:#fff;color:var(--accent-dark);border:1px solid var(--accent)}
+  .sd-btn.gold{background:var(--gold);color:#5a3d12}
+  .sd-btn.gold:hover:not(:disabled){filter:brightness(.95)}
+  .sd-plot{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .sd-plot svg{width:100%;height:auto;display:block}
+
+  /* interval-production pacer */
+  .pacer{width:120px;height:120px;border-radius:50%;margin:6px auto 2px;display:flex;align-items:center;justify-content:center;
+    background:var(--accent-soft);border:3px solid var(--accent);color:var(--accent-dark);font-weight:800;font-size:15px;
+    transition:transform .08s,background .08s;user-select:none}
+  .pacer.flash{background:var(--gold);border-color:#b9802f;color:#5a3d12;transform:scale(1.06)}
+  .pacer.armed{background:#fff}
+  .tap-target{background:#0f3b44;color:#eaf6f8;border:none;border-radius:10px;padding:18px;width:100%;max-width:340px;margin:12px auto 0;
+    display:block;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;letter-spacing:.3px}
+  .tap-target:active{background:#15414c}
+  .tap-target:disabled{background:#c3ced4;color:#eef2f4;cursor:not-allowed}
+  .trial-dots{display:flex;gap:6px;justify-content:center;margin:12px 0 2px;flex-wrap:wrap}
+  .trial-dots .td{width:11px;height:11px;border-radius:50%;background:var(--line)}
+  .trial-dots .td.done{background:var(--accent)}
+  .trial-dots .td.long.done{background:var(--gold)}
+  .cond-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+  .cond-pill{font-size:12.5px;font-weight:800;border-radius:20px;padding:5px 14px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+  .cond-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .cond-pill.active.long{background:var(--gold);color:#5a3d12;border-color:#b9802f}
+
+  /* compare table (Fitts vs Schmidt) */
+  .vs{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:0;margin:16px 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;font-size:13.6px}
+  .vs>div{padding:11px 14px;border-bottom:1px solid var(--line)}
+  .vs .vh{font-weight:800;color:#fff;border-bottom:none}
+  .vs .vh.a{background:var(--accent)}.vs .vh.b{background:var(--gold);color:#5a3d12}.vs .vh.lab{background:#0f3b44}
+  .vs .vlab{font-weight:800;color:var(--ink);background:#fafbfc}
+  .vs .va{color:#245a63}.vs .vb{color:#6a4a16}
+  .vs>div:nth-last-child(-n+3){border-bottom:none}
+  @media(max-width:560px){.vs{font-size:12.5px}.vs>div{padding:9px 10px}}
+  .endpoint-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+  .endpoint-panel{border:1px solid var(--line);border-radius:8px;padding:10px;background:white}
+  .endpoint-panel h4{font-size:14px;margin:0}
+  .endpoint-panel svg{display:block;width:100%;height:auto}
+  .endpoint-panel p{font-size:12px;margin:4px 0;line-height:1.5}
+  @media(max-width:700px){.endpoint-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:420px){.endpoint-grid{grid-template-columns:1fr}}
+
+  /* ===== L4 additions ===== */
+  /* finding box: wraps a numbered point with its own figures */
+  .findbox{border:1px solid var(--line);border-radius:11px;padding:14px 16px 16px;margin:14px 0;background:#fafbfc}
+  .findbox .mrow{margin-bottom:2px;border:none;background:none;padding:0}
+  /* interactive P/V/A kinematics figure */
+  .kdemo{border:1px solid var(--line);border-radius:12px;background:#f8fafb;padding:16px 18px;margin:16px 0}
+  .kdemo .krow{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+  .kdemo label{font-size:12.5px;font-weight:700;color:var(--ink);display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+  .kdemo label input[type=range]{accent-color:var(--accent)}
+  .kdemo label .cv{color:var(--accent-dark);font-weight:800}
+  .kpanels{background:#fff;border:1px solid #e3e9ee;border-radius:9px;padding:8px 6px 4px;text-align:center}
+  .kpanels svg{display:inline-block;width:auto;max-width:100%;height:auto;max-height:62vh}
+  .kleg{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:11.5px;color:#55606a}
+  .kleg span{display:inline-flex;align-items:center;gap:6px}
+  .kleg .sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+  .kctrl{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .kbtn{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 20px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer}
+  .kbtn:hover:not(:disabled){background:var(--accent-dark)}
+  .kbtn:disabled{background:#c3ced4;cursor:not-allowed}
+  .kbtn.ghost{background:#fff;color:var(--accent-dark);border:1px solid var(--accent)}
+  .kmsg{font-size:12.8px;color:#556;text-align:center;margin-top:10px;min-height:1.2em}
+
+  /* study snapshot bar for case studies */
+  .studybar{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0;background:#fff}
+  .studybar .cell{flex:1;min-width:150px;padding:10px 14px;border-right:1px solid var(--line)}
+  .studybar .cell:last-child{border-right:none}
+  .studybar .cell .k{font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px}
+  .studybar .cell .v{font-size:13px;color:var(--ink);line-height:1.4}
+  .studybar.ff{border-top:3px solid var(--gold)}
+  .studybar.fb{border-top:3px solid var(--accent)}
+  .studybar.mix{border-top:3px solid #8a6d3b}
+  @media(max-width:560px){.studybar .cell{flex-basis:100%;border-right:none;border-bottom:1px solid var(--line)}.studybar .cell:last-child{border-bottom:none}}
+  .cat-band{display:flex;align-items:center;gap:14px;background:#0f3b44;color:#eaf6f8;border-radius:12px;padding:16px 20px;margin:4px 0 6px}
+  .cat-band .cat-no{font-size:30px;font-weight:800;opacity:.6;line-height:1}
+  .cat-band h2{color:#fff;margin:0;font-size:20px}
+  .cat-band p{margin:3px 0 0;font-size:13px;color:#bcd7dd}
+  /* phase framework table */
+  .phasetab{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .phasetab th,.phasetab td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  .phasetab thead th{background:#0f3b44;color:#eaf6f8;font-size:12.5px;letter-spacing:.02em}
+  .phasetab tbody tr:last-child td{border-bottom:none}
+  .phasetab .ph{font-weight:800;white-space:nowrap}
+  .phasetab .ph.open{color:#b9802f}.phasetab .ph.closed{color:var(--accent-dark)}
+  .phasetab tbody tr:nth-child(odd){background:#fafbfc}
+  @media(max-width:620px){.phasetab,.phasetab tbody,.phasetab tr,.phasetab td{display:block}.phasetab thead{display:none}
+    .phasetab td{border-bottom:none;padding:5px 14px}.phasetab tr{border-bottom:1px solid var(--line);padding:8px 0}
+    .phasetab td::before{content:attr(data-l);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}}
+
+  /* two-phase velocity-profile figure */
+  .profile-pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .profile-card{border:1px solid var(--line);border-radius:11px;padding:14px;background:#fafbfc}
+  .profile-card.smooth{border-top:3px solid var(--accent)}
+  .profile-card.frag{border-top:3px solid var(--gold)}
+  .profile-card h4{margin:0 0 2px;font-size:15px}
+  .profile-card .sub{font-size:12.5px;color:var(--muted);margin:0 0 8px}
+  .profile-card svg{display:block;width:100%;height:auto;background:#fff;border:1px solid #e3e9ee;border-radius:8px}
+  .profile-card .note{font-size:12.5px;color:#556;margin:9px 0 0;line-height:1.5}
+  @media(max-width:560px){.profile-pair{grid-template-columns:1fr}}
+
+  /* population "signature" cards */
+  .popsig{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:9px;padding:13px 16px;margin:12px 0;background:#fafbfc}
+  .popsig.open{border-left-color:var(--gold)}
+  .popsig .ps-ic{flex:none;width:34px;height:34px}
+  .popsig h4{margin:0 0 4px;font-size:15px;color:var(--ink)}
+  .popsig p{margin:0;font-size:13.6px;color:#455;line-height:1.55}
+  .popsig .tag{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:20px;padding:2px 9px;margin-top:7px}
+  .popsig .tag.ff{background:#fdf3e0;color:#b9802f}
+  .popsig .tag.fb{background:var(--accent-soft);color:var(--accent-dark)}
+  .popsig .tag.both{background:#eceff1;color:#55606a}
+
+  .mechanism-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+  .mechanism-grid.pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mechanism-flip{color:#2c3e50;display:grid;width:100%;border:0;padding:0;background:none;text-align:left;font:inherit;cursor:pointer;perspective:1200px}
+  .mechanism-face{color:#2c3e50;grid-area:1/1;padding:20px;border:1px solid #c5dfe3;border-radius:10px;background:#e8f4f6;transition:transform .45s;backface-visibility:hidden;min-height:230px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+  .mechanism-face strong{font-size:18px;line-height:1.35;color:var(--accent-dark)}
+  .mechanism-face small{font-size:12px;color:#526773}
+  .mechanism-face.back{transform:rotateY(180deg);background:#fff;visibility:hidden;font-size:15px;line-height:1.6}
+  .mechanism-flip.flipped .front{transform:rotateY(-180deg);visibility:hidden}
+  .mechanism-flip.flipped .back{transform:rotateY(0);visibility:visible}
+  .study-refs{margin-top:20px;font-size:13px;color:#526773}
+  .study-refs summary{cursor:pointer;font-weight:700}
+  .study-refs p{font-size:13px;margin:12px 0;overflow-wrap:anywhere}
+  @media(max-width:700px){.mechanism-grid,.mechanism-grid.pair{grid-template-columns:1fr}.mechanism-face{min-height:190px}}
+  @media(prefers-reduced-motion:reduce){.mechanism-face{transition:none}}
+
+  .mechanism-flip .mechanism-face span{color:#2c3e50}
+  .mechanism-grid.single{grid-template-columns:1fr}
+  .exception-task{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;align-items:center;margin:24px 0}
+  .exception-task img{width:100%;max-width:200px;height:auto;border-radius:10px;margin:auto}
+  .exception-task .mechanism-face{min-height:300px}
+  @media(max-width:650px){.exception-task{grid-template-columns:1fr}.exception-task img{max-width:170px}}
+
+  .concept-symbol{width:64px;height:64px;display:block;margin-bottom:4px}
+  .exception-cases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0 26px}
+  .exception-case{padding:20px;border:1px solid #c5dfe3;border-radius:10px;background:#e8f4f6;display:flex;flex-direction:column;gap:10px;color:#2c3e50}
+  .exception-case>span{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#146470;font-weight:700}
+  .exception-case strong{font-size:17px;line-height:1.45}
+  .prediction-work h3{font-size:23px;line-height:1.4;color:#146470;margin:16px 0}
+  .prediction-work label{display:block;font-weight:700;margin:12px 0 8px}
+  #velocity-prediction{width:100%;min-height:100px;resize:vertical;padding:14px;border:2px solid #7daeb7;border-radius:8px;background:#fff;color:#2c3e50;font:inherit;line-height:1.5}
+  #velocity-prediction::placeholder{color:#61727c;opacity:1}
+  .prediction-help{font-size:13px!important;color:#526773;margin:8px 0 18px!important}
+  #prediction-reveal:disabled{cursor:not-allowed;opacity:.65}
+  #prediction-reveal .mechanism-face{min-height:160px}
+  .exception-task{align-items:start}
+  @media(max-width:650px){.exception-cases{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Speed-Accuracy &nbsp;&rsaquo;&nbsp; <b>Lesson 4: Clinical Case Studies</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">13</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Speed-Accuracy &middot; Lesson 4 of 5</div>
+        <h1>Speed&ndash;accuracy in practice</h1>
+        <p>Having established Fitts&rsquo; and Schmidt&rsquo;s laws and the two-phase structure of goal-directed movement, we now examine how these principles are applied in published research &mdash; first to <strong>characterize altered motor control in clinical populations</strong>, and second to <strong>quantify the acquisition of a clinical motor skill</strong>.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> Special populations</span>
+          <span><span class="dot"></span> Medical training</span>
+          <span><span class="dot"></span> Five case studies</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">What you&rsquo;ll be able to do</div>
+      <h2>Learning objectives</h2>
+      <ul class="obj-list">
+        <li><span class="obj-num">1</span><span class="txt">Describe a goal-directed movement as an <strong>open-loop initial impulse</strong> followed by a <strong>closed-loop homing phase</strong>, and use that structure to locate a motor deficit.</span></li>
+        <li><span class="obj-num">2</span><span class="txt">Explain how Fitts&rsquo; and Schmidt&rsquo;s parameters &mdash; slope, intercept, submovement count, variability &mdash; are used to <strong>quantify impairment</strong> in aging, stroke, and Parkinson&rsquo;s disease.</span></li>
+        <li><span class="obj-num">3</span><span class="txt">Explain how the speed&ndash;accuracy function serves as a <strong>metric of motor-skill acquisition</strong>, in both laboratory and surgical-training contexts.</span></li>
+        <li><span class="obj-num">4</span><span class="txt">Interpret velocity-profile and Fitts&rsquo;-law evidence from each case study in terms of the two-phase framework.</span></li>
+      </ul>
+    </div></div>
+  </section>
+
+  <!-- 3 THE LENS + TWO CATEGORIES -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">The analytical lens</div>
+      <h2>Two phases, two kinds of application</h2>
+      <p>Each case study that follows can be understood through the two-component structure of a rapid aiming movement (Woodworth, 1899): an <strong>initial impulse</strong> and a <strong>homing phase</strong>.</p>
+      <p style="font-size:14px;color:#55606a"><strong>Flip each phase</strong> to review what it contributes.</p>
+      <button type="button" class="flipans" style="--famin:112px" onclick="doFlip(this)">
+        <span class="fa-inner">
+          <span class="fa-front"><span class="fa-optbadge">Phase 1 &middot; open-loop</span><span class="fa-q">The initial impulse</span><span class="fa-hint">Flip</span></span>
+          <span class="fa-back"><strong>Initial impulse (open-loop).</strong> A pre-programmed, ballistic launch that carries the limb most of the way. It is fast but imperfect, and its variability increases with speed (Schmidt&rsquo;s law).</span>
+        </span>
+      </button>
+      <button type="button" class="flipans" style="--famin:112px" onclick="doFlip(this)">
+        <span class="fa-inner">
+          <span class="fa-front"><span class="fa-optbadge">Phase 2 &middot; closed-loop</span><span class="fa-q">The homing phase</span><span class="fa-hint">Flip</span></span>
+          <span class="fa-back"><strong>Homing phase (closed-loop).</strong> A slower, feedback-guided settling onto the target, composed of one or more corrective submovements. Precision is achieved here, at a cost in time.</span>
+        </span>
+      </button>
+      <p>Against this background, the speed&ndash;accuracy principles are applied in two distinct ways:</p>
+      <div class="vs" style="grid-template-columns:1fr 1fr">
+        <div class="vh a">I. Special populations</div>
+        <div class="vh b" style="background:var(--gold);color:#5a3d12">II. Medical training</div>
+        <div class="va" style="padding:13px 15px">The laws <strong>quantify impairment</strong>. Altered slope, intercept, submovement count, and variability reveal <em>which phase</em> of control is compromised &mdash; the initial impulse, the corrective phase, or both.</div>
+        <div class="vb" style="padding:13px 15px">The speed&ndash;accuracy function <strong>measures skill</strong>. As a trainee improves, the whole function shifts, providing an objective index of progress in both laboratory and surgical settings.</div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- 4 CATEGORY I BAND -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="cat-band"><span class="cat-no">I</span><div><h2>Special populations</h2><p>Speed&ndash;accuracy analysis as a window on impaired motor control</p></div></div>
+      <p>When neurological disease or aging alters movement, the change is rarely random. Because Fitts&rsquo; and Schmidt&rsquo;s laws describe <em>lawful</em> relationships between speed, difficulty, and error, deviations from those relationships are informative: a changed <strong>slope</strong> or <strong>intercept</strong>, an increase in <strong>corrective submovements</strong>, or greater <strong>endpoint variability</strong> each points toward a specific component of control.</p>
+      <div class="callout why"><span class="clabel">The diagnostic logic</span>
+        <p>A deficit in the <strong>initial impulse</strong> (feedforward planning and force scaling) produces a different signature from a deficit in the <strong>homing phase</strong> (feedback-based correction). The three cases that follow &mdash; aging, stroke, and Parkinson&rsquo;s disease &mdash; illustrate each pattern.</p></div>
+    </div></div>
+  </section>
+
+  <!-- 5 PRIMER: KINEMATIC PROFILE OF A REACH -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">First, a tool &middot; reading a reach</div>
+      <h2>Position, velocity, and acceleration</h2>
+      <p>This page examines the detailed kinematics of the <strong>end-effector</strong> &mdash; the hand or fingertip &mdash; as it travels from a <strong>start position</strong> to a <strong>target</strong>. Recording it over time yields three linked traces &mdash; <strong>position</strong>, <strong>velocity</strong>, and <strong>acceleration</strong> &mdash; which are all views of the <em>same</em> movement. Set the controls, then press <strong>Play</strong> to watch the end-effector travel while all three traces advance in step.</p>
+      <div class="kdemo" id="kd">
+        <div class="krow">
+          <label>Corrective submovements
+            <input type="range" id="kSub" min="0" max="3" step="1" value="0">
+            <span><span class="cv" id="kSubV">0</span> &mdash; <span id="kSubLab">a single clean reach</span></span>
+          </label>
+          <label>Movement speed
+            <input type="range" id="kSpd" min="0" max="2" step="1" value="1">
+            <span><span class="cv" id="kSpdV">moderate</span></span>
+          </label>
+          <div class="kctrl" style="margin:0;align-self:flex-end">
+            <button type="button" class="kbtn" id="kPlay">&#9654; Play</button>
+            <button type="button" class="kbtn ghost" id="kReset">Reset</button>
+          </div>
+        </div>
+        <div class="kmsg" id="kMsg" style="margin:2px 0 8px">A clean reach: one smooth velocity peak and a single acceleration&ndash;deceleration pair. Add corrective submovements to see the homing phase fill with extra peaks.</div>
+        <div class="kpanels"><svg id="kSvg" viewBox="0 0 560 500" role="img" aria-label="A 2D reach lane with an end-effector dot moving from start to target, above three time-aligned panels showing position, velocity and acceleration for the same movement; corrective submovements add extra velocity peaks late in the movement."></svg></div>
+        <div class="kleg">
+          <span><span class="sw" style="background:#e0a458;width:10px;height:10px;border-radius:50%;border:1px solid #b9802f"></span> end-effector</span>
+          <span><span class="sw" style="background:#f3e2c5"></span> acceleration phase (launch)</span>
+          <span><span class="sw" style="background:#d9edf0"></span> deceleration phase (homing)</span>
+          <span><span class="sw" style="background:#2c3e50;width:10px;height:10px;border-radius:50%"></span> time marker</span>
+        </div>
+      </div>
+      <div class="mlist">
+        <div class="mrow"><span class="mn">1</span><div><h4>Position</h4><p>Rises from the start and settles at the target. A smooth, single S-shaped rise indicates one clean movement; corrective submovements appear as small <strong>steps</strong> near the end.</p></div></div>
+        <div class="mrow"><span class="mn">2</span><div><h4>Velocity</h4><p>The most informative trace. The <strong>large initial peak</strong> is the ballistic <em>primary submovement</em> (the initial impulse); each <strong>smaller later peak</strong> is a <strong>corrective submovement</strong> in the homing phase.</p></div></div>
+        <div class="mrow"><span class="mn">3</span><div><h4>Acceleration</h4><p>The positive <em>acceleration</em> lobe is the force that launches the limb; the negative <em>deceleration</em> lobe is braking and online correction. Each corrective submovement adds its own small acceleration&ndash;deceleration pair.</p></div></div>
+      </div>
+      <div class="callout why"><span class="clabel">Why this matters for what follows</span>
+        <p>Splitting a reach into an <strong>acceleration (launch)</strong> phase and a <strong>deceleration (homing)</strong> phase is exactly how the aging study on the next screen localizes <em>where</em> older adults spend their extra time.</p></div>
+      <p class="refline">Interactive reconstruction after Meyer, D.&nbsp;E., Abrams, R.&nbsp;A., Kornblum, S., Wright, C.&nbsp;E., &amp; Smith, J.&nbsp;E.&nbsp;K. (1988). Optimality in human motor performance: Ideal control of rapid aimed movements. <em>Psychological Review, 95</em>(3), 340&ndash;370. <a href="https://doi.org/10.1037/0033-295X.95.3.340" target="_blank" rel="noopener">https://doi.org/10.1037/0033-295X.95.3.340</a></p>
+    </div></div>
+  </section>
+
+  <!-- 6 CASE: AGING (Temprado 2013) -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">Case study &middot; healthy aging</div>
+      <h2>Aging: more time in the homing phase</h2>
+      <p>Older adults can be as accurate as younger adults but typically require more time. Critically, <strong>Fitts&rsquo; law is preserved</strong> &mdash; the logarithmic scaling of movement time with difficulty remains intact. What changes is the <em>control</em> of the movement, particularly its feedback-dependent phase.</p>
+      <div class="studybar fb">
+        <div class="cell"><div class="k">Study</div><div class="v">Temprado et&nbsp;al. (2013)</div></div>
+        <div class="cell"><div class="k">Task</div><div class="v">Discrete Fitts&rsquo; aiming across difficulty levels, young vs. older adults</div></div>
+        <div class="cell"><div class="k">Affected phase</div><div class="v">Mostly feedback / closed-loop (deceleration)</div></div>
+      </div>
+      <p>Using the acceleration&ndash;deceleration decomposition from the previous screen, <strong>Temprado et&nbsp;al. (2013)</strong> separated each reach into its <em>acceleration</em> phase (feedforward force generation, launching the limb) and its <em>deceleration</em> phase (closed-loop, online correction onto the target).</p>
+      <div class="mlist">
+        <div class="mrow"><span class="mn">1</span><div><h4>Older adults are slower overall</h4><p>At matched task difficulty, movement times were <strong>longer in older adults</strong>, while the lawful Fitts&rsquo; relationship between movement time and difficulty was retained.</p></div></div>
+        <div class="mrow"><span class="mn">2</span><div><h4>The slowing is due to more time in the deceleration phase</h4><p>The additional movement time was due <strong>disproportionately to the deceleration (homing) phase</strong>, and increasingly so as accuracy demands rose. Older adults spend proportionally more of the movement in <strong>feedback-guided correction</strong>.</p></div></div>
+      </div>
+      <div class="callout why"><span class="clabel">Why do older adults slow down?</span>
+        <p>A decrease in <strong>information-processing capacity</strong> is currently considered the origin of age-related slowing of cognitive and motor behaviors (Welford et&nbsp;al., 1969; Birren et&nbsp;al., 1980; Cerella, 1985; Salthouse et&nbsp;al., 1996; Bashore et&nbsp;al., 1997). In a Fitts&rsquo; task, that reduced capacity shows up where processing demand is highest &mdash; the feedback-guided homing phase.</p></div>
+      <div class="callout"><span class="clabel">Interpretation</span>
+        <p>Slowness in aging reflects increased reliance on the <strong>corrective homing phase</strong>, not a failure of targeting. Accuracy is maintained but at the cost of increased time.</p></div>
+      <p class="refline">Temprado, J.-J., Sleimen-Malkoun, R., Lemaire, P., Rey-Robert, B., Retornaz, F., &amp; Berton, E. (2013). Aging of sensorimotor processes: a systematic study in Fitts&rsquo; task. <em>Experimental Brain Research, 228</em>(1), 105&ndash;116. <a href="https://doi.org/10.1007/s00221-013-3542-0" target="_blank" rel="noopener">https://doi.org/10.1007/s00221-013-3542-0</a></p>
+    </div></div>
+  </section>
+
+  <!-- 7 CASE: STROKE (McCrea) + velocity figure -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">Case study &middot; stroke</div>
+      <h2>Stroke: a fragmented reach</h2>
+      <p>Reaching with the more-affected arm after stroke is characteristically <strong>slow, segmented, and indirect</strong>. <strong>McCrea and Eng (2005)</strong> used Fitts&rsquo; law to quantify this, attributing it to <strong>increased neuromotor noise</strong> &mdash; a reduced capacity to transmit motor commands.</p>
+      <div class="studybar ff">
+        <div class="cell"><div class="k">Study</div><div class="v">McCrea &amp; Eng (2005)</div></div>
+        <div class="cell"><div class="k">Task</div><div class="v">Fitts&rsquo; reaching, more- vs. less-affected arm (n=20 stroke)</div></div>
+        <div class="cell"><div class="k">Affected phase</div><div class="v">Impaired impulse &rarr; added corrections</div></div>
+      </div>
+      <!-- Finding 1: Segmentation + velocity profiles (now first) -->
+      <div class="findbox">
+        <button type="button" class="flipans" style="--famin:120px" onclick="doFlip(this)">
+          <span class="fa-inner">
+            <span class="fa-front"><span class="fa-optbadge">Finding 1</span><span class="fa-q">What happens to the <em>shape</em> of the reach?</span><span class="fa-hint">Flip</span></span>
+            <span class="fa-back"><strong>The reach becomes segmented.</strong> Greater neuromotor noise degrades the <strong>initial impulse</strong>, so the velocity profile skews leftward and the deceleration phase lengthens as additional <strong>corrective submovements</strong> compensate &mdash; compare the two profiles below.</span>
+          </span>
+        </button>
+        <div class="profile-pair" style="margin-top:8px">
+          <div class="profile-card smooth">
+            <h4>Smooth reach</h4>
+            <p class="sub">Typical, well-controlled movement</p>
+            <svg viewBox="0 0 260 150" role="img" aria-label="A single smooth bell-shaped velocity profile with one peak.">
+              <path d="M20 130 H245" stroke="#9fb0bb" stroke-width="1.5"/>
+              <path d="M20 130 V18" stroke="#9fb0bb" stroke-width="1.5"/>
+              <path d="M24 128 C70 128 70 34 132 34 C196 34 196 128 242 128" fill="none" stroke="#1a7f8e" stroke-width="3"/>
+              <text x="133" y="146" text-anchor="middle" font-size="10.5" fill="#7a8a99">time</text>
+              <text x="12" y="74" text-anchor="middle" font-size="10.5" fill="#7a8a99" transform="rotate(-90 12 74)">velocity</text>
+            </svg>
+            <p class="note"><strong>One</strong> bell-shaped peak &mdash; a single ballistic impulse lands on target.</p>
+          </div>
+          <div class="profile-card frag">
+            <h4>Fragmented reach</h4>
+            <p class="sub">Characteristic of the affected arm after stroke</p>
+            <svg viewBox="0 0 260 150" role="img" aria-label="A velocity profile with one main peak followed by several smaller corrective peaks.">
+              <path d="M20 130 H245" stroke="#9fb0bb" stroke-width="1.5"/>
+              <path d="M20 130 V18" stroke="#9fb0bb" stroke-width="1.5"/>
+              <path d="M24 128 C58 128 58 54 92 54 C120 54 120 128 132 128 C140 128 140 86 156 86 C168 86 168 128 178 128 C186 128 186 100 200 100 C212 100 212 128 242 128" fill="none" stroke="#e0a458" stroke-width="3"/>
+              <text x="133" y="146" text-anchor="middle" font-size="10.5" fill="#7a8a99">time</text>
+              <text x="12" y="74" text-anchor="middle" font-size="10.5" fill="#7a8a99" transform="rotate(-90 12 74)">velocity</text>
+            </svg>
+            <p class="note">A smaller main peak followed by <strong>several corrective submovements</strong> &mdash; the limb hunts onto the target.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finding 2: Fitts' parameters + McCrea figure (now second) -->
+      <div class="findbox">
+        <button type="button" class="flipans" style="--famin:120px" onclick="doFlip(this)">
+          <span class="fa-inner">
+            <span class="fa-front"><span class="fa-optbadge">Finding 2</span><span class="fa-q">How do the Fitts&rsquo; parameters change in the more-affected arm?</span><span class="fa-hint">Flip</span></span>
+            <span class="fa-back"><strong>Fitts&rsquo; parameters rise with impairment.</strong> Both the <strong>slope and intercept</strong> of the Fitts&rsquo; function were increased in the more-affected arm, and these increases <strong>correlated with clinical impairment</strong>. The law thus provides a graded, objective index of severity.</span>
+          </span>
+        </button>
+        <figure class="imgfig" style="max-width:620px;margin:14px auto 4px">
+          <img src="images/sa-mccrea-fitts.png" alt="Two scatter plots of movement time versus index of difficulty, each with a steeper solid line (more-affected arm, filled circles) above a shallower dashed line (less-affected arm, open circles). In panel a (low Fugl-Meyer score, more impaired) the two lines are far apart; in panel b (high Fugl-Meyer score, less impaired) they are closer together.">
+          <figcaption>Movement time vs. index of difficulty for the <strong>less-affected</strong> (open circles, dashed line) and <strong>more-affected</strong> (filled circles, solid line) arm. <strong>a:</strong> a more-impaired patient (low Fugl-Meyer score); <strong>b:</strong> a less-impaired patient (high Fugl-Meyer score). As impairment lessens, the slope and intercept of the two arms&rsquo; lines converge. From McCrea &amp; Eng (2005).</figcaption>
+        </figure>
+        <div class="callout" style="margin-top:6px"><span class="clabel">What is the Fugl-Meyer score?</span>
+          <p>The <strong>Fugl-Meyer Assessment</strong> is a standard clinical measure of post-stroke sensorimotor impairment. The upper-extremity motor section is scored out of <strong>66</strong>; a <strong>higher score means less impairment</strong> (better motor function). Here it indexes how far the affected arm&rsquo;s Fitts&rsquo; line sits above the less-affected arm&rsquo;s.</p></div>
+      </div>
+
+      <div class="callout"><span class="clabel">Interpretation</span>
+        <p>Submovement count and smoothness, derived from the velocity profile, are <strong>quantitative markers of reaching recovery</strong> &mdash; a direct clinical application of the two-phase model.</p></div>
+      <p class="refline">McCrea, P.&nbsp;H., &amp; Eng, J.&nbsp;J. (2005). Consequences of increased neuromotor noise for reaching movements in persons with stroke. <em>Experimental Brain Research, 162</em>(1), 70&ndash;77. <a href="https://doi.org/10.1007/s00221-004-2106-8" target="_blank" rel="noopener">https://doi.org/10.1007/s00221-004-2106-8</a> <span style="color:var(--muted)">Velocity profiles shown are schematic illustrations, not recorded data.</span></p>
+    </div></div>
+  </section>
+
+  <!-- 8 CASE: PARKINSON'S (Fernandez) -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">Case study &middot; Parkinson&rsquo;s disease</div>
+      <h2>Parkinson&rsquo;s disease: the law holds, but the line shifts</h2>
+      <p>Patients with Parkinson&rsquo;s disease often have difficulty <strong>generating rhythmic movements</strong> and making <strong>movement adjustments to accuracy constraints</strong> (Fernandez et&nbsp;al., 2018) &mdash; precisely the demands of a Fitts&rsquo; task. A notable feature is that patients <strong>still obey Fitts&rsquo; law</strong> &mdash; the speed&ndash;accuracy relationship remains lawful &mdash; but the trade-off is shifted and more costly. <strong>Fernandez et&nbsp;al. (2018)</strong> examined this in a reciprocal aiming task, on and off dopaminergic medication.</p>
+      <div class="studybar mix">
+        <div class="cell"><div class="k">Study</div><div class="v">Fernandez et&nbsp;al. (2018)</div></div>
+        <div class="cell"><div class="k">Task</div><div class="v">Reciprocal Fitts&rsquo; aiming; PD ON/OFF dopamine vs. controls</div></div>
+        <div class="cell"><div class="k">Affected phase</div><div class="v">Pronounced trade-off; more discrete submovements</div></div>
+      </div>
+      <figure class="imgfig" style="max-width:600px;margin:14px auto 4px">
+        <img src="images/sa-fernandez-task.png" alt="The reciprocal aiming task: a hand moves a stylus back and forth between two targets on a tilted surface, labeled with target width W and distance D. At left (Low ID, easy) the position trace is a smooth wave, velocity is a clean oscillation, and acceleration is smooth. At right (High ID, hard) the position wave is less regular, velocity shows extra small peaks, and acceleration is broken into many small fluctuations.">
+        <figcaption>The reciprocal Fitts&rsquo; aiming task: move a stylus back and forth between two targets (width <em>W</em>, distance <em>D</em>). Position, velocity, and acceleration are shown for a <strong>low index of difficulty</strong> (left, large / near targets) and a <strong>high index of difficulty</strong> (right, small / far targets). At high difficulty the traces fragment into many small submovements. From Fernandez et&nbsp;al. (2018).</figcaption>
+      </figure>
+      <p style="font-size:14px;color:#55606a;margin-top:6px"><strong>Flip each finding</strong> to reveal what Fernandez and colleagues observed.</p>
+      <button type="button" class="flipans" style="--famin:116px" onclick="doFlip(this)">
+        <span class="fa-inner">
+          <span class="fa-front"><span class="fa-optbadge">Finding 1</span><span class="fa-q">Does the speed&ndash;accuracy trade-off itself change in PD?</span><span class="fa-hint">Flip</span></span>
+          <span class="fa-back"><strong>A more pronounced trade-off.</strong> Both groups traded speed against accuracy as difficulty rose, so the lawful Fitts&rsquo; relationship still held. But in PD the whole Fitts&rsquo; line <strong>sat higher</strong> &mdash; movement times were <strong>longer at every level of difficulty</strong>, with greater variability. The <em>form</em> of the law was intact; the patients were simply slower throughout.</span>
+        </span>
+      </button>
+      <button type="button" class="flipans" style="--famin:116px" onclick="doFlip(this)">
+        <span class="fa-inner">
+          <span class="fa-front"><span class="fa-optbadge">Finding 2</span><span class="fa-q">What happens to the movement at high difficulty?</span><span class="fa-hint">Flip</span></span>
+          <span class="fa-back"><strong>More discrete movements.</strong> As accuracy demands increased, PD velocity profiles became <strong>increasingly asymmetric and concatenated</strong> into a succession of <strong>discrete submovements</strong>, with an elongated deceleration phase &mdash; see the fragmented High-ID traces above.</span>
+        </span>
+      </button>
+      <button type="button" class="flipans" style="--famin:116px" onclick="doFlip(this)">
+        <span class="fa-inner">
+          <span class="fa-front"><span class="fa-optbadge">Finding 3</span><span class="fa-q">What does dopaminergic medication do?</span><span class="fa-hint">Flip</span></span>
+          <span class="fa-back"><strong>Dopamine trades back toward speed.</strong> Medication allowed patients to move <strong>faster but less accurately</strong> &mdash; a movement <em>along</em> the trade-off. The underlying <strong>kinematic organization was preserved</strong>: PD slowing reflects a global adaptation, not a structurally broken movement.</span>
+        </span>
+      </button>
+      <div class="callout"><span class="clabel">Interpretation</span>
+        <p>Parkinson&rsquo;s disease illustrates that a condition can <strong>obey Fitts&rsquo; law while still performing worse</strong>: the line keeps its shape but shifts to longer movement times, and the reach fragments into more submovements. The clinical signal is in this overall slowing and fragmentation, not in any breakdown of the Fitts&rsquo; relationship itself.</p></div>
+      <p class="refline">Fernandez, L., Huys, R., Issartel, J., Azulay, J.-P., &amp; Eusebio, A. (2018). Movement speed-accuracy trade-off in Parkinson&rsquo;s disease. <em>Frontiers in Neurology, 9</em>, 897. <a href="https://doi.org/10.3389/fneur.2018.00897" target="_blank" rel="noopener">https://doi.org/10.3389/fneur.2018.00897</a></p>
+    </div></div>
+  </section>
+
+  <!-- 9 CATEGORY II BAND -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="cat-band" style="background:#5a3d12"><span class="cat-no">II</span><div><h2>Medical training</h2><p>The speed&ndash;accuracy function as a metric of skill acquisition</p></div></div>
+      <p>The same relationships that reveal impairment can also measure <strong>progress</strong>. Because a skilled performer is both faster and more accurate than a novice, the speed&ndash;accuracy function provides an objective, quantitative index of how far a trainee has advanced &mdash; one that does not depend on subjective rating.</p>
+      <div class="callout why"><span class="clabel">The measurement logic</span>
+        <p>Learning is visible as a <strong>shift of the entire trade-off function</strong>, and as reduced variability for a given speed. The two cases that follow apply this idea first in a controlled laboratory task, then in robot-assisted surgical training.</p></div>
+    </div></div>
+  </section>
+
+  <!-- 10 CASE: DEFINING SKILL LEARNING (Shmuelof) -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">Case study &middot; defining skill learning</div>
+      <h2>Learning as a shift in the trade-off</h2>
+      <p><strong>Shmuelof, Krakauer, and Mazzoni (2012)</strong> proposed that this shift <em>is</em> what motor-skill learning fundamentally is &mdash; a &ldquo;breaking through&rdquo; of the current trade-off to move <strong>faster <em>and</em> more accurately</strong>, rather than exchanging one for the other.</p>
+      <div class="studybar fb">
+        <div class="cell"><div class="k">Study</div><div class="v">Shmuelof, Krakauer &amp; Mazzoni (2012)</div></div>
+        <div class="cell"><div class="k">Task</div><div class="v">Visually guided arc-pointing (curved wrist movements), 5 days</div></div>
+        <div class="cell"><div class="k">Metric</div><div class="v">Shift of the speed&ndash;accuracy function</div></div>
+      </div>
+      <figure class="imgfig" style="max-width:560px;margin:16px auto">
+        <svg viewBox="0 0 520 280" role="img" aria-label="Two speed-accuracy trade-off functions: the after-practice curve sits below the before-practice curve, showing less error at every speed.">
+          <rect x="60" y="18" width="430" height="210" fill="#f8fafb"/>
+          <path d="M60 18 V228 H490" fill="none" stroke="#9fb0bb" stroke-width="2"/>
+          <text x="275" y="258" text-anchor="middle" font-size="13" fill="#45555f" font-weight="700">Movement speed &rarr;</text>
+          <text x="26" y="123" text-anchor="middle" font-size="13" fill="#45555f" font-weight="700" transform="rotate(-90 26 123)">Error</text>
+          <path d="M75 140 C180 140 300 112 480 52" fill="none" stroke="#e0a458" stroke-width="3.5"/>
+          <text x="420" y="46" font-size="12.5" fill="#b9802f" font-weight="800">Before practice</text>
+          <path d="M75 205 C210 204 340 186 480 142" fill="none" stroke="#1a7f8e" stroke-width="3.5"/>
+          <text x="430" y="162" font-size="12.5" fill="#146470" font-weight="800">After practice</text>
+          <path d="M300 112 L320 166" stroke="#55606a" stroke-width="2" marker-end="url(#ar4)"/>
+          <defs><marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#55606a"/></marker></defs>
+          <text x="332" y="142" font-size="11.5" fill="#55606a">learning</text>
+        </svg>
+        <figcaption>Skill as a downward shift of the speed&ndash;accuracy function: less error at <em>every</em> speed (after Shmuelof et&nbsp;al., 2012). Schematic.</figcaption>
+      </figure>
+      <figure class="imgfig" style="max-width:520px;margin:16px auto">
+        <img src="images/sa-shmuelof-arc-task.png" alt="Panel A: a person guiding a cursor along an arc-shaped channel; an infrared camera tracks a marker on the knuckle. Panel B: hand paths on Day 1 (scattered) and Day 5 (tighter, within the channel).">
+        <figcaption><strong>A:</strong> apparatus &mdash; a cursor is guided by pointing movements of the fist, tracked by an infrared camera. <strong>B:</strong> representative fast trials (goal 500&nbsp;ms) before (Day&nbsp;1) and after (Day&nbsp;5) training; paths became tighter and stayed within the channel. <span style="color:var(--muted)">From Shmuelof et&nbsp;al. (2012).</span></figcaption>
+      </figure>
+      <p>The improvement arose <strong>largely from reduced trial-to-trial variability and greater smoothness</strong>; the mean path changed little but became far more consistent. In the authors&rsquo; words: <em>&ldquo;We found evidence for improved feedback control, which could explain the reduction in variability but does not preclude other explanations such as an increased signal-to-noise ratio in cortical representations.&rdquo;</em></p>
+      <p class="refline">Shmuelof, L., Krakauer, J.&nbsp;W., &amp; Mazzoni, P. (2012). How is a motor skill learned? Change and invariance at the levels of task success and trajectory control. <em>Journal of Neurophysiology, 108</em>(2), 578&ndash;594. <a href="https://journals.physiology.org/doi/full/10.1152/jn.00856.2011" target="_blank" rel="noopener">https://journals.physiology.org/doi/full/10.1152/jn.00856.2011</a></p>
+    </div></div>
+  </section>
+
+  <!-- 11 CASE: ROBOTIC SURGERY (Chien) -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">Case study &middot; robot-assisted surgery</div>
+      <h2>Robotic surgery: Fitts&rsquo; law at the console</h2>
+      <p>The speed&ndash;accuracy framework extends directly to surgical skill. <strong>Chien et&nbsp;al. (2010)</strong> applied a Fitts&rsquo; task on the da&nbsp;Vinci surgical system, in which operators alternately touched targets of varying size and distance through the telemanipulator.</p>
+      <div class="studybar mix">
+        <div class="cell"><div class="k">Study</div><div class="v">Chien et&nbsp;al. (2010)</div></div>
+        <div class="cell"><div class="k">Task</div><div class="v">Fitts&rsquo; reciprocal targeting on the da&nbsp;Vinci system (9 difficulty levels)</div></div>
+        <div class="cell"><div class="k">Participants</div><div class="v">7 novice students, 3 trained residents</div></div>
+      </div>
+      <figure class="imgfig" style="max-width:640px;margin:14px auto 4px">
+        <img src="images/sa-chien-system-task.png" alt="Left: a surgeon seated at the da Vinci surgical system console while a robot with multiple arms operates over a draped patient. Right: a close-up of the experimental task — two robotic instrument tips touching two pink circular targets two inches apart on a board.">
+        <figcaption>The da&nbsp;Vinci surgical system (left) and the experimental Fitts&rsquo; targeting task performed through it (right). From Chien et&nbsp;al. (2010).</figcaption>
+      </figure>
+      <div class="findbox">
+        <div class="mrow"><span class="mn">1</span><div><h4>Fitts&rsquo; law holds at the console</h4><p>A <strong>significant linear relationship between movement time and index of difficulty</strong> was observed: as targets became smaller or more distant, operators <strong>slowed down to preserve accuracy</strong>. The robotic interface obeys the same law as free-limb movement.</p></div></div>
+      </div>
+      <div class="findbox">
+        <div class="mrow"><span class="mn">2</span><div><h4>A metric of proficiency</h4><p>The two groups fell on <strong>separate Fitts&rsquo; lines</strong>: trained operators were faster than novices at every level of difficulty. Because speed improves with experience while accuracy is held constant, the speed&ndash;accuracy relationship is a <strong>quantitative index of surgical proficiency</strong> and of progress along the learning curve.</p></div></div>
+        <figure class="imgfig" style="max-width:520px;margin:12px auto 4px">
+          <svg viewBox="0 0 500 300" role="img" aria-label="Movement time versus index of difficulty for novice and expert operators. Both rise linearly with difficulty, but the novice line sits well above the expert line at every point.">
+            <!-- plot frame -->
+            <rect x="56" y="18" width="404" height="226" fill="#fff"/>
+            <line x1="56" y1="18" x2="56" y2="244" stroke="#45555f" stroke-width="1.5"/>
+            <line x1="56" y1="244" x2="460" y2="244" stroke="#45555f" stroke-width="1.5"/>
+            <!-- y ticks (0..1800 ms) -->
+            <g fill="#7a8a99" font-size="10" text-anchor="end">
+              <text x="50" y="247">0</text><text x="50" y="197">600</text><text x="50" y="147">1000</text><text x="50" y="98">1400</text><text x="50" y="48">1800</text>
+            </g>
+            <g stroke="#eef2f4" stroke-width="1">
+              <line x1="56" y1="194" x2="460" y2="194"/><line x1="56" y1="144" x2="460" y2="144"/><line x1="56" y1="95" x2="460" y2="95"/><line x1="56" y1="45" x2="460" y2="45"/>
+            </g>
+            <!-- x ticks (ID 0..8); x = 56 + ID*(404/8) -->
+            <g fill="#7a8a99" font-size="10" text-anchor="middle">
+              <text x="56" y="258">0</text><text x="157" y="258">2</text><text x="258" y="258">4</text><text x="359" y="258">6</text><text x="460" y="258">8</text>
+            </g>
+            <text x="258" y="278" text-anchor="middle" font-size="12" fill="#45555f" font-weight="700">Index of Difficulty</text>
+            <text x="18" y="131" text-anchor="middle" font-size="12" fill="#45555f" font-weight="700" transform="rotate(-90 18 131)">Movement Time (ms)</text>
+            <!-- helper: y(ms)=244 - ms*(226/1800); x(ID)=56+ID*50.5 -->
+            <!-- NOVICE best-fit line: ~1080 ms at ID1 -> ~1560 ms at ID8 -->
+            <line x1="106.5" y1="108.4" x2="460" y2="48.1" stroke="#1a7f8e" stroke-width="2.5"/>
+            <!-- NOVICE points (diamonds) -->
+            <g fill="#1a7f8e">
+              <path d="M106.5 95 l6 7 l-6 7 l-6 -7 z"/><path d="M157 116 l6 7 l-6 7 l-6 -7 z"/><path d="M207.5 94 l6 7 l-6 7 l-6 -7 z"/><path d="M258 84 l6 7 l-6 7 l-6 -7 z"/><path d="M308.5 63 l6 7 l-6 7 l-6 -7 z"/><path d="M359 97 l6 7 l-6 7 l-6 -7 z"/><path d="M409.5 65 l6 7 l-6 7 l-6 -7 z"/><path d="M455 33 l6 7 l-6 7 l-6 -7 z"/>
+            </g>
+            <!-- EXPERT best-fit line: ~560 ms at ID1 -> ~1000 ms at ID8 -->
+            <line x1="106.5" y1="173.7" x2="460" y2="118.4" stroke="#b9802f" stroke-width="2.5" stroke-dasharray="6 4"/>
+            <!-- EXPERT points (squares) -->
+            <g fill="#8a6d3b">
+              <rect x="101.5" y="168" width="10" height="10"/><rect x="152" y="162" width="10" height="10"/><rect x="202.5" y="150" width="10" height="10"/><rect x="253" y="156" width="10" height="10"/><rect x="303.5" y="149" width="10" height="10"/><rect x="354" y="135" width="10" height="10"/><rect x="404.5" y="162" width="10" height="10"/><rect x="455" y="119" width="10" height="10"/>
+            </g>
+            <!-- R-squared labels -->
+            <text x="372" y="40" font-size="11" fill="#146470" font-weight="700">Novice: R&#178; = 0.59</text>
+            <text x="372" y="110" font-size="11" fill="#8a6d3b" font-weight="700">Expert: R&#178; = 0.52</text>
+          </svg>
+          <figcaption>Movement time vs. index of difficulty for <strong>novice</strong> (teal, solid) and <strong>expert</strong> (gold, dashed) operators on the da&nbsp;Vinci system. Both obey Fitts&rsquo; law, but experts are faster at every difficulty. Recreated from Chien et&nbsp;al. (2010).</figcaption>
+        </figure>
+      </div>
+      <div class="callout why"><span class="clabel">Why it matters for training</span>
+        <p>An objective, Fitts&rsquo;-based index lets a training program <strong>track skill acquisition</strong> and define competency without relying solely on expert judgement &mdash; the measurement logic of Case II applied to a modern clinical tool.</p></div>
+      <p class="refline">Chien, J.&nbsp;H., Tiwari, M.&nbsp;M., Suh, I.&nbsp;H., Mukherjee, M., Park, S.-H., Oleynikov, D., &amp; Siu, K.-C. (2010). Accuracy and speed trade-off in robot-assisted surgery. <em>The International Journal of Medical Robotics and Computer Assisted Surgery, 6</em>(3), 324&ndash;329. <a href="https://doi.org/10.1002/rcs.336" target="_blank" rel="noopener">https://doi.org/10.1002/rcs.336</a></p>
+    </div></div>
+  </section>
+
+  <!-- 12 KNOWLEDGE CHECK (gate) -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner"><div class="kc-card">
+      <div class="eyebrow">Check your understanding</div>
+      <div class="kc-q">A clinician records that a patient&rsquo;s reach <strong>begins with a normal-looking launch</strong> but then breaks into <strong>several small corrective submovements</strong>, with a prolonged settling phase. Which component of control is most implicated?</div>
+      <div class="cmpcheck" id="kcChoice">
+        <button type="button" class="opt" data-correct="0">
+          <svg viewBox="0 0 200 86"><path d="M16 60 H184" stroke="#e3e9ee" stroke-width="2"/><path d="M20 58 C45 58 45 20 70 20" fill="none" stroke="#e0a458" stroke-width="3"/><circle cx="70" cy="20" r="4" fill="#e0a458"/><text x="100" y="78" text-anchor="middle" font-size="11" fill="#45555f" font-weight="700">weak / off launch</text></svg>
+          <div class="ol">The <strong>initial impulse</strong> (feedforward / open-loop)</div>
+        </button>
+        <button type="button" class="opt" data-correct="1">
+          <svg viewBox="0 0 200 86"><path d="M16 60 H184" stroke="#e3e9ee" stroke-width="2"/><path d="M20 58 C45 58 45 28 66 28 C80 28 80 58 92 58 C100 58 100 40 112 40 C122 40 122 58 132 58 C140 58 140 46 152 46 C162 46 162 58 180 58" fill="none" stroke="#1a7f8e" stroke-width="3"/><text x="100" y="78" text-anchor="middle" font-size="11" fill="#45555f" font-weight="700">many corrections</text></svg>
+          <div class="ol">The <strong>homing phase</strong> (feedback / closed-loop)</div>
+        </button>
+      </div>
+      <div class="kc-feedback" id="kcFb" role="status"></div>
+    </div></div>
+  </section>
+
+  <!-- 13 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner"><div class="card">
+      <div class="eyebrow">Lesson 4 &middot; summary</div>
+      <h2>Speed&ndash;accuracy as a clinical tool</h2>
+      <p>Across five case studies, Fitts&rsquo; and Schmidt&rsquo;s principles served two distinct clinical purposes, both read through the initial-impulse / homing-phase structure of movement.</p>
+      <div class="mlist">
+        <div class="mrow"><span class="mn">I</span><div><h4>Quantifying impairment</h4><p><strong>Aging</strong> &rarr; more time in the feedback (deceleration) phase. <strong>Stroke</strong> &rarr; raised Fitts&rsquo; slope/intercept and a segmented, submovement-rich reach. <strong>Parkinson&rsquo;s</strong> &rarr; the law holds, but with a costlier trade-off and more discrete submovements.</p></div></div>
+        <div class="mrow"><span class="mn">II</span><div><h4>Measuring skill acquisition</h4><p><strong>Laboratory learning</strong> &rarr; skill defined as a downward shift of the speed&ndash;accuracy function. <strong>Robotic surgery</strong> &rarr; Fitts&rsquo; law at the console provides an objective index of surgical proficiency and the learning curve.</p></div></div>
+      </div>
+      <div class="callout why"><span class="clabel">A unifying principle</span>
+        <p>Whether these methods are used to characterize a motor deficit or to assess the acquisition of a skill, the underlying approach is consistent: quantify the relationship among speed, task difficulty, and error, and interpret any departure from that relationship in terms of the two phases of goal-directed movement &mdash; the initial impulse and the feedback-guided homing phase.</p></div>
+    </div></div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    if(window.__fdLayout) window.__fdLayout();
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+  window.flipMechanism=function(card){
+    var flipped=card.classList.toggle("flipped");
+    card.setAttribute("aria-pressed",String(flipped));
+    card.querySelector(".front").setAttribute("aria-hidden",String(flipped));
+    card.querySelector(".back").setAttribute("aria-hidden",String(!flipped));
+  };
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  var NS="http://www.w3.org/2000/svg";
+  function el(tag,a){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);return e;}
+
+  // ============ Interactive P/V/A kinematics figure (after Meyer et al., 1988) ============
+  (function(){
+    var svg=document.getElementById("kSvg"); if(!svg) return;
+    var subSl=document.getElementById("kSub"), subV=document.getElementById("kSubV"), subLab=document.getElementById("kSubLab");
+    var spdSl=document.getElementById("kSpd"), spdV=document.getElementById("kSpdV");
+    var playBtn=document.getElementById("kPlay"), resetBtn=document.getElementById("kReset"), msg=document.getElementById("kMsg");
+    var N=240;
+    var SPD=[{lab:"slow",w:1.30,amp:0.85},{lab:"moderate",w:1.0,amp:1.0},{lab:"fast",w:0.72,amp:1.25}];
+    var SUBLAB=["a single clean reach","one correction","two corrections","a fragmented reach"];
+    function bump(t,c,hw,h){ var x=(t-c)/hw; if(x<=-1||x>=1) return 0; var u=(x+1)/2; return h*(u*u*(3-2*u))*((1-u)*(1-u)*(3-2*(1-u)))*6.0; }
+    function buildVel(nSub,spd){
+      var s=SPD[spd], v=new Array(N), i;
+      for(i=0;i<N;i++){ var t=i/(N-1); v[i]=bump(t,0.26*s.w+0.02,0.24*s.w,s.amp); }
+      var starts=[0.56,0.70,0.82], hws=[0.11,0.095,0.085], hs=[0.40,0.26,0.17];
+      for(var k=0;k<nSub;k++){ for(i=0;i<N;i++){ var tt=i/(N-1); v[i]+=bump(tt,starts[k]*s.w+0.04,hws[k]*s.w,hs[k]*s.amp); } }
+      return v;
+    }
+    function deriv(a){ var d=new Array(N),i; for(i=0;i<N;i++){ var p=a[Math.max(0,i-1)],n=a[Math.min(N-1,i+1)]; d[i]=(n-p)*0.5*N; } return d; }
+    function integ(a){ var c=new Array(N),s=0,i; for(i=0;i<N;i++){ s+=a[i]/N; c[i]=s; } return c; }
+    function minmax(a){ var mn=Infinity,mx=-Infinity; for(var i=0;i<N;i++){ if(a[i]<mn)mn=a[i]; if(a[i]>mx)mx=a[i]; } return [mn,mx]; }
+    var L=52, R=540, PW=R-L;
+    // 2D reach lane at top; three time panels below (shifted down by LANE_H)
+    var LANE={y:16,h:52,x0:70,x1:522,cy:42}; // end-effector travels x0->x1 along cy
+    var PTOP=96; // panels start below the lane
+    var panels=[{y:PTOP,h:100,lab:"POSITION",col:"#55606a"},{y:PTOP+128,h:100,lab:"VELOCITY",col:"#1a7f8e"},{y:PTOP+256,h:112,lab:"ACCEL.",col:"#8a6d3b"}];
+    var PANEL_TOP=panels[0].y, PANEL_BOT=panels[2].y+panels[2].h;
+    var cache={};
+    function compute(){
+      var nSub=+subSl.value, spd=+spdSl.value;
+      var vel=buildVel(nSub,spd), acc=deriv(vel), pos=integ(vel), i;
+      var peakI=0; for(i=1;i<N;i++){ if(vel[i]>vel[peakI]) peakI=i; }
+      var primEnd=N-1; for(i=peakI+1;i<N-1;i++){ if(vel[i]<vel[i-1]&&vel[i]<=vel[i+1]){ primEnd=i; break; } }
+      var thr=0.03*vel[peakI], endI=N-1; for(i=N-1;i>0;i--){ if(Math.abs(vel[i])>thr){ endI=i; break; } }
+      cache={vel:vel,acc:acc,pos:pos,peakI:peakI,primEnd:primEnd,endI:endI};
+    }
+    function xAt(i){ return L + (i/(N-1))*PW; }
+    function pathFor(arr,p){ var mm=minmax(arr),lo=mm[0],hi=mm[1],rng=(hi-lo)||1,d="",i;
+      for(i=0;i<N;i++){ var norm=(arr[i]-lo)/rng, y=p.y+p.h-norm*p.h; d+=(i?"L":"M")+xAt(i).toFixed(1)+" "+y.toFixed(1); } return d; }
+    function yOf(arr,p,i){ var mm=minmax(arr),lo=mm[0],hi=mm[1],rng=(hi-lo)||1; return p.y+p.h-((arr[i]-lo)/rng)*p.h; }
+    function zeroY(arr,p){ var mm=minmax(arr),lo=mm[0],hi=mm[1],rng=(hi-lo)||1; return p.y+p.h-((0-lo)/rng)*p.h; }
+    // map a position value (pos[i]) to an x on the 2D lane (pos[0]=start, pos[endI]=target)
+    function laneX(posVal,pos,endI){ var p0=pos[0], p1=pos[endI], rng=(p1-p0)||1; var f=(posVal-p0)/rng;
+      f=Math.max(0,Math.min(1.08,f)); return LANE.x0 + f*(LANE.x1-LANE.x0); }
+    function draw(markerI){
+      svg.innerHTML="";
+      var c=cache, xPeak=xAt(c.peakI), xEnd=xAt(c.endI), arrs=[c.pos,c.vel,c.acc];
+      // ---- 2D reach lane ----
+      svg.appendChild(el("line",{x1:LANE.x0-14,y1:LANE.cy,x2:LANE.x1+14,y2:LANE.cy,stroke:"#e3e9ee","stroke-width":2}));
+      // start marker
+      svg.appendChild(el("circle",{cx:LANE.x0,cy:LANE.cy,r:7,fill:"none",stroke:"#2c3e50","stroke-width":2}));
+      svg.appendChild(el("circle",{cx:LANE.x0,cy:LANE.cy,r:2,fill:"#2c3e50"}));
+      var sl=el("text",{x:LANE.x0,y:LANE.cy-13,"text-anchor":"middle","font-size":10.5,fill:"#2c3e50","font-weight":700}); sl.textContent="start"; svg.appendChild(sl);
+      // target marker
+      svg.appendChild(el("circle",{cx:LANE.x1,cy:LANE.cy,r:10,fill:"none",stroke:"#146470","stroke-width":2.4}));
+      svg.appendChild(el("circle",{cx:LANE.x1,cy:LANE.cy,r:2.5,fill:"#146470"}));
+      var tl=el("text",{x:LANE.x1,y:LANE.cy-15,"text-anchor":"middle","font-size":10.5,fill:"#146470","font-weight":700}); tl.textContent="target"; svg.appendChild(tl);
+      var hint=el("text",{x:(LANE.x0+LANE.x1)/2,y:LANE.y-2,"text-anchor":"middle","font-size":10,fill:"#9aa7b0"}); hint.textContent="end-effector (hand / fingertip)"; svg.appendChild(hint);
+      // ---- phase shading across the three panels ----
+      svg.appendChild(el("rect",{x:L,y:PANEL_TOP-6,width:(xPeak-L),height:(PANEL_BOT-PANEL_TOP+12),fill:"#f3e2c5",opacity:0.5}));
+      svg.appendChild(el("rect",{x:xPeak,y:PANEL_TOP-6,width:(xEnd-xPeak),height:(PANEL_BOT-PANEL_TOP+12),fill:"#d9edf0",opacity:0.6}));
+      panels.forEach(function(p,pi){
+        var arr=arrs[pi];
+        svg.appendChild(el("line",{x1:L,y1:p.y,x2:L,y2:p.y+p.h,stroke:"#9fb0bb","stroke-width":1.2}));
+        svg.appendChild(el("line",{x1:L,y1:p.y+p.h,x2:R,y2:p.y+p.h,stroke:"#9fb0bb","stroke-width":1.2}));
+        if(pi>0){ var zy=zeroY(arr,p); svg.appendChild(el("line",{x1:L,y1:zy,x2:R,y2:zy,stroke:"#cdd6dc","stroke-width":1,"stroke-dasharray":"3 3"})); }
+        svg.appendChild(el("path",{d:pathFor(arr,p),fill:"none",stroke:p.col,"stroke-width":2.4}));
+        var yl=el("text",{x:16,y:p.y+p.h/2,"font-size":10.5,fill:p.col,"font-weight":700,"text-anchor":"middle",transform:"rotate(-90 16 "+(p.y+p.h/2)+")"}); yl.textContent=p.lab; svg.appendChild(yl);
+      });
+      // start/target labels on the POSITION panel (pos[0] at bottom, pos[endI] near top)
+      var pp=panels[0];
+      var ls=el("text",{x:R-4,y:yOf(c.pos,pp,0)-4,"text-anchor":"end","font-size":9.5,fill:"#2c3e50","font-weight":700}); ls.textContent="start"; svg.appendChild(ls);
+      var lt=el("text",{x:R-4,y:yOf(c.pos,pp,c.endI)+12,"text-anchor":"end","font-size":9.5,fill:"#146470","font-weight":700}); lt.textContent="target"; svg.appendChild(lt);
+      // ---- vertical event markers (span panels only) ----
+      function vmark(i,color,label,yl){ svg.appendChild(el("line",{x1:xAt(i),y1:PANEL_TOP-6,x2:xAt(i),y2:PANEL_BOT+6,stroke:color,"stroke-width":1.4,"stroke-dasharray":"4 3",opacity:0.8}));
+        var t=el("text",{x:xAt(i)+3,y:yl,"font-size":9,fill:color,"font-weight":700}); t.textContent=label; svg.appendChild(t); }
+      vmark(0,"#2c3e50","movement begins",PANEL_TOP+6);
+      vmark(c.primEnd,"#b9802f","primary submovement end",PANEL_TOP+18);
+      vmark(c.endI,"#146470","overall end",PANEL_TOP+6);
+      var tax=el("text",{x:(L+R)/2,y:PANEL_BOT+22,"font-size":10.5,fill:"#7a8a99","text-anchor":"middle"}); tax.textContent="time →"; svg.appendChild(tax);
+      // ---- synchronized time marker + moving end-effector dot ----
+      if(markerI!=null){
+        var mi=Math.max(0,Math.min(N-1,Math.round(markerI)));
+        svg.appendChild(el("line",{x1:xAt(mi),y1:PANEL_TOP-6,x2:xAt(mi),y2:PANEL_BOT+6,stroke:"#2c3e50","stroke-width":1}));
+        panels.forEach(function(p,pi){ svg.appendChild(el("circle",{cx:xAt(mi),cy:yOf(arrs[pi],p,mi),r:4.5,fill:"#2c3e50"})); });
+        // the end-effector dot on the 2D lane
+        var dx=laneX(c.pos[mi],c.pos,c.endI);
+        svg.appendChild(el("circle",{cx:dx,cy:LANE.cy,r:6.5,fill:"#e0a458",stroke:"#b9802f","stroke-width":1.6}));
+      } else {
+        // resting end-effector at start
+        svg.appendChild(el("circle",{cx:LANE.x0,cy:LANE.cy,r:6.5,fill:"#e0a458",stroke:"#b9802f","stroke-width":1.6,opacity:0.65}));
+      }
+    }
+    function updLabels(){ subV.textContent=subSl.value; subLab.textContent=SUBLAB[+subSl.value]; spdV.textContent=SPD[+spdSl.value].lab; }
+    function refresh(){ updLabels(); compute(); draw(null);
+      var n=+subSl.value;
+      msg.innerHTML = n===0
+        ? "A clean reach: <strong>one</strong> smooth velocity peak and a single acceleration&ndash;deceleration pair."
+        : "The homing phase now carries <strong>"+n+"</strong> extra corrective "+(n===1?"submovement":"submovements")+" — note the added velocity "+(n===1?"peak":"peaks")+" and the longer deceleration region.";
+    }
+    var raf=null;
+    function play(){
+      if(raf){ cancelAnimationFrame(raf); raf=null; }
+      playBtn.disabled=true;
+      var t0=null, dur=2200;
+      function step(ts){ if(!t0)t0=ts; var pr=Math.min(1,(ts-t0)/dur); draw(pr*(N-1));
+        if(pr<1){ raf=requestAnimationFrame(step); } else { raf=null; playBtn.disabled=false; draw(null); } }
+      raf=requestAnimationFrame(step);
+    }
+    subSl.addEventListener("input",refresh);
+    spdSl.addEventListener("input",refresh);
+    playBtn.addEventListener("click",play);
+    resetBtn.addEventListener("click",function(){ if(raf){cancelAnimationFrame(raf);raf=null;} playBtn.disabled=false; subSl.value=0; spdSl.value=1; refresh(); });
+    refresh();
+  })();
+
+  // ============ Knowledge check: movement signature -> phase + training ============
+  (function(){
+    var box=document.getElementById("kcChoice"); if(!box) return;
+    var fb=document.getElementById("kcFb");
+    box.querySelectorAll(".opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        if(answered.kc) return;
+        var correct = opt.dataset.correct==="1";
+        if(correct){
+          opt.classList.add("right");
+          fb.className="kc-feedback ok";
+          fb.innerHTML="<strong>Correct.</strong> Many small corrective submovements and a drawn-out homing phase point to a <strong>feedback / closed-loop problem</strong> — the initial impulse launches roughly on target, but settling onto it is slow and effortful. Training targets the correction phase: precision practice, graded target sizes, and augmented feedback.";
+          openGate("kc");
+        } else {
+          opt.classList.add("wrong");
+          fb.className="kc-feedback no";
+          fb.textContent="Not quite. Re-read the signature: the reach gets going fine but breaks into many small corrections near the target. Which phase is that — the ballistic launch, or the feedback-guided homing? Try again.";
+          setTimeout(function(){ opt.classList.remove("wrong"); },1100);
+        }
+      });
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>

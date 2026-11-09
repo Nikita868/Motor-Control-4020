@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitts' Law</title>
+<!--
+  HLSC 4025 · Speed-Accuracy · Lesson 2 of 4 — Fitts' Law
+  Shared design system (teal/gold). Screens are <section data-screen>; engine + interactives in <script>.
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#a7c6cc;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+
+  /* portrait / person callout */
+  .person{display:flex;gap:16px;align-items:flex-start;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+  .person .pface{flex:none;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px}
+  .person .pphoto{flex:none;width:92px;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+  @media(max-width:520px){.person{flex-direction:column;align-items:center;text-align:center}.person .pphoto{width:110px}}
+  .person .pbody p{margin:0;font-size:14px;color:#556;line-height:1.55}
+  .person .pbody .pn{font-weight:800;color:var(--ink);font-size:15px;margin-bottom:2px}
+
+  /* two innovations */
+  .innov{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .innov .ic{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fafbfc}
+  .innov .ic .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;align-items:center;justify-content:center;margin-bottom:8px}
+  .innov .ic .ih{font-size:15px;font-weight:800;color:var(--accent-dark);margin-bottom:5px}
+  .innov .ic p{font-size:13.6px;margin:0;color:#556;line-height:1.5}
+  .innov .ic.b .num{background:var(--gold)}.innov .ic.b .ih{color:#b9802f}
+  @media(max-width:600px){.innov{grid-template-columns:1fr}}
+  /* flippable innovation boxes */
+  .innov.flip{align-items:stretch}
+  .tf{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1500px;display:block;width:100%;height:100%;text-align:left}
+  .tf .tf-in{display:grid;width:100%;height:100%;min-height:200px;transition:transform .55s;transform-style:preserve-3d}
+  .tf .tf-in>*{grid-area:1/1}
+  .tf.flipped .tf-in{transform:rotateY(180deg)}
+  .tf .tf-face{box-sizing:border-box;height:100%;border:1px solid var(--line);border-radius:10px;padding:16px 18px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;background:#fafbfc}
+  .tf .tf-back{transform:rotateY(180deg);background:#fff}
+  .tf.a .tf-face{border-top:3px solid var(--accent)}
+  .tf.b .tf-face{border-top:3px solid var(--gold)}
+  .tf .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;align-items:center;justify-content:center;margin-bottom:8px}
+  .tf.b .num{background:var(--gold)}
+  .tf .ih{font-size:15px;font-weight:800;color:var(--accent-dark);margin-bottom:5px}
+  .tf.b .ih{color:#b9802f}
+  .tf p{font-size:13.6px;margin:0;color:#556;line-height:1.5}
+  .tf .tf-prompt{font-size:12px;color:#6a7a86;margin-top:auto;padding-top:10px}
+  .tf .tf-prompt::before{content:"\21BB  "}
+
+  /* bits ladder */
+  .bits{border:1px solid var(--line);border-radius:10px;background:#f8fafb;padding:16px 18px;margin:14px 0}
+  .bits .brow{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px dashed #e0e7ec;font-size:14px}
+  .bits .brow:last-child{border-bottom:none}
+  .bits .bopts{flex:none;width:118px;font-weight:700;color:var(--ink)}
+  .bits .bbar{flex:1;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--accent),#7fc3cc)}
+  .bits .bval{flex:none;width:58px;text-align:right;font-weight:800;color:var(--accent-dark)}
+
+  /* AW ratio compare */
+  .awcmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .awcmp .awc{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff;text-align:center}
+  .awcmp .awc svg{width:100%;height:auto;max-width:230px;margin:0 auto}
+  .awcmp .awc .awlab{font-size:13px;font-weight:800;margin-top:6px}
+  .awcmp .awc.easy{border-top:3px solid var(--accent)}.awcmp .awc.easy .awlab{color:var(--accent-dark)}
+  .awcmp .awc.hard{border-top:3px solid var(--gold)}.awcmp .awc.hard .awlab{color:#b9802f}
+  @media(max-width:560px){.awcmp{grid-template-columns:1fr}}
+
+  /* flip (dig deeper) */
+  .flipans{--famin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block;margin:14px 0}
+  .flipans .fa-inner{position:relative;display:block;width:100%;min-height:var(--famin);transition:transform .55s;transform-style:preserve-3d}
+  .flipans.flipped .fa-inner{transform:rotateY(180deg)}
+  .fa-back{position:relative;display:block;box-sizing:border-box;min-height:var(--famin);padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(180deg);background:#fdf3e0;border:1px solid #e0a458;color:#5a3d12;font-size:14px;line-height:1.6;text-align:left}
+  .fa-back strong{color:#9c6a1c}
+  .fa-back .fa-eq{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff7ea;border:1px solid #ecd6ae;border-radius:6px;padding:2px 7px;font-size:13px;color:#7a531a;display:inline-block;margin:3px 0}
+  .fa-front{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;text-align:center}
+  .fa-front .fa-optbadge{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.2);color:#eaf6f8;border-radius:20px;padding:3px 11px;margin-bottom:10px}
+  .fa-front .fa-q{font-size:15px;font-weight:800}
+  .fa-front .fa-hint{font-size:12px;opacity:.85;margin-top:8px}
+  .fa-front .fa-hint::before{content:"\21BB  "}
+  /* reveal-after-flip containers */
+  .revealclinic{max-height:0;overflow:hidden;opacity:0;transition:max-height .55s ease,opacity .4s ease,margin .4s ease;margin:0}
+  .revealclinic.show{max-height:1000px;opacity:1;margin:16px 0}
+  .flip-hint-line{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0;font-style:italic;transition:opacity .3s}
+  .flip-hint-line.gone{opacity:0}
+
+  /* formula block */
+  .formula{background:#0f3b44;color:#eaf6f8;border-radius:12px;padding:22px 24px;margin:16px 0;text-align:center}
+  .formula .eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:21px;font-weight:700;letter-spacing:.3px}
+  .formula .eq .v{color:var(--gold)}
+  .formula .note{font-size:13px;color:#9fc6cd;margin-top:10px}
+  .defs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+  .defs .d{border:1px solid var(--line);border-radius:8px;padding:11px 14px;background:#fafbfc;font-size:14px}
+  .defs .d b{color:var(--accent-dark)}
+  @media(max-width:560px){.defs{grid-template-columns:1fr}}
+
+  /* two-component numbered list (Woodworth) */
+  .mlist{margin:14px 0}
+  .mrow{display:flex;gap:14px;align-items:flex-start;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:#fafbfc;margin-bottom:10px}
+  .mrow .mn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .mrow:nth-of-type(2) .mn{background:var(--gold)}
+  .mrow h4{margin:0 0 3px;font-size:15px;color:var(--ink)}
+  .mrow p{margin:0;font-size:13.8px;color:#556;line-height:1.5}
+  .portrait{max-width:150px;margin:14px auto 4px}
+  .portrait img{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+  .portrait figcaption{font-size:11.5px;color:var(--muted);text-align:center;margin-top:7px;line-height:1.45}
+  .portrait-right{float:right;width:150px;margin:0 0 12px 20px}
+  .portrait-right img{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+  .portrait-right figcaption{font-size:11.5px;color:var(--muted);text-align:center;margin-top:7px;line-height:1.45}
+  @media(max-width:560px){.portrait-right{float:none;width:140px;margin:14px auto 4px}}
+
+  /* phase-contrast two cards (explanations of Fitts' Law) */
+  .phase{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  @media(max-width:620px){.phase{grid-template-columns:1fr}}
+  .phase .pc{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fafbfc;display:flex;flex-direction:column}
+  .phase .pc.open{border-top:3px solid var(--gold)}
+  .phase .pc.closed{border-top:3px solid var(--accent)}
+  .phase .pc .ptag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:3px 11px;align-self:flex-start;margin-bottom:8px}
+  .phase .pc.open .ptag{background:#fdf3e0;color:#b9802f}
+  .phase .pc.closed .ptag{background:var(--accent-soft);color:var(--accent-dark)}
+  .phase .pc h4{margin:0 0 6px;font-size:16px}
+  .phase .pc.open h4{color:#b9802f}.phase .pc.closed h4{color:var(--accent-dark)}
+  .phase .pc p{font-size:13.8px;color:#556;line-height:1.55;margin:0 0 9px}
+  .phase .pc .prow{font-size:12.6px;color:#45555f;padding:6px 0;border-top:1px dashed #e0e7ec;display:flex;gap:8px}
+  .phase .pc .prow b{flex:none;color:var(--ink);min-width:72px}
+  .phase .pc .plead{font-weight:800;font-size:13px;margin-top:auto;padding-top:10px}
+  .phase .pc.open .plead{color:#b9802f}.phase .pc.closed .plead{color:var(--accent-dark)}
+  /* flippable phase cards */
+  .phase.flip{align-items:stretch}
+  .pcf{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1600px;display:block;width:100%;height:100%;text-align:left}
+  .pcf .pcf-in{display:grid;width:100%;height:100%;min-height:250px;transition:transform .55s;transform-style:preserve-3d}
+  .pcf .pcf-in>*{grid-area:1/1}
+  .pcf.flipped .pcf-in{transform:rotateY(180deg)}
+  .pcf .pcf-face{box-sizing:border-box;height:100%;border:1px solid var(--line);border-radius:11px;padding:16px 18px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;background:#fafbfc}
+  .pcf .pcf-back{transform:rotateY(180deg);background:#fff}
+  .pcf.open .pcf-face{border-top:3px solid var(--gold)}
+  .pcf.closed .pcf-face{border-top:3px solid var(--accent)}
+  .pcf .ptag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:3px 11px;align-self:flex-start;margin-bottom:8px}
+  .pcf.open .ptag{background:#fdf3e0;color:#b9802f}
+  .pcf.closed .ptag{background:var(--accent-soft);color:var(--accent-dark)}
+  .pcf h4{margin:0 0 6px;font-size:16px}
+  .pcf.open h4{color:#b9802f}.pcf.closed h4{color:var(--accent-dark)}
+  .pcf p{font-size:13.8px;color:#556;line-height:1.55;margin:0 0 9px}
+  .pcf .prow{font-size:12.6px;color:#45555f;padding:6px 0;border-top:1px dashed #e0e7ec;display:flex;gap:8px}
+  .pcf .prow b{flex:none;color:var(--ink);min-width:72px}
+  .pcf .plead{font-weight:800;font-size:13px;margin-top:auto;padding-top:10px}
+  .pcf.open .plead{color:#b9802f}.pcf.closed .plead{color:var(--accent-dark)}
+  .pcf .pcf-prompt{font-size:12px;color:#6a7a86;margin-top:auto;padding-top:10px}
+  .pcf .pcf-prompt::before{content:"\21BB  "}
+
+  /* static phase cards with animation */
+  .pca{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:#fafbfc;display:flex;flex-direction:column}
+  .pca.open{border-top:3px solid var(--gold)}
+  .pca.closed{border-top:3px solid var(--accent)}
+  .pca .ptag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:3px 11px;align-self:flex-start;margin-bottom:8px}
+  .pca.open .ptag{background:#fdf3e0;color:#b9802f}
+  .pca.closed .ptag{background:var(--accent-soft);color:var(--accent-dark)}
+  .pca h4{margin:0 0 6px;font-size:16px}
+  .pca.open h4{color:#b9802f}.pca.closed h4{color:var(--accent-dark)}
+  .pca p.claim{font-size:13.6px;color:#556;line-height:1.5;margin:0 0 10px}
+  .pca .anim{position:relative;background:#fff;border:1px solid #e3e9ee;border-radius:9px;overflow:hidden}
+  .pca .anim svg{display:block;width:100%;height:auto}
+  .pca .anim-cap{font-size:11.5px;color:#6a7a86;text-align:center;margin:8px 0 2px;min-height:1.3em}
+  .pca .playbtn{align-self:center;background:var(--accent);color:#fff;border:none;border-radius:7px;padding:8px 18px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;margin:10px 0 4px}
+  .pca.open .playbtn{background:var(--gold);color:#5a3d12}
+  .pca .playbtn:hover{filter:brightness(.95)}
+  .pca .prow{font-size:12.4px;color:#45555f;padding:6px 0;border-top:1px dashed #e0e7ec;display:flex;gap:8px}
+  .pca .prow:first-of-type{margin-top:4px}
+  .pca .prow b{flex:none;color:var(--ink);min-width:70px}
+  .pca .plead{font-weight:800;font-size:12.8px;margin-top:10px;padding-top:4px}
+  .pca.open .plead{color:#b9802f}.pca.closed .plead{color:var(--accent-dark)}
+
+  /* everyday example rows */
+  .eg{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:#fafbfc;padding:14px 18px;margin:14px 0}
+  .eg:nth-of-type(even){border-left-color:var(--gold)}
+  .eg-ico{flex:none;font-size:30px;line-height:1.1}
+  .eg-body .eg-h{font-size:16px;font-weight:800;color:var(--accent-dark);margin-bottom:4px}
+  .eg:nth-of-type(even) .eg-body .eg-h{color:#b9802f}
+  .eg-body p{font-size:14.5px;margin:0;color:#45555f;line-height:1.55}
+
+  /* figure */
+  .imgfig{margin:16px auto 4px;max-width:520px}
+  .imgfig svg,.imgfig img{width:100%;height:auto;display:block;border-radius:10px}
+  .imgfig img{border:1px solid var(--line)}
+  .imgfig figcaption{font-size:12.5px;color:var(--muted);line-height:1.5;text-align:center;margin-top:9px}
+
+  /* Fitts demo */
+  .fdemo{border:1px solid var(--line);border-radius:12px;background:#f8fafb;padding:18px 20px;margin:16px 0}
+  .fd-cond{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:10px 14px;background:#fff;border:1px solid var(--line);border-radius:9px}
+  .fd-cbadge{flex:none;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:var(--accent);border-radius:6px;padding:4px 10px}
+  .fd-cdesc{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .fd-arena{position:relative;height:150px;border-radius:10px;background:#fff;border:1px solid #e3e9ee;overflow:hidden;touch-action:none}
+  .fd-target{position:absolute;top:12px;bottom:12px;background:var(--accent-soft);border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent-dark);font-weight:800;font-size:13px;cursor:pointer;user-select:none;transition:background .1s}
+  .fd-target.hot{background:#cdebef}
+  .fd-target.lit{background:var(--gold);border-color:#b9802f;color:#5a3d12}
+  .fd-ctrls{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+  .fd-ctrls label{font-size:13px;font-weight:700;color:var(--ink);display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
+  .fd-ctrls input[type=range]{accent-color:var(--accent)}
+  .fd-ctrls .cval{color:var(--accent-dark);font-weight:800}
+  .fd-stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .fd-stat .st{flex:1;min-width:92px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;text-align:center}
+  .fd-stat .st .k{font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .fd-stat .st .v{font-size:17px;font-weight:800;color:var(--accent-dark);margin-top:2px}
+  .fd-plot{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .fd-plot svg{width:100%;height:auto;display:block}
+  .fd-msg{font-size:13px;color:#556;margin-top:10px;min-height:1.3em;text-align:center}
+  .fd-btn{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:9px 16px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer}
+  .fd-btn:hover{background:var(--accent-dark)}
+  .fd-btn.ghost{background:#fff;color:var(--accent-dark);border:1px solid var(--accent)}
+
+  /* sorter / compare check */
+  .cmpcheck{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .cmpcheck .opt{border:2px solid var(--line);border-radius:10px;padding:16px;background:#fff;cursor:pointer;text-align:center;font-family:inherit;transition:.14s}
+  .cmpcheck .opt:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .cmpcheck .opt.right{border-color:#2e9e6b;background:#eafaf1}
+  .cmpcheck .opt.wrong{border-color:#d9534f;background:#fdeeee}
+  .cmpcheck .opt svg{width:100%;max-width:200px;height:auto;margin:0 auto 8px}
+  .cmpcheck .opt .ol{font-size:13.5px;font-weight:700;color:var(--ink)}
+  @media(max-width:560px){.cmpcheck{grid-template-columns:1fr}}
+  .kc-feedback{font-size:14.5px;margin-top:12px;min-height:1.4em;font-weight:600}
+  .kc-feedback.ok{color:#1d6b47}.kc-feedback.no{color:#a3403c}
+
+  /* refline */
+  .refline{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  /* navbar */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:7px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Speed-Accuracy &nbsp;&rsaquo;&nbsp; <b>Lesson 2: Fitts&rsquo; Law</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">16</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Speed-Accuracy &middot; Lesson 2 of 4</div>
+        <h1>Fitts&rsquo; Law</h1>
+        <p>The speed-accuracy trade-off for aiming is so regular that we can write it as an equation &mdash; a genuine <em>law</em>. This lesson is about where it came from, what it says, and how to read it from data you generate yourself.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> Who was Paul Fitts?</span>
+          <span><span class="dot"></span> Movement as information</span>
+          <span><span class="dot"></span> The law &amp; a live demo</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">By the end of this lesson</div>
+        <h2>Learning objectives</h2>
+        <p>You should be able to:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Describe how Fitts applied <strong>information theory</strong> to movement &mdash; the idea of the motor system as a channel with limited capacity.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Describe the <strong>reciprocal tapping</strong> task and define <strong>amplitude (A)</strong> and <strong>target width (W)</strong>.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">State <strong>Fitts&rsquo; Law</strong> &mdash; the index of difficulty (ID = log<sub>2</sub>(2A/W)) and MT = a + b&middot;ID &mdash; and interpret the constants a and b.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Interpret and analyze <strong>movement-time data</strong> as a function of ID, and predict which of two movements is more difficult.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 BACKGROUND: WHO WAS PAUL FITTS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Background</div>
+        <h2>Who was Paul Fitts?</h2>
+        <div class="person">
+          <img class="pphoto" src="images/fitts-portrait.png" alt="Black-and-white portrait photograph of Paul M. Fitts.">
+          <div class="pbody">
+            <div class="pn">Paul M. Fitts (1912&ndash;1965)</div>
+            <p>A psychologist at <strong>Ohio State University</strong> whose name you already know: he is the <strong>Fitts</strong> of the <strong>Fitts &amp; Posner</strong> three-stage model of skill acquisition we studied in the motor-learning unit. Fitts&rsquo; Law is his <em>other</em> major contribution.</p>
+          </div>
+        </div>
+        <p>After his PhD in psychology, Fitts joined the <strong>military</strong>, rising to Lieutenant Colonel and becoming the first director of the Psychology Branch of the Aerospace Medical Research Laboratory at <strong>Wright Field</strong> (now Wright-Patterson Air Force Base). In World War II, many aircraft were lost to <strong>pilot error</strong> &mdash; and Fitts set out to understand why.</p>
+        <p>He analyzed the errors pilots made <strong>reading displays and manipulating controls</strong>, and concluded that many losses could have been avoided through <strong>better cockpit design</strong>. His guiding insight: it is more important to <strong>design machines that match the operator&rsquo;s capabilities</strong> than to train operators to use poorly designed machines. He went on to optimize the design of cockpits, instruments, radar scopes, gun sights, and navigation systems.</p>
+        <div class="callout why">
+          <span class="clabel">Why this led to a law</span>
+          <p>To design controls that fit human limits, Fitts had to first <strong>measure those limits</strong> &mdash; how fast and how accurately people can move to a target, and how that changes with <strong>task demands</strong> (how far the reach, how small the target). Make the task harder and movement changes in some way. Are those changes <strong>random, or systematic</strong>? Can we <em>predict</em> them? Later, at <strong>Ohio State</strong>, that question produced Fitts&rsquo; Law.</p>
+        </div>
+        <p class="refline">Biographical details from <a href="https://research.osu.edu/paul-m-fitts" target="_blank" rel="noopener">Paul M. Fitts, The Ohio State University</a>. Additional background: Gray, R. (2018). <em>127 &mdash; The Legacy of Paul Fitts I.</em> The Perception &amp; Action Podcast.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 TWO INNOVATIONS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What made it a breakthrough</div>
+        <h2>Fitts&rsquo; two key innovations</h2>
+        <p>While at Ohio State, Fitts published his seminal work &mdash; <strong>Fitts&rsquo; Law</strong>. Much simplified, it says that the time required to move a pointer (say, a mouse cursor) to a target is a function of the <strong>distance to the target divided by the size of the target</strong>. So the <strong>greater the distance</strong> and the <strong>smaller the target</strong>, the <strong>longer</strong> it takes to reach it.</p>
+        <p>His 1954 paper unified the field with two moves &mdash; one conceptual, one methodological. <span style="color:var(--muted)">Flip each box for more.</span></p>
+        <div class="innov flip">
+          <button type="button" class="tf a" onclick="flipInnov(this)"><span class="tf-in">
+            <span class="tf-face tf-front">
+              <span class="num">1</span>
+              <div class="ih">A new concept</div>
+              <p>Fitts was the <strong>first to bring information theory into the study of motor control</strong> &mdash; Claude Shannon&rsquo;s framework for how signals are transmitted &mdash; to measure the <strong>information carried in a movement</strong>.</p>
+              <div class="tf-prompt">Why was that a big deal?</div>
+            </span>
+            <span class="tf-face tf-back">
+              <div class="ih">Importing a theory</div>
+              <p>Before Fitts, movement difficulty was described loosely. By treating the motor system as an <strong>information channel</strong>, he gave the field a <strong>precise, quantitative language</strong> for difficulty &mdash; borrowed from engineering and applied to the body. (The next screens unpack this idea.)</p>
+            </span>
+          </span></button>
+          <button type="button" class="tf b" onclick="flipInnov(this)"><span class="tf-in">
+            <span class="tf-face tf-front">
+              <span class="num">2</span>
+              <div class="ih">A new method</div>
+              <p>He then <strong>designed a task to test that theory</strong>: tapping back and forth between two targets, now known as the <strong>Fitts tapping task</strong>. It let him vary difficulty precisely and measure movement time over many trials.</p>
+              <div class="tf-prompt">What did the task let him do?</div>
+            </span>
+            <span class="tf-face tf-back">
+              <div class="ih">Testing the theory</div>
+              <p>The tapping task turns the abstract &ldquo;channel&rdquo; idea into something <strong>measurable</strong>: dial in a distance and a target size, push the performer to their limit, and read off the movement time. That is how a theory becomes a <strong>law</strong> &mdash; by surviving the test.</p>
+            </span>
+          </span></button>
+        </div>
+        <p class="flip-hint-line" id="innovHint">Flip <strong>both</strong> boxes to see why it mattered.</p>
+        <div class="revealclinic" id="innovReveal">
+          <div class="callout why">
+            <span class="clabel">Why it mattered</span>
+            <p>A true quantitative <strong>&ldquo;law&rdquo;</strong> is rare in the human sciences, and rarer still in motor control. Fitts produced one &mdash; a relationship so reliable it still holds today, from tapping tasks to designing the buttons on your phone.</p>
+          </div>
+          <div class="callout">
+            <span class="clabel">A genuine classic</span>
+            <p>This is the <strong>paper that introduced these ideas</strong> &mdash; information theory applied to movement, and the reciprocal tapping task. It&rsquo;s now one of the most-cited works in all of motor behavior, cited by <strong>&asymp;11,788</strong> other papers (Google Scholar), and foundational seventy years on.</p>
+          </div>
+        </div>
+        <p class="refline">Fitts, P. M. (1954). The information capacity of the human motor system in controlling the amplitude of movement. <em>Journal of Experimental Psychology, 47</em>(6), 381&ndash;391.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4b RECALL: INFORMATION & BITS (from Action Preparation module) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">First, a reminder</div>
+        <h2>Remember &ldquo;information&rdquo; and bits?</h2>
+        <p>We met this idea back in the <strong>Action Preparation / Information Processing</strong> module, with the <strong>Hick-Hyman law</strong>: the more equally-likely choices you face, the more <strong>information</strong> you must resolve &mdash; and the longer your reaction time.</p>
+        <p>Information is measured in <strong>bits</strong>. One bit is one halving of the uncertainty: choosing between 2 options is 1 bit, among 4 is 2 bits, among 8 is 3 bits. Each <em>doubling</em> of the options adds just <em>one</em> bit &mdash; that relationship is <strong>log<sub>2</sub></strong>.</p>
+        <div class="bits">
+          <div class="brow"><span class="bopts">2 options</span><span class="bbar" style="max-width:33%"></span><span class="bval">1 bit</span></div>
+          <div class="brow"><span class="bopts">4 options</span><span class="bbar" style="max-width:55%"></span><span class="bval">2 bits</span></div>
+          <div class="brow"><span class="bopts">8 options</span><span class="bbar" style="max-width:78%"></span><span class="bval">3 bits</span></div>
+          <div class="brow"><span class="bopts">16 options</span><span class="bbar" style="max-width:100%"></span><span class="bval">4 bits</span></div>
+        </div>
+        <div class="callout">
+          <span class="clabel">Sound familiar?</span>
+          <p>In the tennis-return demo, <strong>4 live zones &rarr; log<sub>2</sub>(4) = 2 bits</strong> of uncertainty &mdash; and ruling out zones dropped the bits and sped the return. The Hick-Hyman law even becomes a <em>straight line</em> when you plot RT against log<sub>2</sub>(N). Hold that thought &mdash; Fitts does the very same trick for <strong>movement</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4c FITTS' INSIGHT: THE MOTOR CHANNEL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The key idea</div>
+        <h2>A movement as information</h2>
+        <p>Fitts&rsquo; insight: treat the <strong>motor system as a channel that transmits movement information</strong> &mdash; like a phone line carrying a signal. And like any channel, it has a <strong>fixed capacity</strong>: a top rate at which it can transmit that information. An aiming movement &ldquo;carries&rdquo; more information when it demands more <strong>precision relative to its size</strong> &mdash; the ratio of how far you move to how big the target is.</p>
+        <div class="defs">
+          <div class="d"><b>Amplitude (A)</b> &mdash; how far the limb must travel to reach the target. Larger A = harder.</div>
+          <div class="d"><b>Target size (W)</b> &mdash; the width of the target, i.e. the margin for error. Smaller W = more precision = harder.</div>
+        </div>
+        <div class="awcmp">
+          <div class="awc easy">
+            <svg viewBox="0 0 230 92" role="img" aria-label="A short move (small A) to a wide target (large W).">
+              <circle cx="24" cy="46" r="6" fill="#15414c"/>
+              <rect x="150" y="24" width="56" height="44" rx="4" fill="#e8f4f6" stroke="#1a7f8e" stroke-width="2"/>
+              <!-- A brace -->
+              <line x1="24" y1="14" x2="178" y2="14" stroke="#b9802f" stroke-width="1.3"/>
+              <line x1="24" y1="10" x2="24" y2="18" stroke="#b9802f" stroke-width="1.3"/>
+              <line x1="178" y1="10" x2="178" y2="18" stroke="#b9802f" stroke-width="1.3"/>
+              <text x="101" y="10" text-anchor="middle" font-size="12" font-weight="800" fill="#b9802f">A</text>
+              <!-- W brace -->
+              <line x1="150" y1="78" x2="206" y2="78" stroke="#146470" stroke-width="1.3"/>
+              <line x1="150" y1="74" x2="150" y2="82" stroke="#146470" stroke-width="1.3"/>
+              <line x1="206" y1="74" x2="206" y2="82" stroke="#146470" stroke-width="1.3"/>
+              <text x="178" y="90" text-anchor="middle" font-size="12" font-weight="800" fill="#146470">W</text>
+              <line x1="30" y1="46" x2="146" y2="46" stroke="#1a7f8e" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#are)"/>
+              <defs><marker id="are" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#1a7f8e"/></marker></defs>
+            </svg>
+            <div class="awlab">Small A, large W &rarr; easy (few bits)</div>
+          </div>
+          <div class="awc hard">
+            <svg viewBox="0 0 230 92" role="img" aria-label="A long move (large A) to a narrow target (small W).">
+              <circle cx="16" cy="46" r="6" fill="#15414c"/>
+              <rect x="206" y="24" width="12" height="44" rx="2" fill="#fdf3e0" stroke="#b9802f" stroke-width="2"/>
+              <!-- A brace -->
+              <line x1="16" y1="14" x2="212" y2="14" stroke="#b9802f" stroke-width="1.3"/>
+              <line x1="16" y1="10" x2="16" y2="18" stroke="#b9802f" stroke-width="1.3"/>
+              <line x1="212" y1="10" x2="212" y2="18" stroke="#b9802f" stroke-width="1.3"/>
+              <text x="114" y="10" text-anchor="middle" font-size="12" font-weight="800" fill="#b9802f">A</text>
+              <!-- W brace -->
+              <line x1="206" y1="78" x2="218" y2="78" stroke="#146470" stroke-width="1.3"/>
+              <line x1="206" y1="74" x2="206" y2="82" stroke="#146470" stroke-width="1.3"/>
+              <line x1="218" y1="74" x2="218" y2="82" stroke="#146470" stroke-width="1.3"/>
+              <text x="212" y="90" text-anchor="middle" font-size="12" font-weight="800" fill="#146470">W</text>
+              <line x1="22" y1="46" x2="202" y2="46" stroke="#b9802f" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arh)"/>
+              <defs><marker id="arh" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#b9802f"/></marker></defs>
+            </svg>
+            <div class="awlab">Large A, small W &rarr; hard (many bits)</div>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The payoff</span>
+          <p>Fitts <strong>hypothesized that the channel&rsquo;s capacity is fixed</strong> &mdash; so a movement that must carry more information would take <strong>proportionally more time</strong>. That is why the task pushes you to move as fast as you can: you&rsquo;re measuring the channel at its limit. And notice it&rsquo;s the <strong>ratio A/W</strong> that matters, not the absolute sizes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 THE TASK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The method</div>
+        <h2>The reciprocal tapping task</h2>
+        <p>To measure the motor channel at its limit, Fitts used a simple, repeatable task: hold a stylus and <strong>tap back and forth</strong> between two target plates as fast as you can, without missing. Two things are varied:</p>
+        <figure class="imgfig" style="max-width:500px">
+          <img src="images/sa-fitts-tapping-schmidtlee.png" alt="Overhead view of a person performing the Fitts reciprocal tapping task: a stylus starting at a home position moves between two red target plates of width W separated by amplitude A.">
+          <figcaption>The reciprocal tapping task. <strong>A</strong> (amplitude) is the center-to-center distance between targets; <strong>W</strong> is the width of each target. <span style="color:#5a7a80">Source: Schmidt and Lee (2025), <em>Motor Learning and Performance</em>, Figure 6.1.</span></figcaption>
+        </figure>
+        <div class="defs">
+          <div class="d"><b>Amplitude (A)</b> &mdash; how far the hand must travel between targets. Larger A = harder.</div>
+          <div class="d"><b>Target width (W)</b> &mdash; how big the target is. Smaller W = more precision = harder.</div>
+        </div>
+        <p>Vary A and W, measure the average <strong>movement time (MT)</strong> per tap, and you can map difficulty against time. That mapping is the law: a relationship between movement <strong>amplitude (A)</strong>, the desired precision (<strong>target size, W</strong>), and <strong>movement time (MT)</strong>.</p>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:150px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-optbadge">Fitts&rsquo; prediction</span><span class="fa-q">If you <em>double the distance</em> and <em>double the target size</em> together, what happens to the movement time?</span><span class="fa-hint">Predict, then flip</span></span>
+          <span class="fa-face fa-back">It stays <strong>the same</strong>. Fitts predicted that <strong>movement time stays constant whenever the ratio of A to W stays constant</strong> &mdash; doubling both leaves the difficulty, and the time, unchanged. It&rsquo;s the <strong>ratio</strong> A/W, not the absolute sizes, that sets the movement time.</span>
+        </span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 THE LAW -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The equation</div>
+        <h2>Fitts&rsquo; Law</h2>
+        <div class="callout why">
+          <span class="clabel">In plain words</span>
+          <p>The time required to move a pointer (say, a mouse cursor) to a target is a function of the <strong>distance to the target divided by the size of the target</strong>. Now let&rsquo;s see how Fitts wrote that as an equation.</p>
+        </div>
+        <p>Fitts combined A and W into a single <strong>index of difficulty (ID)</strong>, measured in bits &mdash; capturing the distance-to-precision ratio from the last screen:</p>
+        <div class="formula">
+          <div class="eq">ID = log<sub>2</sub>( 2<span class="v">A</span> / <span class="v">W</span> )</div>
+          <div class="note">difficulty, in bits &mdash; the ratio of distance to target size</div>
+        </div>
+        <p>Then he found that <strong>movement time rises in a straight line with ID</strong>:</p>
+        <div class="formula">
+          <div class="eq">MT = <span class="v">a</span> + <span class="v">b</span> &middot; ID</div>
+          <div class="note">movement time is a linear function of difficulty</div>
+        </div>
+        <div class="defs">
+          <div class="d"><b>a</b> (intercept) &mdash; the movement time when <strong>ID = 0</strong>. ID = 0 means 2A/W = 1, i.e. A = W/2 &mdash; the target is so big relative to the move that it&rsquo;s like just <strong>tapping on the spot</strong> as fast as you can. So <em>a</em> is that baseline, difficulty-free time.</div>
+          <div class="d"><b>b</b> (slope) &mdash; the cost of difficulty: extra time per added bit. A steeper b = a slower channel.</div>
+        </div>
+        <div class="callout">
+          <span class="clabel">Read it in words</span>
+          <p>Every time you <strong>double the distance</strong> OR <strong>halve the target size</strong>, you add one bit of difficulty &mdash; and movement time goes up by a fixed amount (<em>b</em>). Doubling distance and halving width cost the <em>same</em>, because only the ratio matters.</p>
+        </div>
+        <button class="flipans" onclick="doFlip(this)" style="--famin:160px"><span class="fa-inner">
+          <span class="fa-face fa-front"><span class="fa-optbadge">Optional info</span><span class="fa-q">Dig deeper: where does log<sub>2</sub>(2A/W) actually come from?</span><span class="fa-hint">Flip for the Shannon detail</span></span>
+          <span class="fa-face fa-back">Fitts mapped Shannon&rsquo;s channel-capacity theorem onto movement: the <strong>signal</strong> is the movement&rsquo;s amplitude (A) and the <strong>noise</strong> is its inherent variability &mdash; the scatter in where the limb lands, with target width (W) standing in for the permissible variability. So difficulty is a <strong>signal-to-noise ratio</strong>, and <span class="fa-eq">ID = log<sub>2</sub>(2A / W)</span> is that ratio expressed in <strong>bits</strong>. Because it depends on the <em>ratio</em> A/W rather than absolute size, Fitts called it a modern form of the <strong>Weber fraction</strong>.</span>
+        </span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 INTERACTIVE FITTS DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Interactive &middot; generate the law yourself</div>
+        <h2>Tap it out</h2>
+        <p>We&rsquo;ll step you through <strong>five conditions</strong>, from easy to hard &mdash; the distance (A) and target size (W) are set for you each time. Just tap the two highlighted targets back and forth. Each condition adds a point, and your own <strong>MT-vs-ID line</strong> builds up.</p>
+        <div class="callout" style="margin:10px 0 4px">
+          <span class="clabel">Your instruction</span>
+          <p><strong>Move as quickly as possible, while keeping target misses to a minimum.</strong> (This is exactly what Fitts told his participants &mdash; it&rsquo;s how we push the motor channel to its limit.)</p>
+        </div>
+        <div class="fdemo">
+          <div class="fd-cond" id="fdCond">
+            <span class="fd-cbadge" id="fdCbadge">Condition 1 of 5</span>
+            <span class="fd-cdesc" id="fdCdesc">short distance &middot; large target &mdash; the easiest</span>
+          </div>
+          <div class="fd-arena" id="fdArena">
+            <div class="fd-target" id="fdL" data-side="L">tap</div>
+            <div class="fd-target" id="fdR" data-side="R">tap</div>
+          </div>
+          <div class="fd-stat">
+            <div class="st"><div class="k">ID (bits)</div><div class="v" id="fdID">&mdash;</div></div>
+            <div class="st"><div class="k">This run&rsquo;s MT</div><div class="v" id="fdMT">&mdash;</div></div>
+            <div class="st"><div class="k">Taps</div><div class="v" id="fdTaps">0 / 8</div></div>
+            <div class="st"><div class="k">Conditions done</div><div class="v" id="fdPts">0 / 5</div></div>
+          </div>
+          <p class="fd-msg" id="fdMsg">Tap either highlighted target to start Condition 1.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="fd-btn" id="fdNextCond" type="button" style="display:none">Next condition &rarr;</button>
+            <button class="fd-btn ghost" id="fdReset" type="button">Start over</button>
+          </div>
+          <div class="fd-plot">
+            <svg id="fdPlot" viewBox="0 0 420 240" role="img" aria-label="A scatter plot of movement time against index of difficulty, with a line of best fit appearing as points are added."></svg>
+          </div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">What to look for</span>
+          <p>As ID goes up (longer A, smaller W), your MT goes up too &mdash; and the points fall close to a <strong>straight line</strong>. That line is Fitts&rsquo; Law, built from your own movements. Its <strong>slope is b</strong>, its <strong>intercept is a</strong>.</p>
+        </div>
+        <p class="refline" style="font-size:11.5px">Note: this on-screen version uses mouse/touch taps, so your exact numbers differ from Fitts&rsquo; stylus data &mdash; but the <em>shape</em> of the relationship is the same.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 READING THE LINE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Interpreting the data</div>
+        <h2>Reading the line</h2>
+        <p>The MT-vs-ID plot is where Fitts&rsquo; Law gets practical. Two numbers describe the whole relationship:</p>
+        <figure class="imgfig" style="max-width:440px">
+          <svg viewBox="0 0 440 260" role="img" aria-label="Movement time plotted against index of difficulty: a straight rising line, intercept a where it meets the axis, slope b.">
+            <line x1="56" y1="20" x2="56" y2="220" stroke="#cfd8de" stroke-width="1.5"/>
+            <line x1="56" y1="220" x2="420" y2="220" stroke="#cfd8de" stroke-width="1.5"/>
+            <text x="20" y="120" transform="rotate(-90 20 120)" text-anchor="middle" font-size="12" font-weight="700" fill="#7a8a99">Movement time (MT)</text>
+            <text x="238" y="250" text-anchor="middle" font-size="12" font-weight="700" fill="#7a8a99">Index of difficulty (ID, bits)</text>
+            <!-- best fit line -->
+            <line x1="56" y1="170" x2="410" y2="46" stroke="var(--accent)" stroke-width="3"/>
+            <!-- points -->
+            <circle cx="90" cy="158" r="5" fill="#15414c"/><circle cx="150" cy="139" r="5" fill="#15414c"/>
+            <circle cx="215" cy="118" r="5" fill="#15414c"/><circle cx="285" cy="92" r="5" fill="#15414c"/>
+            <circle cx="350" cy="66" r="5" fill="#15414c"/>
+            <!-- intercept marker -->
+            <circle cx="56" cy="182" r="4" fill="var(--gold)"/>
+            <text x="92" y="200" font-size="12" font-weight="800" fill="#b9802f">a = intercept</text>
+            <!-- slope marker -->
+            <text x="300" y="130" font-size="12" font-weight="800" fill="#146470">b = slope</text>
+            <path d="M300 112 L288 96" stroke="#146470" stroke-width="1.4" marker-end="url(#sm)"/>
+            <defs><marker id="sm" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#146470"/></marker></defs>
+          </svg>
+          <figcaption>Movement time rises linearly with ID. The line&rsquo;s <strong>intercept is a</strong> (baseline time) and its <strong>slope is b</strong> (time added per bit).</figcaption>
+        </figure>
+        <div class="callout">
+          <span class="clabel">Why a straight line (and not, say, curved)?</span>
+          <p>This is exactly what Fitts&rsquo; <strong>limited-capacity hypothesis</strong> predicts. If the motor system transmits information at a <strong>fixed rate</strong> (bits per second), then time = information &divide; rate &mdash; so movement time should be <strong>proportional to the information in the movement</strong> (the ID, in bits). A fixed capacity means a <strong>straight line</strong>; the slope (<em>b</em>) is just the inverse of that transmission rate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8b COMPARING SLOPES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What the slope tells you</div>
+        <h2>A steeper slope = a slower system</h2>
+        <p>The slope (<strong>b</strong>) is the most revealing part of the line: it is the <strong>extra time added for each one-bit increase in difficulty</strong>. Compare two systems on the same task and the steeper one is the slower one.</p>
+        <figure class="imgfig" style="max-width:460px">
+          <svg viewBox="0 0 460 300" role="img" aria-label="Two Fitts lines on the same axes. Line A is steeper (slope 50, slower); line B is shallower (slope 40, faster).">
+            <line x1="60" y1="24" x2="60" y2="250" stroke="#cfd8de" stroke-width="1.5"/>
+            <line x1="60" y1="250" x2="440" y2="250" stroke="#cfd8de" stroke-width="1.5"/>
+            <text x="22" y="140" transform="rotate(-90 22 140)" text-anchor="middle" font-size="12" font-weight="700" fill="#7a8a99">Movement time (ms)</text>
+            <text x="250" y="284" text-anchor="middle" font-size="12" font-weight="700" fill="#7a8a99">Index of difficulty (bits)</text>
+            <!-- x ticks 1..5 -->
+            <g font-size="10" fill="#9fb0ba" text-anchor="middle">
+              <text x="136" y="266">1</text><text x="212" y="266">2</text><text x="288" y="266">3</text><text x="364" y="266">4</text><text x="440" y="266">5</text>
+            </g>
+            <!-- line A: steeper, slope 50 -->
+            <line x1="60" y1="208" x2="440" y2="56" stroke="#b9802f" stroke-width="3"/>
+            <circle cx="136" cy="190" r="4.5" fill="#b9802f"/><circle cx="212" cy="160" r="4.5" fill="#b9802f"/><circle cx="288" cy="130" r="4.5" fill="#b9802f"/><circle cx="364" cy="98" r="4.5" fill="#b9802f"/>
+            <text x="444" y="54" font-size="13" font-weight="800" fill="#b9802f">A</text>
+            <!-- line B: shallower, slope 40 -->
+            <line x1="60" y1="222" x2="440" y2="110" stroke="#1a7f8e" stroke-width="3"/>
+            <circle cx="136" cy="205" r="4.5" fill="#15414c"/><circle cx="212" cy="182" r="4.5" fill="#15414c"/><circle cx="288" cy="158" r="4.5" fill="#15414c"/><circle cx="364" cy="134" r="4.5" fill="#15414c"/>
+            <text x="444" y="110" font-size="13" font-weight="800" fill="#146470">B</text>
+          </svg>
+          <figcaption>Two systems on the same task. <strong style="color:#b9802f">Line A</strong> has the steeper slope (&asymp;50 ms/bit); <strong style="color:#146470">Line B</strong> is shallower (&asymp;40 ms/bit). Because each added bit costs A more time, <strong>A is the slower system</strong>. <span style="color:#5a7a80">(After Schmidt and Lee, 2025.)</span></figcaption>
+        </figure>
+        <p>Schmidt and Lee (2025) note that these two lines &ldquo;could be from two different people, or they could represent average group data from two different age groups, or they might represent data using two different computer input devices.&rdquo; Whatever they are, the <strong>steeper slope denotes a slower processing system</strong>.</p>
+        <div class="defs">
+          <div class="d"><b>Line A &mdash; slope &asymp; 50</b> ms/bit. Each bit of difficulty costs more time &rarr; the <strong>slower</strong> system.</div>
+          <div class="d"><b>Line B &mdash; slope &asymp; 40</b> ms/bit. Less time added per bit &rarr; the <strong>faster</strong> system.</div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Why this matters in the clinic &amp; in design</span>
+          <p>Comparing slopes is a way to compare <strong>motor efficiency</strong>: an older adult vs. a younger norm, a patient <strong>before vs. after rehab</strong>, a limb affected by stroke vs. the intact limb, or a mouse vs. a touchpad. A slope that drops after therapy is objective evidence the motor channel got faster.</p>
+        </div>
+        <p class="refline">Schmidt, R. A., &amp; Lee, T. D. (2025). <em>Motor Learning and Performance: From Principles to Application.</em> Human Kinetics.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 METHODOLOGICAL ADVANCES + ELEVATOR -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Fitts&rsquo; Law in everyday actions</div>
+        <h2>Where you&rsquo;ll see it</h2>
+        <p>Schmidt and Lee (2025) describe Fitts&rsquo; Law as &ldquo;a specific type of speed&ndash;accuracy trade-off in which movement speed must be slowed to maintain a constant error rate.&rdquo; Once you know it, you start to see it everywhere.</p>
+
+        <div class="callout">
+          <span class="clabel">How general is it?</span>
+          <p>Fitts&rsquo; Law holds under a remarkable range of conditions &mdash; even tapping underwater or in outer space &mdash; across many groups (children, older adults, people with neurological impairments) and with many effectors (hand, foot, head-mounted pointers) <span style="color:#5a7a80">(Schmidt and Lee, 2025; Plamondon &amp; Alimi, 1997)</span>. That generality is a big part of why it earns the name <strong>law</strong>.</p>
+        </div>
+
+        <p>Here are three everyday examples &mdash; two from the textbook, and one from design.</p>
+
+        <div class="eg">
+          <div class="eg-ico">&#9749;</div>
+          <div class="eg-body">
+            <div class="eg-h">Pouring coffee</div>
+            <p>Ask someone to fill a cup to the brim as fast as possible. Over the <strong>sink</strong> (a large tolerance for spills) they pour quickly. On their <strong>finest white linen</strong> (a tiny tolerance) they slow right down. Same cup, same coffee &mdash; a <strong>smaller tolerance for error forces a slower movement</strong>.</p>
+          </div>
+        </div>
+
+        <div class="eg">
+          <div class="eg-ico">&#129525;</div>
+          <div class="eg-body">
+            <div class="eg-h">Threading a needle for $100</div>
+            <p>Imagine you&rsquo;re offered <strong>$100 to thread a needle on your very first try</strong> &mdash; one chance, no do-overs. How deliberate would you be? It depends on the <strong>size of the needle&rsquo;s eye</strong>. A large eye leaves a big tolerance &mdash; little information to process, so you can go fast. A <strong>small eye</strong> leaves almost none, so you&rsquo;d move slowly, updating the thread&rsquo;s position every millimeter. Smaller W &rarr; more information &rarr; more time.</p>
+          </div>
+        </div>
+
+        <div class="eg">
+          <div class="eg-ico">&#9000;&#65039;</div>
+          <div class="eg-body">
+            <div class="eg-h">By design: keyboards &amp; phone icons</div>
+            <p>Designers use the law deliberately: anything that must be reached <strong>fast and reliably</strong> is made <strong>larger</strong> or placed <strong>closer to where the hand starts</strong> &mdash; both lower the ID. A keyboard makes every key the same size, so a touch-typist&rsquo;s most-hit keys are no easier to find than the rest. A calculator or phone <strong>breaks that tie on purpose</strong> &mdash; the big orange <strong>&ldquo;=&rdquo;</strong> key and the wide space bar are larger because they&rsquo;re pressed most.</p>
+          </div>
+        </div>
+
+        <figure class="imgfig" style="max-width:420px">
+          <img src="images/sa-keyboard-phone.png" alt="Left: a standard keyboard with all keys the same size. Right: a phone calculator app where the equals key is enlarged and colored.">
+          <figcaption><strong>(a)</strong> A keyboard gives every key the same size &mdash; same ID for every key. <strong>(b)</strong> A phone calculator enlarges the most-used key (the orange &ldquo;=&rdquo;) so it&rsquo;s a <strong>bigger, faster target</strong>.</figcaption>
+        </figure>
+
+        <p class="refline">Examples and quotations from Lee, T. D., <em>Motor Control in Everyday Actions</em> (&ldquo;Pouring Coffee,&rdquo; &ldquo;The Calculator&rdquo;); Schmidt, R. A., &amp; Lee, T. D. (2025), <em>Motor Learning and Performance</em>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 KNOWLEDGE CHECK (gate) -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2>Which movement has the higher ID?</h2>
+        <p style="color:#3d4d5c">Both start the same distance away. Remember: smaller target = more precision = higher difficulty. Pick the harder one.</p>
+        <div class="cmpcheck" id="kcChoice">
+          <button type="button" class="opt" data-correct="0">
+            <svg viewBox="0 0 220 80" role="img" aria-label="A move to a wide target.">
+              <circle cx="16" cy="40" r="6" fill="#15414c"/>
+              <rect x="170" y="18" width="40" height="44" rx="4" fill="#e8f4f6" stroke="#1a7f8e" stroke-width="2"/>
+              <line x1="22" y1="40" x2="166" y2="40" stroke="#9ec9cf" stroke-width="2" stroke-dasharray="4 3"/>
+            </svg>
+            <div class="ol">Wide target</div>
+          </button>
+          <button type="button" class="opt" data-correct="1">
+            <svg viewBox="0 0 220 80" role="img" aria-label="A move to a narrow target the same distance away.">
+              <circle cx="16" cy="40" r="6" fill="#15414c"/>
+              <rect x="198" y="18" width="10" height="44" rx="2" fill="#fdf3e0" stroke="#b9802f" stroke-width="2"/>
+              <line x1="22" y1="40" x2="194" y2="40" stroke="#9ec9cf" stroke-width="2" stroke-dasharray="4 3"/>
+            </svg>
+            <div class="ol">Narrow target</div>
+          </button>
+        </div>
+        <p class="kc-feedback" id="kcFb"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10b WHERE DOES FITTS' LAW COME FROM — THE TWO-COMPONENT MODEL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The explanation, part 1</div>
+        <h2>Where does Fitts&rsquo; Law come from?</h2>
+        <figure class="portrait-right">
+          <img src="images/woodworth-portrait.png" alt="Black-and-white portrait photograph of Robert Sessions Woodworth.">
+          <figcaption><strong>Robert S. Woodworth (1869&ndash;1962)</strong> &mdash; his 1899 monograph introduced the two-component model.</figcaption>
+        </figure>
+        <p>We&rsquo;ve seen <em>that</em> the law holds, and Fitts&rsquo; own answer &mdash; a <strong>fixed information capacity</strong>. But <em>mechanically</em>, what is the limb actually doing? To answer that, we return to an idea you met in the <strong>Vision unit</strong>: Woodworth&rsquo;s two-component model.</p>
+        <p><strong>Woodworth (1899)</strong> proposed that a rapid aimed movement has <strong>two components</strong>:</p>
+        <div class="mlist">
+          <div class="mrow"><span class="mn">1</span><div><h4>Initial impulse (open-loop)</h4><p>A fast, pre-programmed launch that sends the limb roughly toward the target &mdash; no feedback used yet.</p></div></div>
+          <div class="mrow"><span class="mn">2</span><div><h4>Current control / correction (closed-loop)</h4><p>As the limb nears the target, <strong>sensory feedback</strong> fine-tunes the movement to home in.</p></div></div>
+        </div>
+        <figure class="fig-ill" style="max-width:520px;clear:both">
+          <svg viewBox="0 0 560 240" role="img" aria-label="A reaching movement: a fast initial impulse overshoots the target slightly, then a slow correction homes onto the center.">
+            <text x="250" y="28" text-anchor="middle" font-size="13" font-weight="800" fill="#b9802f">1. Initial impulse</text>
+            <text x="250" y="44" text-anchor="middle" font-size="11" fill="#9c7030">fast, pre-planned (open-loop)</text>
+            <circle cx="448" cy="135" r="28" fill="#e8f4f6" stroke="#1a7f8e" stroke-width="1.6"/>
+            <circle cx="448" cy="135" r="15" fill="#fff" stroke="#9ec9cf" stroke-width="1.2"/>
+            <circle cx="448" cy="135" r="5" fill="#1a7f8e"/>
+            <text x="448" y="190" text-anchor="middle" font-size="12.5" font-weight="700" fill="#146470">Target</text>
+            <circle cx="60" cy="135" r="7" fill="#15414c"/>
+            <text x="60" y="190" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2c3e50">Start</text>
+            <path d="M68 133 Q250 53 456 93" fill="none" stroke="var(--gold)" stroke-width="3" marker-end="url(#wr1)"/>
+            <circle cx="462" cy="92" r="3.5" fill="#b9802f"/>
+            <path d="M462 98 Q458 121 450 131" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-dasharray="3.5 3" marker-end="url(#wr2)"/>
+            <text x="452" y="218" text-anchor="middle" font-size="13" font-weight="800" fill="#146470">2. Correction</text>
+            <text x="452" y="234" text-anchor="middle" font-size="11" fill="#2f6f78">slow feedback homing (closed-loop)</text>
+            <defs>
+              <marker id="wr1" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0l6 3L0 6z" fill="var(--gold)"/></marker>
+              <marker id="wr2" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0l6 3L0 6z" fill="var(--accent)"/></marker>
+            </defs>
+          </svg>
+          <figcaption class="fig-cap">The two components of an aimed movement: a <strong>fast open-loop launch</strong> that gets close but a little off, then a <strong>slow closed-loop correction</strong> onto the target.</figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">The key question</span>
+          <p>Every explanation of Fitts&rsquo; Law lives inside this two-component picture. They disagree about one thing: <strong>which phase is responsible for the speed&ndash;accuracy trade-off</strong> &mdash; the open-loop launch, the closed-loop correction, or <strong>maybe both</strong>?</p>
+        </div>
+        <p class="refline">Woodworth, R. S. (1899). The accuracy of voluntary movement. <em>Psychological Review Monograph Supplements, 3</em>(3).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10c TWO EXPLANATIONS, TWO PHASES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The explanation, part 2</div>
+        <h2>Two explanations, two phases</h2>
+        <p>Which phase causes the trade-off? There are <strong>two camps</strong>, pointing to opposite components of the movement. <strong>Play each demo</strong> to see its claim in action.</p>
+        <div class="phase">
+          <div class="pca open">
+            <span class="ptag">Blame the launch</span>
+            <h4>Noisy initial impulse</h4>
+            <p class="claim">As you move <strong>faster / farther</strong>, the pre-programmed <strong>motor command to the muscles</strong> becomes <strong>noisier</strong> &mdash; so the limb lands with more scatter and needs a bigger correction.</p>
+            <div class="anim">
+              <svg id="animA" viewBox="0 0 340 215" role="img" aria-label="Reaches to three targets at increasing distance; endpoint scatter grows with distance."></svg>
+            </div>
+            <div class="anim-cap" id="capA">Press play: watch the endpoint spread grow as the target gets farther.</div>
+            <button type="button" class="playbtn" id="playA">&#9654; Play</button>
+            <div class="prow"><b>Phase</b><span>the <strong>open-loop</strong> initial impulse</span></div>
+            <div class="prow"><b>Mechanism</b><span>farther / faster &rarr; impulse variability &rarr; endpoint error</span></div>
+            <div class="prow"><b>Account</b><span>impulse-variability (Schmidt et al., 1979)</span></div>
+            <div class="plead">&rarr; This idea becomes <strong>Schmidt&rsquo;s Law</strong> (Lesson 3)</div>
+          </div>
+          <div class="pca closed">
+            <span class="ptag">Blame the corrections</span>
+            <h4>More corrections needed</h4>
+            <p class="claim">The launch doesn&rsquo;t really change. Instead, a <strong>smaller target</strong> needs <strong>more feedback-guided corrections</strong> to settle inside &mdash; and each one takes time.</p>
+            <div class="anim">
+              <svg id="animB" viewBox="0 0 340 215" role="img" aria-label="Two reaches: to a large target (few corrections) and a small target (many corrections)."></svg>
+            </div>
+            <div class="anim-cap" id="capB">Press play: compare a reach to a large vs. a small target.</div>
+            <button type="button" class="playbtn" id="playB">&#9654; Play</button>
+            <div class="prow"><b>Phase</b><span>the <strong>closed-loop</strong> current-control phase</span></div>
+            <div class="prow"><b>Mechanism</b><span>smaller target &rarr; more corrective submovements</span></div>
+            <div class="prow"><b>Account</b><span>Woodworth (1899); Crossman &amp; Goodeve (1963)</span></div>
+            <div class="plead">&rarr; The feedback / current-control view</div>
+          </div>
+        </div>
+        <p class="flip-hint-line" id="phaseHint">Play <strong>both</strong> demos to reveal how the two camps are reconciled.</p>
+        <div class="revealclinic" id="synthReveal">
+          <div class="callout why">
+            <span class="clabel">The synthesis</span>
+            <p>These were long treated as rivals. The <strong>optimized-submovement model</strong> (Meyer et al., 1988/1990) combines them: the launch <em>is</em> noisy (the impulse account) <em>and</em> that noise is exactly what forces the occasional correction (the feedback account). One framework, both phases &mdash; and it&rsquo;s what unifies Fitts&rsquo; Law with Schmidt&rsquo;s Law in <strong>Lesson 3</strong>.</p>
+          </div>
+          <div class="callout">
+            <span class="clabel">The honest status</span>
+            <p>No single model is universally accepted as <em>the</em> explanation. What is not in doubt is the <strong>empirical law itself</strong> &mdash; the MT&ndash;ID relationship is one of the most robust findings in motor behavior. The debate is about the mechanism underneath it.</p>
+          </div>
+        </div>
+        <p class="refline">Schmidt, R. A., Zelaznik, H., Hawkins, B., Frank, J. S., &amp; Quinn, J. T. (1979). Motor-output variability. <em>Psychological Review, 86</em>(5), 415&ndash;451. &nbsp;&middot;&nbsp; Crossman, E. R. F. W., &amp; Goodeve, P. J. (1963/1983). Feedback control of hand-movement and Fitts&rsquo; law. <em>Quarterly Journal of Experimental Psychology, 35A</em>, 251&ndash;278. &nbsp;&middot;&nbsp; Meyer, D. E., Abrams, R. A., Kornblum, S., Wright, C. E., &amp; Smith, J. E. K. (1988). Optimality in human motor performance. <em>Psychological Review, 95</em>(3), 340&ndash;370.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What you can now do</div>
+        <h2>Summary &amp; the next step</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Explain how Fitts treated the motor system as an information channel with fixed capacity.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Describe reciprocal tapping and define amplitude (A) and target width (W).</span></li>
+          <li><span class="obj-num">3</span><span class="txt">State Fitts&rsquo; Law &mdash; ID = log<sub>2</sub>(2A/W), MT = a + b&middot;ID &mdash; and interpret a and b.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Read an MT-vs-ID line and judge which of two movements is more difficult.</span></li>
+        </ul>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 3 &mdash; Schmidt&rsquo;s Law &amp; Temporal Accuracy:</strong> Fitts&rsquo; Law describes aiming when <em>you</em> choose the speed. But for very fast, ballistic movements the relationship changes shape entirely &mdash; and a different law takes over.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Completion code</span>
+          <p>Your passphrase for this lesson is <strong>FITTS-BITS</strong>. Enter it in the Canvas quiz to record completion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    if(window.__fdLayout) window.__fdLayout();
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  // --- Page 4: reveal "why it mattered" + "classic" after both innovation boxes flipped ---
+  (function(){
+    var flipped={};
+    window.flipInnov=function(btn){
+      btn.classList.toggle("flipped");
+      var which = btn.classList.contains("a") ? "a" : "b";
+      if(btn.classList.contains("flipped")) flipped[which]=true;
+      if(flipped.a && flipped.b){
+        var rv=document.getElementById("innovReveal"), h=document.getElementById("innovHint");
+        if(rv) rv.classList.add("show"); if(h) h.classList.add("gone");
+      }
+    };
+  })();
+
+  // --- Page 15: two click-to-play animations; synthesis reveals after both played ---
+  (function(){
+    var NS="http://www.w3.org/2000/svg";
+    var played={a:false,b:false};
+    function el(tag,attrs){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+    function maybeReveal(){
+      if(played.a && played.b){
+        var rv=document.getElementById("synthReveal"), h=document.getElementById("phaseHint");
+        if(rv) rv.classList.add("show"); if(h) h.classList.add("gone");
+      }
+    }
+    // tiny deterministic PRNG so scatter looks random but is reproducible
+    function rng(seed){return function(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};}
+
+    // ===== Card A: noisy initial impulse — scatter grows with distance =====
+    var svgA=document.getElementById("animA"), capA=document.getElementById("capA"), playA=document.getElementById("playA");
+    // three targets along a baseline, increasing distance from a common start
+    var startA={x:30,y:150};
+    var tgtsA=[{x:120,y:150,sd:9,lab:"near"},{x:215,y:150,sd:20,lab:"mid"},{x:308,y:150,sd:34,lab:"far"}];
+    function buildA(){
+      svgA.innerHTML="";
+      // baseline
+      svgA.appendChild(el("line",{x1:22,y1:150,x2:326,y2:150,stroke:"#e3e9ee","stroke-width":1}));
+      // start marker
+      svgA.appendChild(el("circle",{cx:startA.x,cy:startA.y,r:6,fill:"#2c3e50"}));
+      var st=el("text",{x:startA.x,y:179,"text-anchor":"middle","font-size":11.5,fill:"#7a8a99"});st.textContent="start";svgA.appendChild(st);
+      // targets (fixed physical size; only distance changes)
+      tgtsA.forEach(function(t){
+        svgA.appendChild(el("circle",{cx:t.x,cy:t.y,r:12,fill:"none",stroke:"#1a7f8e","stroke-width":1.5}));
+        svgA.appendChild(el("circle",{cx:t.x,cy:t.y,r:2.4,fill:"#1a7f8e"}));
+        var lb=el("text",{x:t.x,y:126,"text-anchor":"middle","font-size":11,fill:"#7a8a99"});lb.textContent=t.lab;svgA.appendChild(lb);
+      });
+    }
+    function playAnimA(){
+      if(svgA.dataset.running==="1")return; svgA.dataset.running="1";
+      buildA(); playA.disabled=true; capA.textContent="Launching ballistic reaches…";
+      var rnd=rng(97), order=[], i;
+      for(i=0;i<3;i++){for(var k=0;k<7;k++)order.push(i);} // 7 shots per target
+      var idx=0;
+      function shot(){
+        if(idx>=order.length){
+          capA.textContent="Farther target → wider endpoint scatter: the launch itself is noisier.";
+          svgA.dataset.running="0"; playA.disabled=false; playA.innerHTML="↻ Replay";
+          played.a=true; maybeReveal(); return;
+        }
+        var t=tgtsA[order[idx]];
+        // endpoint: gaussian-ish offset scaled by target's sd (distance)
+        var g=(rnd()+rnd()+rnd()-1.5); // ~N(0,.5)
+        var ex=t.x + g*t.sd, ey=t.y + (rnd()-0.5)*t.sd*0.6;
+        // ballistic arc from start to endpoint
+        var mx=(startA.x+ex)/2, my=Math.min(startA.y,ey)-38;
+        var path=el("path",{d:"M"+startA.x+" "+startA.y+" Q"+mx+" "+my+" "+ex+" "+ey,
+          fill:"none",stroke:"#e0a458","stroke-width":1.7,opacity:0.0});
+        svgA.appendChild(path);
+        var dot=el("circle",{cx:ex,cy:ey,r:3.2,fill:"#c6871f",opacity:0});
+        svgA.appendChild(dot);
+        requestAnimationFrame(function(){path.style.transition="opacity .18s";path.setAttribute("opacity","0.5");dot.style.transition="opacity .18s";dot.setAttribute("opacity","0.95");});
+        idx++; setTimeout(shot,170);
+      }
+      shot();
+    }
+    if(svgA){ buildA(); playA.addEventListener("click",playAnimA); }
+
+    // ===== Card B: more corrections needed — large vs small target =====
+    var svgB=document.getElementById("animB"), capB=document.getElementById("capB"), playB=document.getElementById("playB");
+    var startB={x:170,y:188};
+    var bigT={x:170,y:52,r:26}, smallT={x:170,y:52,r:9};
+    function buildB(){
+      svgB.innerHTML="";
+      var st=el("text",{x:startB.x,y:208,"text-anchor":"middle","font-size":11.5,fill:"#7a8a99"});st.textContent="start";svgB.appendChild(st);
+      svgB.appendChild(el("circle",{cx:startB.x,cy:startB.y,r:6,fill:"#2c3e50"}));
+    }
+    function drawTarget(t,colorStroke){
+      svgB.appendChild(el("circle",{cx:t.x,cy:t.y,r:t.r,fill:"none",stroke:colorStroke,"stroke-width":1.5}));
+      svgB.appendChild(el("circle",{cx:t.x,cy:t.y,r:2.4,fill:colorStroke}));
+    }
+    function animateReach(segments,counterLabel,done){
+      // segments: array of {x,y, correction:bool}; drawn sequentially
+      var i=0, corr=0;
+      var counter=el("text",{x:322,y:24,"text-anchor":"end","font-size":12.5,fill:"#45555f","font-weight":700});
+      counter.textContent=counterLabel+": 0"; svgB.appendChild(counter);
+      var prev={x:startB.x,y:startB.y};
+      function step(){
+        if(i>=segments.length){ done(corr); return; }
+        var s=segments[i];
+        var isC=s.correction;
+        var ln=el("line",{x1:prev.x,y1:prev.y,x2:prev.x,y2:prev.y,
+          stroke:isC?"#1a7f8e":"#e0a458","stroke-width":isC?1.6:2.4,
+          "stroke-dasharray":isC?"3 3":"none",opacity:isC?0.9:0.85});
+        svgB.appendChild(ln);
+        // animate the segment extending
+        var t0=null, dur=isC?160:260, from={x:prev.x,y:prev.y}, to={x:s.x,y:s.y};
+        function grow(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/dur);
+          ln.setAttribute("x2",from.x+(to.x-from.x)*p); ln.setAttribute("y2",from.y+(to.y-from.y)*p);
+          if(p<1){requestAnimationFrame(grow);} else {
+            svgB.appendChild(el("circle",{cx:s.x,cy:s.y,r:isC?2:2.6,fill:isC?"#146470":"#c6871f"}));
+            if(isC){corr++; counter.textContent=counterLabel+": "+corr;}
+            prev={x:s.x,y:s.y}; i++; setTimeout(function(){requestAnimationFrame(step);},120);
+          }
+        }
+        requestAnimationFrame(grow);
+      }
+      step();
+    }
+    function playAnimB(){
+      if(svgB.dataset.running==="1")return; svgB.dataset.running="1";
+      buildB(); playB.disabled=true; capB.textContent="Reaching to the large target…";
+      drawTarget(bigT,"#1a7f8e");
+      // large target: one ballistic shot lands inside
+      animateReach([{x:bigT.x+8,y:bigT.y+5,correction:false}],"corrections",function(){
+        setTimeout(function(){
+          capB.textContent="Now the small target—same distance…";
+          buildB(); drawTarget(smallT,"#1a7f8e");
+          // small target: launch overshoots, then several corrections
+          animateReach([
+            {x:smallT.x-20,y:smallT.y-15,correction:false}, // ballistic overshoot
+            {x:smallT.x+13,y:smallT.y+9,correction:true},
+            {x:smallT.x-7,y:smallT.y-5,correction:true},
+            {x:smallT.x+3,y:smallT.y+1,correction:true}
+          ],"corrections",function(){
+            capB.textContent="Smaller target → more feedback-guided corrections, each costing time.";
+            svgB.dataset.running="0"; playB.disabled=false; playB.innerHTML="↻ Replay";
+            played.b=true; maybeReveal();
+          });
+        },700);
+      });
+    }
+    if(svgB){ buildB(); drawTarget(bigT,"#1a7f8e"); playB.addEventListener("click",playAnimB); }
+  })();
+
+  // --- Knowledge check (higher ID) ---
+  (function(){
+    var box=document.getElementById("kcChoice"); if(!box) return;
+    var fb=document.getElementById("kcFb");
+    box.querySelectorAll(".opt").forEach(function(opt){
+      opt.addEventListener("click",function(){
+        if(answered.kc) return;
+        var correct = opt.dataset.correct==="1";
+        if(correct){
+          opt.classList.add("right");
+          fb.className="kc-feedback ok";
+          fb.innerHTML="&#10003; Correct. Same distance, but the narrow target demands more precision &mdash; smaller W means a higher A/W ratio, so a higher ID and a longer movement time.";
+          openGate("kc");
+        } else {
+          opt.classList.add("wrong");
+          fb.className="kc-feedback no";
+          fb.innerHTML="&#10007; Not quite. The wide target is <em>easier</em> &mdash; more room for error. Try the other one.";
+          setTimeout(function(){ opt.classList.remove("wrong"); }, 1100);
+        }
+      });
+    });
+  })();
+
+  // --- Fitts tapping demo (preset conditions, easy -> hard) ---
+  (function(){
+    var arena=document.getElementById("fdArena"); if(!arena) return;
+    var L=document.getElementById("fdL"), R=document.getElementById("fdR");
+    var idOut=document.getElementById("fdID"), mtOut=document.getElementById("fdMT"),
+        tapsOut=document.getElementById("fdTaps"), ptsOut=document.getElementById("fdPts"),
+        msg=document.getElementById("fdMsg"), plot=document.getElementById("fdPlot"),
+        resetBtn=document.getElementById("fdReset"), nextBtn=document.getElementById("fdNextCond"),
+        cbadge=document.getElementById("fdCbadge"), cdesc=document.getElementById("fdCdesc");
+    // preset conditions: amplitude px, width px, description. Ordered easy -> hard by ID.
+    var CONDS=[
+      {A:140, W:84, d:"short distance · large target — the easiest"},
+      {A:260, W:56, d:"medium distance · medium target"},
+      {A:360, W:34, d:"long distance · small target"},
+      {A:470, W:22, d:"long distance · smaller target"},
+      {A:520, W:14, d:"very long distance · tiny target — the hardest"}
+    ];
+    var NTOTAL=CONDS.length;
+    var points=[];           // {id, mt}
+    var TARGET_TAPS=8;
+    var run=null;            // {count, lastT, times:[], expect, id}
+    var ci=0;                // current condition index
+    var doneCond=false;      // current condition completed?
+
+    function layout(){
+      var c=CONDS[ci], wPx=c.W, arenaW=arena.clientWidth||680;
+      var maxGap=arenaW - wPx - 24;
+      var centerGap=Math.min(c.A, Math.max(70, maxGap));
+      var cx=arenaW/2;
+      L.style.width=wPx+"px"; R.style.width=wPx+"px";
+      L.style.left=(cx-centerGap/2-wPx/2)+"px"; R.style.left=(cx+centerGap/2-wPx/2)+"px";
+      idOut.textContent=Math.log2(2*c.A/c.W).toFixed(2);
+      cbadge.textContent="Condition "+(ci+1)+" of "+NTOTAL;
+      cdesc.textContent=c.d;
+      highlight();
+    }
+    function highlight(){
+      L.classList.remove("hot","lit"); R.classList.remove("hot","lit");
+      if(doneCond){ L.textContent=""; R.textContent=""; return; }
+      if(!run){ L.classList.add("hot"); R.classList.add("hot"); L.textContent="tap"; R.textContent="tap"; return; }
+      (run.expect==="L"?L:R).classList.add("lit");
+      (run.expect==="L"?L:R).textContent="tap";
+      (run.expect==="L"?R:L).textContent="";
+    }
+    function startRun(side){
+      run={count:0, times:[], expect:side, lastT:performance.now(), id:Math.log2(2*CONDS[ci].A/CONDS[ci].W)};
+      tapsOut.textContent="0 / "+TARGET_TAPS;
+      msg.textContent="Keep tapping the highlighted target, back and forth — fast, but don’t miss.";
+      highlight();
+    }
+    function tap(side){
+      if(doneCond) return;
+      if(!run){ startRun(side==="L"?"R":"L"); return; }
+      if(side!==run.expect) return; // wrong target = a miss; ignore
+      var now=performance.now(), dt=now-run.lastT; run.lastT=now;
+      run.count++; run.times.push(dt);
+      tapsOut.textContent=run.count+" / "+TARGET_TAPS;
+      run.expect = run.expect==="L"?"R":"L";
+      highlight();
+      if(run.count>=TARGET_TAPS){ finishRun(); }
+    }
+    function finishRun(){
+      var t=run.times.slice(1); // drop first interval
+      var mt=t.reduce(function(a,b){return a+b;},0)/t.length;
+      mtOut.textContent=Math.round(mt)+" ms";
+      points.push({id:run.id, mt:mt});
+      ptsOut.textContent=points.length+" / "+NTOTAL;
+      run=null; doneCond=true; highlight(); drawPlot();
+      if(ci < NTOTAL-1){
+        msg.innerHTML="Point added. Press <strong>Next condition</strong> to continue.";
+        nextBtn.style.display="";
+      } else {
+        msg.innerHTML="&#10003; All five conditions done — there&rsquo;s your Fitts&rsquo; Law line, built from your own taps!";
+        nextBtn.style.display="none";
+      }
+    }
+    function advance(){
+      if(ci < NTOTAL-1){ ci++; doneCond=false; run=null; nextBtn.style.display="none";
+        mtOut.textContent="—"; tapsOut.textContent="0 / "+TARGET_TAPS;
+        msg.textContent="Tap either highlighted target to start Condition "+(ci+1)+".";
+        layout();
+      }
+    }
+    function drawPlot(){
+      var W=420,H=240,ml=52,mb=38,mt=14,mr=14;
+      var ids=points.map(function(p){return p.id;}),
+          mts=points.map(function(p){return p.mt;});
+      var idMax=Math.max(4, Math.ceil(Math.max.apply(null,ids.concat([1]))+0.5));
+      var mtMax=Math.max(600, Math.ceil((Math.max.apply(null,mts.concat([300])))/100)*100);
+      function X(id){ return ml + (id/idMax)*(W-ml-mr); }
+      function Y(mt){ return (H-mb) - (mt/mtMax)*(H-mb-mt_); }
+      var mt_=mt;
+      function Yv(v){ return (H-mb) - (v/mtMax)*(H-mb-mt_); }
+      var s='';
+      // axes
+      s+='<line x1="'+ml+'" y1="'+mt_+'" x2="'+ml+'" y2="'+(H-mb)+'" stroke="#cfd8de" stroke-width="1.5"/>';
+      s+='<line x1="'+ml+'" y1="'+(H-mb)+'" x2="'+(W-mr)+'" y2="'+(H-mb)+'" stroke="#cfd8de" stroke-width="1.5"/>';
+      // axis labels
+      s+='<text x="'+(ml+(W-ml-mr)/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#7a8a99">Index of difficulty (bits)</text>';
+      s+='<text x="14" y="'+((H-mb)/2+10)+'" transform="rotate(-90 14 '+((H-mb)/2+10)+')" text-anchor="middle" font-size="11" font-weight="700" fill="#7a8a99">Movement time (ms)</text>';
+      // easy/hard hints under the x-axis
+      s+='<text x="'+(ml+2)+'" y="'+(H-mb+30)+'" text-anchor="start" font-size="10" font-weight="700" fill="#1a7f8e">&#8592; easier</text>';
+      s+='<text x="'+(W-mr-2)+'" y="'+(H-mb+30)+'" text-anchor="end" font-size="10" font-weight="700" fill="#b9802f">harder &#8594;</text>';
+      // ticks
+      for(var i=0;i<=idMax;i++){ var x=X(i); s+='<line x1="'+x+'" y1="'+(H-mb)+'" x2="'+x+'" y2="'+(H-mb+4)+'" stroke="#cfd8de"/><text x="'+x+'" y="'+(H-mb+16)+'" text-anchor="middle" font-size="9.5" fill="#9fb0ba">'+i+'</text>'; }
+      for(var m=0;m<=mtMax;m+=200){ var y=Yv(m); s+='<line x1="'+(ml-4)+'" y1="'+y+'" x2="'+ml+'" y2="'+y+'" stroke="#cfd8de"/><text x="'+(ml-7)+'" y="'+(y+3)+'" text-anchor="end" font-size="9.5" fill="#9fb0ba">'+m+'</text>'; }
+      // best-fit line (least squares) if >=2 points
+      if(points.length>=2){
+        var n=points.length, sx=0,sy=0,sxy=0,sxx=0;
+        points.forEach(function(p){ sx+=p.id; sy+=p.mt; sxy+=p.id*p.mt; sxx+=p.id*p.id; });
+        var b=(n*sxy-sx*sy)/(n*sxx-sx*sx);
+        var a=(sy-b*sx)/n;
+        var x1=0, x2=idMax, y1=a, y2=a+b*idMax;
+        s+='<line x1="'+X(x1)+'" y1="'+Yv(Math.max(0,y1))+'" x2="'+X(x2)+'" y2="'+Yv(Math.max(0,y2))+'" stroke="#1a7f8e" stroke-width="2.5"/>';
+        // equation label placed TOP-LEFT (the rising line vacates that corner), clear of points and the latest-point label on the right
+        s+='<text x="'+(ml+8)+'" y="'+(mt_+12)+'" text-anchor="start" font-size="10.5" font-weight="800" fill="#146470">MT = '+Math.round(a)+' + '+Math.round(b)+'&middot;ID</text>';
+      }
+      // points — earlier ones in ink, the most recent one highlighted and labelled
+      points.forEach(function(p,i){
+        var last = (i===points.length-1);
+        if(last){
+          s+='<circle cx="'+X(p.id)+'" cy="'+Yv(p.mt)+'" r="7" fill="#e0a458" stroke="#b9802f" stroke-width="2"/>';
+          // label placed above-left or above-right depending on room
+          var lx=X(p.id), ly=Yv(p.mt);
+          var anchor = (lx > W*0.6) ? "end" : "start";
+          var dx = (anchor==="end") ? -11 : 11;
+          s+='<text x="'+(lx+dx)+'" y="'+(ly-11)+'" text-anchor="'+anchor+'" font-size="10.5" font-weight="800" fill="#b9802f">this condition: ID '+p.id.toFixed(1)+', '+Math.round(p.mt)+' ms</text>';
+        } else {
+          s+='<circle cx="'+X(p.id)+'" cy="'+Yv(p.mt)+'" r="5" fill="#15414c"/>';
+        }
+      });
+      if(points.length===0){ s+='<text x="'+(ml+(W-ml-mr)/2)+'" y="'+((H-mb)/2)+'" text-anchor="middle" font-size="12" fill="#b7c3cb">Complete a run to plot your first point</text>'; }
+      plot.innerHTML=s;
+    }
+    L.addEventListener("pointerdown",function(e){ e.preventDefault(); tap("L"); });
+    R.addEventListener("pointerdown",function(e){ e.preventDefault(); tap("R"); });
+    nextBtn.addEventListener("click",advance);
+    resetBtn.addEventListener("click",function(){ points=[]; ptsOut.textContent="0 / "+NTOTAL; ci=0; run=null; doneCond=false; nextBtn.style.display="none"; mtOut.textContent="—"; tapsOut.textContent="0 / "+TARGET_TAPS; msg.textContent="Tap either highlighted target to start Condition 1."; layout(); drawPlot(); });
+    window.addEventListener("resize",function(){ if(!run) layout(); });
+    window.__fdLayout=function(){ if(!run) layout(); };
+    layout(); drawPlot();
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>

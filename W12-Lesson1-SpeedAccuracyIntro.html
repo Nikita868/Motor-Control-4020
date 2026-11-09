@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Speed-Accuracy Trade-off</title>
+<!--
+  HLSC 4025 · Speed-Accuracy · Lesson 1 of 4 — The Speed-Accuracy Trade-off: The Core Idea
+  Shared design system (teal/gold). Screens are <section data-screen>; engine + interactives in <script>.
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  p.lead{font-size:18.5px;color:var(--ink)}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#a7c6cc;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* statement */
+  .statement{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;
+    padding:50px 42px;border:none;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .statement .eyebrow{color:#bfe3e8}
+  .statement p{color:#fff;font-size:22px;font-weight:600;line-height:1.42;margin:0}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+
+  /* two-type comparison */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .cmp .col{border:1px solid var(--line);border-radius:9px;padding:16px 18px;background:#fafbfc}
+  .cmp .col .h{font-size:15px;font-weight:800;margin-bottom:8px}
+  .cmp .col p{font-size:13.6px;margin:0 0 8px;color:#556}
+  .cmp .col ul{margin:0;padding-left:18px}
+  .cmp .col li{font-size:13.4px;color:#445;margin-bottom:6px;line-height:1.5}
+  .cmp .col.a{border-top:3px solid var(--accent)}.cmp .col.a .h{color:var(--accent-dark)}
+  .cmp .col.b{border-top:3px solid var(--gold)}.cmp .col.b .h{color:#b9802f}
+  @media(max-width:600px){.cmp{grid-template-columns:1fr}}
+
+  /* paired trade-off example boxes */
+  .tradeex{border:1px solid var(--line);border-radius:10px;background:#fff;padding:16px 18px;margin:14px 0}
+  .tradeex .tx-title{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:9px}
+  .tradeex .tx-tag{flex:none;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#fff;border-radius:6px;padding:3px 9px}
+  .tradeex.a .tx-tag{background:var(--accent)}
+  .tradeex.b .tx-tag{background:var(--gold)}
+  .tx-rows{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .tx-rows .tx-cell{border-radius:8px;padding:11px 13px;font-size:13.6px;line-height:1.5}
+  .tx-rows .fast{background:#fdf3e0;color:#5a3d12;border:1px solid #ead9bc}
+  .tx-rows .accurate{background:var(--accent-soft);color:#245a63;border:1px solid #cfe6ea}
+  .tx-rows .tx-cell b{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}
+  .tx-rows .fast b{color:#b9802f}.tx-rows .accurate b{color:var(--accent-dark)}
+  @media(max-width:560px){.tx-rows{grid-template-columns:1fr}}
+
+  /* spatial vs temporal lens cards */
+  .lens{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .lens .lcard{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fafbfc}
+  .lens .lcard .licon{font-size:24px;margin-bottom:6px}
+  .lens .lcard .lh{font-size:15.5px;font-weight:800;margin-bottom:6px}
+  .lens .lcard p{font-size:13.6px;margin:0;color:#556;line-height:1.5}
+  .lens .lcard.sp{border-top:3px solid var(--accent)}.lens .lcard.sp .lh{color:var(--accent-dark)}
+  .lens .lcard.tm{border-top:3px solid var(--gold)}.lens .lcard.tm .lh{color:#b9802f}
+  @media(max-width:600px){.lens{grid-template-columns:1fr}}
+
+  /* flippable example cells (page 4) */
+  .tx-flip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1200px;display:block;width:100%;text-align:left}
+  .tx-flip .txf-in{display:grid;width:100%;height:100%;min-height:118px;transition:transform .5s;transform-style:preserve-3d}
+  .tx-flip .txf-in>*{grid-area:1/1}
+  .tx-flip.flipped .txf-in{transform:rotateY(180deg)}
+  .tx-flip .txf-face{box-sizing:border-box;height:100%;border-radius:8px;padding:12px 14px;font-size:13.6px;line-height:1.5;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column}
+  .tx-flip .txf-back{transform:rotateY(180deg);justify-content:center;align-items:center;text-align:center}
+  .tx-flip .txf-back b{color:inherit;opacity:.72}
+  .tx-flip .txf-face b{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+  .tx-flip.fast .txf-front{background:#fff6ea;color:#5a3d12;border:1px solid #ead9bc}
+  .tx-flip.fast .txf-back{background:#fdf3e0;color:#5a3d12;border:1px solid #ead9bc}
+  .tx-flip.fast b{color:#b9802f}
+  .tx-flip.acc .txf-front{background:#f1f9fa;color:#245a63;border:1px solid #cfe6ea}
+  .tx-flip.acc .txf-back{background:var(--accent-soft);color:#245a63;border:1px solid #cfe6ea}
+  .tx-flip.acc b{color:var(--accent-dark)}
+  .tx-flip .txf-hint{margin-top:auto;font-size:11px;opacity:.72;font-style:italic}
+  .tx-flip .txf-hint::before{content:"\21BB  "}
+
+  /* flippable lens cards (page 5) */
+  .lensflip{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1300px;display:block;width:100%;height:100%;text-align:left}
+  .lensflip .lf-in{display:grid;width:100%;height:100%;min-height:200px;transition:transform .55s;transform-style:preserve-3d}
+  .lensflip .lf-in>*{grid-area:1/1}
+  .lensflip.flipped .lf-in{transform:rotateY(180deg)}
+  .lensflip .lf-face{box-sizing:border-box;height:100%;border:1px solid var(--line);border-radius:10px;padding:16px 18px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;background:#fafbfc}
+  .lensflip .lf-back{transform:rotateY(180deg);background:#fff}
+  .lensflip.sp .lf-face{border-top:3px solid var(--accent)}
+  .lensflip.tm .lf-face{border-top:3px solid var(--gold)}
+  .lensflip .licon{font-size:24px;margin-bottom:6px}
+  .lensflip .lh{font-size:15.5px;font-weight:800;margin-bottom:6px}
+  .lensflip.sp .lh{color:var(--accent-dark)}.lensflip.tm .lh{color:#b9802f}
+  .lensflip p{font-size:13.6px;margin:0 0 8px;color:#556;line-height:1.5}
+  .lensflip .lf-hint{margin-top:auto;font-size:11.5px;color:#6a7a86;font-style:italic}
+  .lensflip .lf-hint::before{content:"\21BB  "}
+
+  /* inline figure illustration */
+  .fig-ill{margin:18px auto 4px}
+  .fig-ill svg{width:100%;height:auto;display:block}
+  .fig-cap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.5}
+
+  /* flippable two-type boxes (page 3) */
+  .typeflip{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;align-items:stretch}
+  @media(max-width:600px){.typeflip{grid-template-columns:1fr}}
+  .tf{background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1500px;display:block;width:100%;height:100%;text-align:left}
+  .tf .tf-in{display:grid;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+  .tf .tf-in>*{grid-area:1/1}
+  .tf.flipped .tf-in{transform:rotateY(180deg)}
+  .tf .tf-face{box-sizing:border-box;height:100%;border:1px solid var(--line);border-radius:9px;padding:16px 18px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;background:#fafbfc}
+  .tf .tf-back{transform:rotateY(180deg);background:#fff}
+  .tf.a .tf-face{border-top:3px solid var(--accent)}
+  .tf.b .tf-face{border-top:3px solid var(--gold)}
+  .tf .h{font-size:15px;font-weight:800;margin-bottom:8px}
+  .tf.a .h{color:var(--accent-dark)}.tf.b .h{color:#b9802f}
+  .tf p{font-size:13.6px;margin:0 0 8px;color:#556;line-height:1.5}
+  .tf ul{margin:0;padding-left:18px}
+  .tf li{font-size:13.4px;color:#445;margin-bottom:6px;line-height:1.5}
+  .tf .tf-prompt{font-size:12px;color:#6a7a86;margin-top:auto;padding-top:10px;text-align:center}
+  .tf .tf-prompt::before{content:"\21BB  "}
+  .tf .tf-deftag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+  /* reveal-after-flip clinic box */
+  .revealclinic{max-height:0;overflow:hidden;opacity:0;transition:max-height .5s ease,opacity .4s ease,margin .4s ease;margin:0}
+  .revealclinic.show{max-height:640px;opacity:1;margin:16px 0}
+  .flip-hint-line{font-size:13px;color:var(--muted);text-align:center;margin:4px 0 0;font-style:italic;transition:opacity .3s}
+  .flip-hint-line.gone{opacity:0}
+
+  /* sorter */
+  .sorter{margin-top:18px}
+  .sort-bank{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;min-height:46px}
+  .chip{border:2px solid var(--accent);background:#fff;border-radius:8px;padding:10px 15px;font-size:14px;font-weight:700;color:var(--accent-dark);cursor:grab;font-family:inherit;transition:.12s}
+  .chip:hover{background:var(--accent-soft)}
+  .chip.placed{opacity:.45;cursor:default;border-style:dashed}
+  .sort-q{margin-top:16px}
+  .sort-q:first-of-type{margin-top:0}
+  .sort-prompt{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .sort-prompt .cell{min-width:140px}
+  .cell{border:2px dashed #cdd8df;border-radius:9px;min-height:50px;min-width:140px;display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;background:#fafbfc;transition:.15s;text-align:center;font-size:13.5px}
+  .cell.over{border-color:var(--accent);background:var(--accent-soft)}
+  .cell.filled{border-style:solid}
+  .cell.ok{border-color:#2e9e6b;background:#eafaf1;color:#1d6b47;font-weight:700}
+  .cell.no{border-color:#d9534f;background:#fdeeee;color:#a3403c;font-weight:700}
+  .sort-note{font-size:13.5px;color:var(--muted);margin-top:14px;text-align:center}
+
+  /* refline */
+  .refline{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  /* navbar */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:7px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Speed-Accuracy &nbsp;&rsaquo;&nbsp; <b>Lesson 1: The Core Idea</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">9</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Speed-Accuracy &middot; Lesson 1 of 4</div>
+        <h1>The Speed-Accuracy Trade-off</h1>
+        <p>&ldquo;Haste makes waste&rdquo; &mdash; most people appreciate that trying to move fast makes you make more errors. We&rsquo;ll look into the motor control of this phenomenon in this unit!</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> Two types of speed-accuracy skills</span>
+          <span><span class="dot"></span> The trade-off, both directions</span>
+          <span><span class="dot"></span> Spatial vs. temporal accuracy</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1b INTRO HOOK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A familiar idea</div>
+        <h2>Slow down to be accurate</h2>
+        <p>Here&rsquo;s something everyone already knows: when you want to be more <strong>accurate</strong> at a skill, it usually makes sense to <strong>slow down</strong>. Typing a tricky password? You ease off the speed so you don&rsquo;t make a mistake.</p>
+        <p>The same bargain shows up everywhere in daily life:</p>
+        <div class="callout why">
+          <span class="clabel">You&rsquo;ve felt this before</span>
+          <p>Drive too fast and you might <strong>miss your exit</strong>. Rush your handwriting and it turns into a <strong>scrawl</strong>. Hurry a free throw and it clangs off the rim. Speed up, and accuracy tends to suffer &mdash; so we trade one for the other.</p>
+        </div>
+        <p>It feels like plain common sense. But <em>why</em> does it happen? What is the nervous system actually doing when we trade speed for accuracy? In this unit, we&rsquo;ll dig into the <strong>science behind the motor control of the speed&ndash;accuracy trade-off</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 LEARNING OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">By the end of this lesson</div>
+        <h2>Learning objectives</h2>
+        <p>You should be able to:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define the <strong>speed-accuracy trade-off</strong> and explain why it is described as lawful and bidirectional &mdash; not simply a matter of carelessness or effort.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Distinguish Magill&rsquo;s <strong>two types of speed-accuracy skills</strong>: those whose demands are set by the <strong>skill itself</strong> vs. <strong>manual aiming skills</strong> performed at a speed the <strong>performer</strong> chooses.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Distinguish <strong>spatial accuracy</strong> (hitting a location) from <strong>temporal accuracy</strong> (hitting a moment in time), and recognize these as a second, independent way to classify skills.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 TWO TYPES OF SPEED-ACCURACY SKILLS (Magill) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Where do the demands come from?</div>
+        <h2>Two types of speed-accuracy skills</h2>
+        <p>Many motor skills require <strong>both speed and accuracy</strong> &mdash; but the demands don&rsquo;t always come from the same place. Magill and Anderson (2025) distinguish two types. <span style="color:var(--muted)">Flip each box to see more.</span></p>
+        <div class="typeflip">
+          <button type="button" class="tf a" onclick="flipType(this)"><span class="tf-in">
+            <span class="tf-face tf-front">
+              <div class="h">1. Demands set by the skill itself</div>
+              <p>The task <em>requires</em> both speed and accuracy &mdash; you don&rsquo;t get to simply slow down.</p>
+              <ul>
+                <li>Kicking a penalty kick in soccer</li>
+                <li>Pitching a fastball for a strike</li>
+                <li>Playing a song on piano at fast tempo</li>
+                <li>Speed typing</li>
+              </ul>
+              <div class="tf-prompt">Why can&rsquo;t you just slow down?</div>
+            </span>
+            <span class="tf-face tf-back">
+              <div class="h">Skill-determined speed</div>
+              <p>In these skills, <strong>speed is part of success</strong>. A soft, perfectly aimed penalty kick still fails &mdash; the keeper saves it. A slow &ldquo;fastball&rdquo; is just a pitch to hit. The goal or the environment <strong>fixes the speed</strong>, so accuracy must be achieved <em>at</em> that speed.</p>
+            </span>
+          </span></button>
+
+          <button type="button" class="tf b" onclick="flipType(this)"><span class="tf-in">
+            <span class="tf-face tf-front">
+              <div class="h">2. Manual aiming skills</div>
+              <div class="tf-deftag">Definition &middot; manual aiming skill</div>
+              <p>A motor skill involving <strong>arm, hand, and/or finger movement to a target</strong>. Accuracy is required, but the movement <strong>speed is up to the performer</strong>.</p>
+              <ul>
+                <li>Putting a key into a keyhole</li>
+                <li>Placing a pen in a penholder</li>
+                <li>Typing on a keyboard</li>
+                <li>Threading a needle</li>
+              </ul>
+              <div class="tf-prompt">What&rsquo;s the key feature?</div>
+            </span>
+            <span class="tf-face tf-back">
+              <div class="h">Performer-chosen speed</div>
+              <p>Nothing forces you to hurry &mdash; you could thread the needle very slowly and nail it every time. The <strong>trade-off is self-imposed</strong>: you decide how much speed to risk against how much accuracy you need.</p>
+            </span>
+          </span></button>
+        </div>
+
+        <p class="flip-hint-line" id="flipHint">Flip <strong>both</strong> boxes to reveal how this plays out in the clinic.</p>
+        <div class="callout why revealclinic" id="clinicReveal">
+          <span class="clabel">In the clinic</span>
+          <p>Most rehab tasks are <strong>self-paced</strong> &mdash; the clinician lets the patient choose a speed so accuracy can succeed: guiding a spoon to the mouth in feeding retraining (OT), stepping onto a floor target during gait (PT), guiding a dental probe to a tooth surface (dentistry). The exception is <strong>reactive balance</strong>: recovering from a trip or an external push (PT) is <strong>skill-determined</strong> &mdash; the perturbation fixes how fast the step must happen, so speed can&rsquo;t be traded away. That&rsquo;s part of why it&rsquo;s so challenging to retrain.</p>
+        </div>
+
+        <p class="refline">Magill, R. A., &amp; Anderson, D. (2025). <em>Motor Learning and Control: Concepts and Applications</em> (latest ed.). New York: McGraw-Hill.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 THE TRADE-OFF, BOTH DIRECTIONS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The phenomenon</div>
+        <h2>The trade-off runs both ways</h2>
+        <p>For <em>both</em> types of skill, we see the same thing: the accuracy demand influences movement speed. Emphasize accuracy and speed drops; emphasize speed and accuracy drops. For each case below, <strong>predict the outcome, then flip</strong> the box.</p>
+
+        <div class="tradeex a">
+          <div class="tx-title"><span class="tx-tag">Skill-paced</span> Penalty kick in soccer</div>
+          <div class="tx-rows">
+            <button type="button" class="tx-flip fast" onclick="flipCell(this)"><span class="txf-in">
+              <span class="txf-face txf-front"><b>Emphasize speed</b>Kick as hard as possible. What happens to accuracy?<span class="txf-hint">Flip for the outcome</span></span>
+              <span class="txf-face txf-back"><b>Result</b>The shot is typically <strong>inaccurate</strong> and misses the target.</span>
+            </span></button>
+            <button type="button" class="tx-flip acc" onclick="flipCell(this)"><span class="txf-in">
+              <span class="txf-face txf-front"><b>Emphasize accuracy</b>Aim for a small corner. What happens to speed?<span class="txf-hint">Flip for the outcome</span></span>
+              <span class="txf-face txf-back"><b>Result</b>The ball is kicked <strong>too slowly</strong> to beat the goalkeeper.</span>
+            </span></button>
+          </div>
+        </div>
+
+        <div class="tradeex b">
+          <div class="tx-title"><span class="tx-tag">Self-paced aiming</span> Putting a key in a keyhole</div>
+          <div class="tx-rows">
+            <button type="button" class="tx-flip fast" onclick="flipCell(this)"><span class="txf-in">
+              <span class="txf-face txf-front"><b>Emphasize speed</b>Move the key too quickly. What happens?<span class="txf-hint">Flip for the outcome</span></span>
+              <span class="txf-face txf-back"><b>Result</b>You <strong>miss the keyhole</strong> entirely.</span>
+            </span></button>
+            <button type="button" class="tx-flip acc" onclick="flipCell(this)"><span class="txf-in">
+              <span class="txf-face txf-front"><b>Emphasize accuracy</b>Make sure you hit it. What happens to speed?<span class="txf-hint">Flip for the outcome</span></span>
+              <span class="txf-face txf-back"><b>Result</b>The hand moves <strong>slowly</strong> to stay on target.</span>
+            </span></button>
+          </div>
+        </div>
+
+        <p class="flip-hint-line" id="insightHint">Flip <strong>all four</strong> boxes above to reveal the key insight.</p>
+        <div class="callout revealclinic" id="insightReveal">
+          <span class="clabel">The key insight</span>
+          <p>This isn&rsquo;t carelessness or lack of effort. The trade-off is <strong>lawful</strong> &mdash; so consistent that, as we&rsquo;ll see, we can write it as an equation and <strong>predict</strong> how much speed you&rsquo;ll give up for a given accuracy demand.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 A SECOND LENS: SPATIAL VS TEMPORAL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A second, independent way to slice it</div>
+        <h2>Spatial vs. temporal accuracy</h2>
+        <p>When we say &ldquo;accuracy,&rdquo; we usually picture hitting a <strong>spot</strong> &mdash; that&rsquo;s <strong>spatial accuracy</strong>, the first thing that comes to mind. But accuracy can also mean hitting the right <strong>moment</strong>: <strong>temporal accuracy</strong>.</p>
+        <p style="color:var(--muted);font-size:14.5px">Flip each card to see how the trade-off shows up.</p>
+        <div class="lens">
+          <button type="button" class="lensflip sp" onclick="flipLens(this)"><span class="lf-in">
+            <span class="lf-face lf-front">
+              <div class="licon">&#127919;</div>
+              <div class="lh">Spatial accuracy trade-off</div>
+              <p>Hitting a <strong>location</strong> in space &mdash; getting the hand, foot, or implement to the right <em>place</em>. Threading a needle, reaching a target, a dart to the bullseye.</p>
+              <div class="lf-hint">How does speed trade off here?</div>
+            </span>
+            <span class="lf-face lf-back">
+              <div class="lh">Spatial accuracy trade-off</div>
+              <p>Go faster and your endpoint <strong>scatters more widely around the target</strong> &mdash; you miss the <em>place</em>. The faster the movement, the larger the spatial error.</p>
+            </span>
+          </span></button>
+          <button type="button" class="lensflip tm" onclick="flipLens(this)"><span class="lf-in">
+            <span class="lf-face lf-front">
+              <div class="licon">&#9201;&#65039;</div>
+              <div class="lh">Temporal accuracy trade-off</div>
+              <p>Hitting a <strong>moment</strong> in time &mdash; doing something at exactly the right <em>instant</em>. Swinging to meet a pitched ball, catching, striking a drum on the beat.</p>
+              <div class="lf-hint">How does speed trade off here?</div>
+            </span>
+            <span class="lf-face lf-back">
+              <div class="lh">Temporal accuracy trade-off</div>
+              <p>When events happen fast, small errors in <strong>timing</strong> become costly &mdash; you&rsquo;re early or late by just milliseconds and miss the <em>moment</em>. Less time to act means tighter timing demands.</p>
+            </span>
+          </span></button>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Where this is headed</span>
+          <p>The <strong>spatial accuracy trade-off</strong> is governed by the laws we study next &mdash; <strong>Fitts&rsquo; Law</strong> (Lesson 2), for aiming at a speed you choose, and <strong>Schmidt&rsquo;s Law</strong> (Lesson 3), for rapid, ballistic movements. The <strong>temporal accuracy trade-off</strong> gets its own treatment in <strong>Lesson 4</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 WHY IT MATTERS FOR MOVEMENT CONTROL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Why study this at all?</div>
+        <h2>A window into motor control</h2>
+        <p>The speed-accuracy trade-off is more than a curiosity about sports and keyholes. It is one of the most reliable behaviors in all of movement science &mdash; and that reliability makes it a <strong>window into how the nervous system works</strong>. Many of the research studies in this area rely on tasks that require <strong>voluntary reaching movements</strong>.</p>
+        <p>The ability to <strong>reach and place the hand at a specific location in space</strong> is an essential component of daily living &mdash; feeding, dressing, and grooming all depend on it. When this ability is compromised, as it commonly is <strong>after stroke</strong>, everyday independence suffers. That is a central reason for understanding the motor control topics in this unit: they describe the very capacity that rehabilitation aims to restore (McCrea &amp; Eng, 2005).</p>
+        <p>The model of a fast reaching movement initially proposed by <strong>Woodworth (1899)</strong> consists of an initial phase in which the movement is <strong>planned in advance and launched</strong>; then, near the target, the <strong>neuromotor system must use feedback to correct</strong> its aim &mdash; and correcting takes time. Accuracy costs time because making corrections costs time.</p>
+
+        <figure class="fig-ill" style="max-width:540px">
+          <svg viewBox="0 0 560 250" role="img" aria-label="A reaching movement toward a target. A large fast initial movement gets close to the target, followed by a small slow corrective movement that lands on the center.">
+            <!-- phase 1 label (above the arc) -->
+            <text x="250" y="30" text-anchor="middle" font-size="13" font-weight="800" fill="#b9802f">1. Initial impulse</text>
+            <text x="250" y="46" text-anchor="middle" font-size="11" fill="#9c7030">fast, pre-planned (open-loop)</text>
+            <!-- target -->
+            <circle cx="448" cy="140" r="28" fill="#e8f4f6" stroke="#1a7f8e" stroke-width="1.6"/>
+            <circle cx="448" cy="140" r="15" fill="#fff" stroke="#9ec9cf" stroke-width="1.2"/>
+            <circle cx="448" cy="140" r="5" fill="#1a7f8e"/>
+            <text x="448" y="196" text-anchor="middle" font-size="12.5" font-weight="700" fill="#146470">Target</text>
+            <!-- start -->
+            <circle cx="60" cy="140" r="7" fill="#15414c"/>
+            <text x="60" y="196" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2c3e50">Start</text>
+            <!-- phase 1: ballistic arc overshooting ABOVE the target (misses high) -->
+            <path d="M68 138 Q250 58 456 98" fill="none" stroke="var(--gold)" stroke-width="3" marker-end="url(#ar1)"/>
+            <!-- where the fast movement actually ended, above the target -->
+            <circle cx="462" cy="97" r="3.5" fill="#b9802f"/>
+            <!-- phase 2: visible correction dropping down from there into the target center -->
+            <path d="M462 103 Q458 126 450 136" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-dasharray="3.5 3" marker-end="url(#ar2)"/>
+            <!-- phase 2 label (clearly below-right, away from arc) -->
+            <text x="452" y="224" text-anchor="middle" font-size="13" font-weight="800" fill="#146470">2. Correction</text>
+            <text x="452" y="240" text-anchor="middle" font-size="11" fill="#2f6f78">slow feedback homing (closed-loop)</text>
+            <defs>
+              <marker id="ar1" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0l6 3L0 6z" fill="var(--gold)"/></marker>
+              <marker id="ar2" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0l6 3L0 6z" fill="var(--accent)"/></marker>
+            </defs>
+          </svg>
+          <figcaption class="fig-cap">A goal-directed reach: one <strong>fast, pre-planned launch</strong> gets the effector close but a little off, then a <strong>slower feedback correction</strong> brings it onto the target. The correction is where accuracy &mdash; and time &mdash; is spent.</figcaption>
+        </figure>
+
+        <div class="callout why">
+          <span class="clabel">The thread of the unit</span>
+          <p>That &ldquo;launch, then correct&rdquo; structure &mdash; an <strong>open-loop</strong> initial phase followed by a <strong>closed-loop</strong> correcting phase &mdash; is the idea the whole unit returns to. It explains Fitts&rsquo; Law, Schmidt&rsquo;s Law, and (in Lesson 4) why the trade-off changes with aging, stroke, and Parkinson&rsquo;s. Hold onto it.</p>
+        </div>
+        <p class="refline">Woodworth, R.&nbsp;S. (1899). The accuracy of voluntary movement. <em>Psychological Monographs: General and Applied, 3</em>(3), 1&ndash;114. <a href="https://doi.org/10.1037/h0092992" target="_blank" rel="noopener">https://doi.org/10.1037/h0092992</a><br>McCrea, P.&nbsp;H., &amp; Eng, J.&nbsp;J. (2005). Consequences of increased neuromotor noise for reaching movements in persons with stroke. <em>Experimental Brain Research, 162</em>(1), 70&ndash;77. <a href="https://doi.org/10.1007/s00221-004-2106-8" target="_blank" rel="noopener">https://doi.org/10.1007/s00221-004-2106-8</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 KNOWLEDGE CHECK (sorter gate) -->
+  <section class="screen" data-screen data-gate="sort">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <h2>Spatial or temporal?</h2>
+        <p style="color:#3d4d5c">Classify each task by <strong>what it is accurate to</strong>. Drag each task onto the right kind of accuracy (or tap a task, then tap a target). Place all six to continue.</p>
+        <div class="sorter" id="sorter">
+          <div class="sort-bank" id="sortBank">
+            <button class="chip" id="chip-needle" data-pc="needle" draggable="true">Threading a needle</button>
+            <button class="chip" id="chip-bat" data-pc="bat" draggable="true">Swinging to hit a pitch</button>
+            <button class="chip" id="chip-key" data-pc="key" draggable="true">Key into a keyhole</button>
+            <button class="chip" id="chip-drum" data-pc="drum" draggable="true">Drum hit on the beat</button>
+            <button class="chip" id="chip-dart" data-pc="dart" draggable="true">Dart to the bullseye</button>
+            <button class="chip" id="chip-catch" data-pc="catch" draggable="true">Catching a thrown ball</button>
+          </div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Spatial</strong> &mdash; hitting a location</span><span class="cell" data-cell="needle"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Spatial</strong> &mdash; hitting a location</span><span class="cell" data-cell="key"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Spatial</strong> &mdash; hitting a location</span><span class="cell" data-cell="dart"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Temporal</strong> &mdash; hitting a moment</span><span class="cell" data-cell="bat"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Temporal</strong> &mdash; hitting a moment</span><span class="cell" data-cell="drum"></span></div></div>
+          <div class="sort-q"><div class="sort-prompt"><span><strong>Temporal</strong> &mdash; hitting a moment</span><span class="cell" data-cell="catch"></span></div></div>
+          <p class="sort-note" id="sortNote">Placed 0 of 6.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What you can now do</div>
+        <h2>Summary &amp; the next step</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Define the speed-accuracy trade-off and explain that it is lawful and bidirectional &mdash; emphasizing speed costs accuracy and vice versa.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Tell apart skills whose demands are set by the skill itself from manual aiming skills performed at a self-chosen speed.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Distinguish spatial accuracy (a location) from temporal accuracy (a moment) as a separate way to classify a skill.</span></li>
+        </ul>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 2 &mdash; Fitts&rsquo; Law:</strong> the first and most famous law of spatial speed-accuracy. Who Paul Fitts was, how he turned movement into information, and an interactive demo where you generate the law from your own taps.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Completion code</span>
+          <p>Your passphrase for this lesson is <strong>TRADE-OFF</strong>. Enter it in the Canvas quiz to record completion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={sort:"Place all six to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+
+  // --- Two-type flip boxes + reveal clinic after both flipped (page 3) ---
+  (function(){
+    var flipped={};
+    window.flipType=function(btn){
+      btn.classList.toggle("flipped");
+      var which = btn.classList.contains("a") ? "a" : "b";
+      if(btn.classList.contains("flipped")) flipped[which]=true;
+      if(flipped.a && flipped.b){
+        var rc=document.getElementById("clinicReveal");
+        var hint=document.getElementById("flipHint");
+        if(rc) rc.classList.add("show");
+        if(hint) hint.classList.add("gone");
+      }
+    };
+  })();
+
+  // --- Page-4 cell flips: reveal key-insight box after all four flipped ---
+  (function(){
+    var flipped={};
+    window.flipCell=function(btn){
+      btn.classList.toggle("flipped");
+      if(btn.classList.contains("flipped")){
+        var all=[].slice.call(document.querySelectorAll(".tx-flip"));
+        var idx=all.indexOf(btn); flipped[idx]=true;
+        if(Object.keys(flipped).length>=all.length){
+          var rv=document.getElementById("insightReveal");
+          var hint=document.getElementById("insightHint");
+          if(rv) rv.classList.add("show");
+          if(hint) hint.classList.add("gone");
+        }
+      }
+    };
+  })();
+  // --- Page-5 lens card flips ---
+  window.flipLens=function(btn){ btn.classList.toggle("flipped"); };
+
+  // --- Sorter knowledge check (spatial vs temporal) ---
+  (function(){
+    var sorter=document.getElementById("sorter"); if(!sorter) return;
+    var bank=document.getElementById("sortBank");
+    var note=document.getElementById("sortNote");
+    var cells=[].slice.call(sorter.querySelectorAll(".cell"));
+    var LABEL={needle:"Threading a needle",bat:"Swinging to hit a pitch",key:"Key into a keyhole",drum:"Drum hit on the beat",dart:"Dart to the bullseye",catch:"Catching a thrown ball"};
+    var sel=null;
+    function markChip(pc){ var c=document.getElementById("chip-"+pc); if(c) c.classList.add("placed"); }
+    function tryPlace(pc, cell){
+      if(cell.classList.contains("filled")) return;
+      var ok = cell.dataset.cell===pc;
+      cell.classList.add("filled", ok?"ok":"no");
+      cell.innerHTML = (ok?"&#10003; ":"&#10007; ")+LABEL[pc];
+      if(!ok){ setTimeout(function(){ cell.classList.remove("no"); cell.classList.add("ok"); cell.innerHTML="&#10003; "+LABEL[cell.dataset.cell]; markChip(cell.dataset.cell); checkDone(); }, 900); }
+      markChip(pc); markChip(cell.dataset.cell); checkDone();
+    }
+    function checkDone(){
+      var filled = cells.filter(function(c){return c.classList.contains("filled");}).length;
+      if(filled>=6){ note.innerHTML="&#10003; All placed. Needle, keyhole, and dart are about hitting a <strong>location</strong> (spatial); the pitch, drumbeat, and catch are about hitting a <strong>moment</strong> (temporal)."; openGate("sort"); }
+      else note.textContent="Placed "+filled+" of 6.";
+    }
+    bank.querySelectorAll(".chip").forEach(function(chip){
+      chip.addEventListener("dragstart",function(e){ e.dataTransfer.setData("text/plain", chip.dataset.pc); });
+      chip.addEventListener("click",function(){
+        if(chip.classList.contains("placed")) return;
+        bank.querySelectorAll(".chip").forEach(function(c){c.style.outline="";});
+        sel = sel===chip.dataset.pc ? null : chip.dataset.pc;
+        if(sel) chip.style.outline="3px solid var(--accent)";
+      });
+    });
+    cells.forEach(function(cell){
+      cell.addEventListener("dragover",function(e){ e.preventDefault(); cell.classList.add("over"); });
+      cell.addEventListener("dragleave",function(){ cell.classList.remove("over"); });
+      cell.addEventListener("drop",function(e){ e.preventDefault(); cell.classList.remove("over"); var pc=e.dataTransfer.getData("text/plain"); if(pc) tryPlace(pc,cell); });
+      cell.addEventListener("click",function(){ if(sel){ tryPlace(sel,cell); var c=document.getElementById("chip-"+sel); if(c)c.style.outline=""; sel=null; } });
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
