@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directing Attention</title>
+<!--
+  HLSC 4025 · Attention · Lesson 4 of 5 — Directing Attention
+  Shared design system (teal/gold). Two original interactives:
+   (1) Inattentional-blindness counting task (animated SVG, unexpected object).
+   (2) Internal→external focus "cue rewriter".
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#a7c6cc;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+  .kc-opt{text-align:left;border:1px solid #cfe6ea;background:#fff;border-radius:9px;padding:13px 16px;font-family:inherit;font-size:14px;color:#2c3e50;cursor:pointer;line-height:1.5;transition:.12s;width:100%;display:block;margin-bottom:10px}
+
+  /* flip answer card */
+  .flipans{--famin:160px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block;margin:14px 0}
+  .flipans .fa-inner{position:relative;display:block;width:100%;min-height:var(--famin);transition:transform .55s;transform-style:preserve-3d}
+  .flipans.flipped .fa-inner{transform:rotateY(180deg)}
+  .fa-back{position:relative;display:block;box-sizing:border-box;min-height:var(--famin);padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(180deg);background:#fdf3e0;border:1px solid #e0a458;color:#5a3d12;font-size:14px;line-height:1.6;text-align:left}
+  .fa-back strong{color:#9c6a1c}
+  .fa-front{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;text-align:center}
+  .fa-front .fa-optbadge{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.2);color:#eaf6f8;border-radius:20px;padding:3px 11px;margin-bottom:10px}
+  .fa-front .fa-q{font-size:15px;font-weight:800}
+  .fa-front .fa-hint{font-size:12px;opacity:.85;margin-top:8px}
+  .fa-front .fa-hint::before{content:"\21BB  "}
+
+  /* internal/external definition flip cards (page 5 intro) */
+  .defgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 6px}
+  @media(max-width:560px){.defgrid{grid-template-columns:1fr}}
+  .defcard{--dcmin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;display:block;width:100%}
+  .defcard .fa-inner{position:relative;display:block;width:100%;min-height:var(--dcmin);transition:transform .55s;transform-style:preserve-3d}
+  .defcard.flipped .fa-inner{transform:rotateY(180deg)}
+  .def-front,.def-back{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:18px 20px;border-radius:12px;-webkit-backface-visibility:hidden;backface-visibility:hidden;text-align:center}
+  .def-back{transform:rotateY(180deg)}
+  .def-front.int{background:#fdf6ea;border:1px solid #e3b778}
+  .def-front.ext{background:#eefbfb;border:1px solid #a9d4d9}
+  .def-back.int{background:linear-gradient(135deg,#7a4e14,#b9802f)}
+  .def-back.ext{background:linear-gradient(135deg,#15414c,#1a7f8e)}
+  .def-badge{width:30px;height:30px;border-radius:50%;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:9px}
+  .def-front.int .def-badge{background:#f3e0c2;color:#8a5a12}
+  .def-front.ext .def-badge{background:#d4edf0;color:var(--accent-dark)}
+  .def-term{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:5px}
+  .def-sub{font-size:13.5px;color:#5a6a78;line-height:1.45}
+  .def-front.int .def-sub{color:#7a5a2e}
+  .def-front.ext .def-sub{color:#416a70}
+  .def-flip{font-size:11.5px;margin-top:11px;font-weight:700}
+  .def-front.int .def-flip{color:#b9802f}
+  .def-front.ext .def-flip{color:var(--accent-dark)}
+  .def-tag{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:9px}
+  .def-ex{font-size:15px;font-weight:700;color:#fff;line-height:1.6}
+
+  /* click-to-reveal table */
+  .rtable{width:100%;border-collapse:separate;border-spacing:8px;margin:14px 0}
+  .rtable .rt-head{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding-bottom:2px;text-align:center}
+  .rtable .rt-src{font-weight:800;color:var(--ink);font-size:13.5px;vertical-align:middle;padding-right:4px}
+  .rtable .rt-src-head{color:var(--accent-dark)}
+  .rtable .rt-src-head.cc{color:#b9802f}
+  .rcell{border:1.5px dashed #cdd8df;border-radius:9px;padding:11px 13px;background:#fafbfc;cursor:pointer;font-size:13.6px;line-height:1.5;color:#8a97a2;transition:.14s;vertical-align:top;text-align:center}
+  .rcell:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .rcell .rc-hint{font-style:italic}
+  .rcell .rc-hint::before{content:"\1F441  "}
+  .rcell.shown{cursor:default;border-style:solid;text-align:center;font-weight:600}
+  .rcell.int.shown{border-color:#e3b778;background:#fdf6ea;color:#8a5a12}
+  .rcell.ext.shown{border-color:#a9d4d9;background:#eefbfb;color:#215c63}
+  .reveal-all{border:none;border-radius:7px;background:#fff;border:1px solid var(--line);color:var(--muted);font-family:inherit;font-weight:700;font-size:13px;padding:8px 16px;cursor:pointer;margin-bottom:4px}
+  .reveal-all:hover{background:var(--page);color:var(--ink)}
+
+  /* IB demo */
+  .ibstage{border:1px solid var(--line);border-radius:12px;background:#f3f6f8;padding:16px;margin:16px 0}
+  .ibstage svg{width:100%;height:auto;display:block;border-radius:8px;background:#eef2f4}
+  .video-embed{position:relative;width:100%;padding-top:56.25%;border-radius:8px;overflow:hidden;background:#000}
+  .video-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+  .ibbar{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .ibcount{font-size:13px;color:var(--muted);font-weight:700}
+  .ibcount b{color:var(--accent-dark);font-size:18px}
+  .sbtn{border:none;border-radius:8px;font-family:inherit;font-weight:700;font-size:14.5px;padding:11px 22px;cursor:pointer;transition:.15s}
+  .sbtn.primary{background:var(--accent);color:#fff;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .sbtn.primary:hover:not(:disabled){background:var(--accent-dark)}
+  .sbtn.ghost{background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .sbtn:disabled{opacity:.45;cursor:not-allowed}
+  .ibq{margin-top:14px;border:1px solid #cfe6ea;background:var(--accent-soft);border-radius:10px;padding:15px 18px}
+  .ibq p{margin:0 0 10px;font-size:14.5px;color:#245a63;font-weight:600}
+  .ibq-btns{display:flex;gap:10px;flex-wrap:wrap}
+  .ibq-opt{border:1px solid #cfe6ea;background:#fff;border-radius:8px;padding:9px 18px;font-family:inherit;font-weight:700;font-size:14px;color:#245a63;cursor:pointer}
+  .ibq-opt:hover{background:#dff0f2}
+  .ib-reveal{margin-top:12px;font-size:14px;color:#245a63;line-height:1.6}
+  .ib-reveal.hidden{display:none}
+
+  /* unroll accordion */
+  .unroll{margin:12px 0 4px}
+  .ur-row{display:block;width:100%;text-align:left;font-family:inherit;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:0;margin-bottom:10px;cursor:pointer;transition:.14s;overflow:hidden}
+  .ur-row:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .ur-row[aria-expanded="true"]{border-color:#cfe6ea;background:#fff}
+  .ur-head{display:flex;align-items:center;gap:12px;padding:14px 16px}
+  .ur-arrow{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);font-weight:800;display:flex;align-items:center;justify-content:center;transition:transform .3s;font-size:14px}
+  .ur-row[aria-expanded="true"] .ur-arrow{transform:rotate(90deg);background:var(--accent);color:#fff}
+  .ur-lead{font-size:15.5px;color:#3d4d5c}
+  .ur-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s ease}
+  .ur-row[aria-expanded="true"] .ur-body{grid-template-rows:1fr}
+  .ur-body>span{overflow:hidden;font-size:14.5px;color:#245a63;line-height:1.55;padding:0 18px 0 54px}
+  .ur-row[aria-expanded="true"] .ur-body>span{padding-bottom:15px}
+
+  /* focus rewriter */
+  .rewriter{border:1px solid var(--line);border-radius:12px;background:#fafbfc;padding:20px;margin:16px 0}
+  .rw-row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;margin-bottom:12px}
+  .rw-in{flex:1;min-width:200px;border:1px solid var(--line);border-radius:9px;padding:11px 14px;font-family:inherit;font-size:14.5px;color:var(--ink);background:#fff}
+  .rw-in:focus{outline:none;border-color:var(--accent)}
+  .rw-go{background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:inherit;font-weight:700;font-size:14.5px;padding:11px 22px;cursor:pointer}
+  .rw-go:hover{background:var(--accent-dark)}
+  .rw-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+  .rw-chip{border:1px solid #e3b778;background:#fdf6ea;color:#8a5a12;border-radius:20px;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.12s}
+  .rw-chip:hover{background:#f8ebd4}
+  .rw-chip-label{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:4px 0 2px}
+  .rw-out{margin-top:6px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .rw-pair{display:grid;grid-template-columns:1fr 1fr}
+  @media(max-width:560px){.rw-pair{grid-template-columns:1fr}}
+  .rw-cell{padding:14px 16px}
+  .rw-cell.int{background:#fdf6ea;border-right:1px solid #f0e0c4}
+  .rw-cell.ext{background:#eefbfb}
+  @media(max-width:560px){.rw-cell.int{border-right:none;border-bottom:1px solid #f0e0c4}}
+  .rw-cell .rw-tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+  .rw-cell.int .rw-tag{color:#b9802f}
+  .rw-cell.ext .rw-tag{color:var(--accent-dark)}
+  .rw-cell .rw-text{font-size:14.5px;color:#2c3e50;font-weight:600}
+  .rw-note{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5}
+
+  /* constrained-action hypothesis highlight box */
+  .cah{position:relative;margin:18px 0 6px;border:2px solid var(--accent);border-radius:12px;background:var(--accent-soft);padding:30px 24px 20px;box-shadow:0 3px 14px rgba(26,127,142,.12)}
+  .cah-badge{position:absolute;top:-13px;left:20px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:20px;padding:5px 15px;box-shadow:0 2px 8px rgba(26,127,142,.3)}
+  .cah p{font-size:15.5px;color:#215c63;margin:0 0 11px}
+  .cah p:last-child{margin-bottom:0}
+  .cah .cah-link{border-top:1px dashed #a9d4d9;padding-top:11px;font-size:14px;color:#2c6a72}
+
+  .fig{margin:18px auto 6px;max-width:300px}
+  .fig img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .fig-cap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.5}
+
+  .studybar{display:flex;flex-wrap:wrap;gap:8px 20px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;background:#fafbfc;padding:12px 16px;margin:14px 0;font-size:13px}
+  .studybar .sb-item{display:flex;flex-direction:column}
+  .studybar .sb-k{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .studybar .sb-v{font-weight:700;color:var(--ink)}
+
+  .refline{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:7px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Attention &nbsp;&rsaquo;&nbsp; <b>Lesson 4: Directing Attention</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">11</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Attention &middot; Lesson 4 of 5</div>
+        <h1>Directing Attention</h1>
+        <p>Attention is a spotlight: what falls inside it gets processed, and what falls outside can vanish entirely. This lesson is about <em>where</em> you point that spotlight &mdash; and why the cue you give can make or break a movement.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> Inattentional blindness</span>
+          <span><span class="dot"></span> Internal vs. external focus</span>
+          <span><span class="dot"></span> Cueing in the clinic</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">By the end of this lesson</div>
+        <h2>Learning objectives</h2>
+        <p>You should be able to:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Describe <strong>inattentional blindness</strong> and what it reveals about attention as a selective, limited spotlight.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Distinguish an <strong>internal</strong> focus of attention (on the body) from an <strong>external</strong> focus (on the movement&rsquo;s effect).</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain the <strong>constrained-action hypothesis</strong> and summarize the evidence &mdash; including where the external-focus advantage <em>breaks down</em>.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Write internal and external <strong>cues</strong> and choose between them for a PT/OT/dentistry task.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 IB DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself &middot; Demo</div>
+        <h2>Count the passes</h2>
+        <p>Let&rsquo;s do a demo. In the video below, some players wear <strong>white</strong> and some wear <strong>black</strong>, and they pass basketballs among their own team. Your job: <strong>count how many times the players in white pass the ball.</strong> Watch the whole clip closely before reading on.</p>
+        <div class="ibstage">
+          <div class="video-embed">
+            <iframe src="https://www.youtube-nocookie.com/embed/vJG698U2Mvo?rel=0"
+              title="Selective attention test (Simons &amp; Chabris)"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          </div>
+          <div class="ibq" id="ibQ">
+            <p>Finished watching? Before anything else &mdash; <strong>did you notice anything unusual</strong> walk through the scene?</p>
+            <div class="ibq-btns">
+              <button type="button" class="ibq-opt" data-saw="yes">Yes, I saw something</button>
+              <button type="button" class="ibq-opt" data-saw="no">No, nothing unusual</button>
+            </div>
+            <div class="ib-reveal hidden" id="ibReveal"></div>
+          </div>
+        </div>
+        <p class="refline">Video: Simons &amp; Chabris &mdash; &ldquo;Selective Attention Test.&rdquo; Based on Simons, D. J., &amp; Chabris, C. F. (1999). <em>Perception, 28</em>(9), 1059&ndash;1074. <a href="https://doi.org/10.1068/p2952" target="_blank" rel="noopener">doi:10.1068/p2952</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 WHAT IB SHOWS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What that was</div>
+        <h2>Inattentional blindness</h2>
+        <p>In the classic version of this demo, people counting basketball passes watch a person in a <strong>gorilla suit</strong> stroll through the middle of the scene, thump their chest, and walk off &mdash; and about <strong>half of viewers never see it</strong> (Simons &amp; Chabris, 1999). When your attention is loaded onto one task, obvious unexpected events outside its focus can go completely unnoticed. This is <strong>inattentional blindness</strong>.</p>
+        <div class="callout why">
+          <span class="clabel">Why it happens</span>
+          <p>Remember the <strong>filter and limited-pool</strong> ideas from Lesson&nbsp;1: attention <em>selects</em> what gets processed. We don&rsquo;t record the world like a camera &mdash; we build our experience out of what we attend to. Whatever falls outside the spotlight may never reach awareness.</p>
+        </div>
+        <h3>This matters in the clinic and the field</h3>
+        <p style="font-size:14.5px;color:var(--muted)">Each person below is focused on one thing. <strong>Predict what they miss</strong> &mdash; then click to unroll it.</p>
+        <div class="unroll" id="ibCases">
+          <button class="ur-row" type="button" aria-expanded="false">
+            <span class="ur-head"><span class="ur-arrow">&rarr;</span><span class="ur-lead">A <strong>driver</strong> scanning for cars&hellip;</span></span>
+            <span class="ur-body"><span>&hellip;fails to see a <strong>motorcyclist</strong> &mdash; a smaller, unexpected vehicle outside what they&rsquo;re looking for.</span></span>
+          </button>
+          <button class="ur-row" type="button" aria-expanded="false">
+            <span class="ur-head"><span class="ur-arrow">&rarr;</span><span class="ur-lead">A <strong>player</strong> watching the ball&hellip;</span></span>
+            <span class="ur-body"><span>&hellip;misses an <strong>open teammate</strong> standing free in better position.</span></span>
+          </button>
+          <button class="ur-row" type="button" aria-expanded="false">
+            <span class="ur-head"><span class="ur-arrow">&rarr;</span><span class="ur-lead">A <strong>clinician</strong> watching the knee during a squat&hellip;</span></span>
+            <span class="ur-body"><span>&hellip;misses the <strong>trunk lean</strong> happening above it &mdash; a compensation outside their focus.</span></span>
+          </button>
+        </div>
+        <div class="callout">
+          <span class="clabel">Links back to Lesson 1</span>
+          <p>Arousal makes this worse: under stress, attentional <strong>narrowing</strong> shrinks the spotlight even further, so even more goes unnoticed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 INTERNAL VS EXTERNAL -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Where you point the spotlight</div>
+        <h2>Internal vs. external focus</h2>
+        <p>If attention is a spotlight, instructions and cues aim it. Two directions matter for movement &mdash; <strong>flip each card</strong> to see an example:</p>
+        <div class="defgrid">
+          <button class="defcard" type="button" onclick="doFlip(this)"><span class="fa-inner">
+            <span class="def-front int"><span class="def-badge">I</span><span class="def-term">Internal focus</span><span class="def-sub">Attention on <em>your body&rsquo;s movements</em></span><span class="def-flip">flip for an example &rarr;</span></span>
+            <span class="def-back int"><span class="def-tag">Example cues</span><span class="def-ex">&ldquo;Bend your knees&rdquo;<br>&ldquo;Straighten your elbow&rdquo;</span></span>
+          </span></button>
+          <button class="defcard" type="button" onclick="doFlip(this)"><span class="fa-inner">
+            <span class="def-front ext"><span class="def-badge">E</span><span class="def-term">External focus</span><span class="def-sub">Attention on the <em>effect</em> of the movement, out in the environment</span><span class="def-flip">flip for an example &rarr;</span></span>
+            <span class="def-back ext"><span class="def-tag">Example cues</span><span class="def-ex">&ldquo;Push the floor away&rdquo;<br>&ldquo;Reach for the cup&rdquo;</span></span>
+          </span></button>
+        </div>
+        <p>For each task below, the internal cue is shown. <strong>Predict the external version</strong>, then click to reveal.</p>
+        <div style="text-align:right"><button type="button" class="reveal-all" id="revealFoc">Reveal all</button></div>
+        <table class="rtable" id="focTable">
+          <thead><tr><td></td><td class="rt-head rt-src-head cc">Internal cue</td><td class="rt-head rt-src-head">External cue</td></tr></thead>
+          <tbody>
+            <tr>
+              <td class="rt-src">Balance board</td>
+              <td class="rcell int shown" style="cursor:default"><span>&ldquo;Keep your feet level&rdquo;</span></td>
+              <td class="rcell ext"><span class="rc-hint">reveal</span><span class="rc-text" hidden>&ldquo;Keep the markers on the board level&rdquo;</span></td>
+            </tr>
+            <tr>
+              <td class="rt-src">Golf pitch</td>
+              <td class="rcell int shown" style="cursor:default"><span>&ldquo;Relax your shoulders&rdquo;</span></td>
+              <td class="rcell ext"><span class="rc-hint">reveal</span><span class="rc-text" hidden>&ldquo;Focus on the club&rsquo;s swing&rdquo;</span></td>
+            </tr>
+            <tr>
+              <td class="rt-src">Vertical jump</td>
+              <td class="rcell int shown" style="cursor:default"><span>&ldquo;Extend your knees quickly&rdquo;</span></td>
+              <td class="rcell ext"><span class="rc-hint">reveal</span><span class="rc-text" hidden>&ldquo;Reach as high as you can toward the target&rdquo;</span></td>
+            </tr>
+            <tr>
+              <td class="rt-src">Reaching (rehab)</td>
+              <td class="rcell int shown" style="cursor:default"><span>&ldquo;Straighten your elbow&rdquo;</span></td>
+              <td class="rcell ext"><span class="rc-hint">reveal</span><span class="rc-text" hidden>&ldquo;Bring your hand to the cup&rdquo;</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="refline">Table after Wulf, H&ouml;&szlig;, &amp; Prinz (1998). <em>J. Motor Behavior, 30</em>(2), 169&ndash;179. <a href="https://doi.org/10.1080/00222899809601334" target="_blank" rel="noopener">doi:10.1080/00222899809601334</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 HOW TO DESIGN AF INSTRUCTIONS -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Designing the cue</div>
+        <h2>How to write a good focus cue</h2>
+        <p>Pointing attention the right way is only half the job &mdash; the cue itself has to be built well. A few design rules from the research make for better clinical cues.</p>
+
+        <h3>Rule 1 &middot; Choose the right kind of target</h3>
+        <p>This is the one that matters most in applied settings. A cue &ldquo;works&rdquo; by pointing attention at a <em>specific</em> target &mdash; so decide what that target is:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num" style="background:#fdf6ea;color:#b9802f">I</span><span class="txt"><strong>Anatomical target (internal).</strong> Points to a joint, limb path, or muscle &mdash; &ldquo;extend your knees,&rdquo; &ldquo;the swing of your arms.&rdquo;</span></li>
+          <li><span class="obj-num" style="background:#eefbfb;color:var(--accent-dark)">E</span><span class="txt"><strong>Implement or environment target (external).</strong> Points to the movement&rsquo;s effect on an object, trajectory, or target &mdash; &ldquo;the pendulum motion of the club,&rdquo; &ldquo;the flight of the ball.&rdquo;</span></li>
+          <li><span class="obj-num" style="background:#eefbfb;color:var(--accent-dark)">E</span><span class="txt"><strong>Surface marker / visual surrogate.</strong> When a skill is all about body form and has <em>no</em> implement, create an external target by <strong>attaching tape or markers</strong> to the body or equipment &mdash; and cue to those instead of to the body part.</span></li>
+        </ul>
+
+        <h3>The tape trick in action</h3>
+        <p>How do you give an <em>external</em> cue for something as body-focused as pointing your toes? Laro&euml;re et al. (2024) did exactly this for a static gymnastics hold: <strong>yellow tape on the navicular bone, red tape on the big toe</strong>, then cued athletes to &ldquo;keep the red tape below the yellow tape.&rdquo; Movement form improved versus the internal cue.</p>
+        <figure class="fig" style="max-width:420px">
+          <img src="images/vis-tape-external-cue.png" alt="Photograph of two bare feet on a blue mat, with yellow tape on the inner navicular area of each foot and red tape wrapped around each big toe, used as external-focus visual targets.">
+          <figcaption class="fig-cap">External cues made visible: yellow tape on the navicular, red tape on the big toe. The cue &mdash; &ldquo;keep the red tape below the yellow tape&rdquo; &mdash; points attention to the markers, not the foot. From Laro&euml;re et al. (2024).</figcaption>
+        </figure>
+        <div class="callout why">
+          <span class="clabel">Clinical takeaway</span>
+          <p>You can do the same thing: a sticker on a crutch tip, a target on the floor, a mark on a cup. Turning a body-focused task into a <strong>visible external target</strong> is often how you give an external cue at all.</p>
+        </div>
+
+        <h3>Rule 2 &middot; Keep it short</h3>
+        <p>Long, vague, or convoluted instructions <strong>overload working memory</strong> and hurt performance no matter which way they point. A good cue is one short, concrete phrase.</p>
+
+        <div class="callout">
+          <span class="clabel">A note for the lab, not the clinic</span>
+          <p>Research studies also insist that the internal and external cues differ by <strong>only a word or two</strong> &mdash; same length and cadence &mdash; so the only thing that varies is <em>where attention points</em>. That tight matching is about keeping an <em>experiment</em> clean; in the clinic, you&rsquo;re free to phrase the cue in whatever way the patient will actually understand and act on.</p>
+        </div>
+        <p class="refline">
+          Laro&euml;re et al. (2024). <em>Kinesiology, 56</em>(1), 44&ndash;52. <a href="https://doi.org/10.26582/k.56.1.5" target="_blank" rel="noopener">doi:10.26582/k.56.1.5</a> &middot;
+          Wulf, H&ouml;&szlig;, &amp; Prinz (1998). <em>J. Motor Behavior, 30</em>(2), 169&ndash;179. <a href="https://doi.org/10.1080/00222899809601334" target="_blank" rel="noopener">doi:10.1080/00222899809601334</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 FOCUS REWRITER DEMO -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Try it yourself &middot; Demo</div>
+        <h2>The cue rewriter</h2>
+        <p>Most coaching and clinical cues people receive are <strong>internal</strong>. Pick a task below (or type your own internal cue) and the rewriter shows a matched <strong>external</strong> reframe. Notice how each one follows the two rules from the last page: it points at a <strong>concrete external target</strong> (Rule&nbsp;1) and stays <strong>short</strong> (Rule&nbsp;2).</p>
+        <div class="rewriter">
+          <div class="rw-chip-label">Pick a worked example</div>
+          <div class="rw-chips" id="rwChips"></div>
+          <div class="rw-chip-label" style="margin-top:12px">&hellip; or write your own internal cue</div>
+          <div class="rw-row">
+            <input class="rw-in" id="rwInput" type="text" placeholder="e.g., &ldquo;Tighten your core&rdquo;" aria-label="Type an internal cue">
+            <button type="button" class="rw-go" id="rwGo">Rewrite &rarr;</button>
+          </div>
+          <div class="rw-out" id="rwOut" hidden>
+            <div class="rw-pair">
+              <div class="rw-cell int"><div class="rw-tag">Internal &middot; on the body</div><div class="rw-text" id="rwInt"></div></div>
+              <div class="rw-cell ext"><div class="rw-tag">External &middot; on the effect</div><div class="rw-text" id="rwExt"></div></div>
+            </div>
+          </div>
+          <p class="rw-note" id="rwNote">The examples come matched. For a cue you type yourself, the tool offers a general external reframe &mdash; a starting point to refine, not a rule.</p>
+        </div>
+        <div class="callout why">
+          <span class="clabel">The move</span>
+          <p>To convert internal &rarr; external, ask: <strong>&ldquo;What is this movement trying to <em>do</em> in the world?&rdquo;</strong> Point attention at that effect (the cup, the floor, the target, the club) instead of at the body part.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 CLASSIC EVIDENCE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The classic evidence &middot; predict</div>
+        <h2>Does it actually change learning?</h2>
+        <p>Wulf and colleagues had people learn to balance on a <strong>stabilometer</strong> &mdash; a platform that tips side to side, where you fight to keep it level. One group was cued <em>internally</em> (&ldquo;keep your <strong>feet</strong> level&rdquo;); another <em>externally</em> (&ldquo;keep the <strong>markers</strong> on the platform level&rdquo;). A ski-simulator study used the same contrast.</p>
+        <div class="fig">
+          <img src="images/vis-stabilometer.png" alt="Line drawing of a person balancing on a stabilometer platform that rocks side to side.">
+          <figcaption class="fig-cap">The stabilometer balance task used by Wulf et&nbsp;al. (1998).</figcaption>
+        </div>
+        <p><strong>Predict:</strong> which group <em>learned</em> the balance task better &mdash; and why?</p>
+        <button class="flipans" type="button" onclick="doFlip(this)" style="--famin:150px"><span class="fa-inner">
+          <span class="fa-front"><span class="fa-optbadge">Predict, then flip</span><span class="fa-q">Internal (&ldquo;your feet&rdquo;) or external (&ldquo;the markers&rdquo;) &mdash; which learned better?</span><span class="fa-hint">Make your prediction, then flip</span></span>
+          <span class="fa-back"><strong>The external-focus group learned better</strong> &mdash; better balance, and it held up on later <strong>retention tests</strong> (so it was real <em>learning</em>, not just a short-term boost). Why? &darr;</span>
+        </span></button>
+
+        <div class="cah">
+          <div class="cah-badge">The constrained-action hypothesis</div>
+          <p>An <strong>internal</strong> focus makes you consciously control movements your body normally handles <strong>automatically</strong> &mdash; this interferes with, or <em>constrains</em>, the motor system.</p>
+          <p>An <strong>external</strong> focus leaves those automatic control processes free to run, producing smoother, more effective movement.</p>
+          <p class="cah-link">Sound familiar? It&rsquo;s the <strong>automaticity</strong> idea from Lesson&nbsp;3 &mdash; don&rsquo;t force conscious control onto a process that runs better on its own.</p>
+        </div>
+
+        <p class="refline">Wulf, H&ouml;&szlig;, &amp; Prinz (1998). <em>J. Motor Behavior, 30</em>(2), 169&ndash;179. <a href="https://doi.org/10.1080/00222899809601334" target="_blank" rel="noopener">doi:10.1080/00222899809601334</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 IS EXTERNAL ALWAYS BETTER -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">The nuance</div>
+        <h2>Is external focus <em>always</em> better?</h2>
+        <p>For about 20 years the consensus was yes &mdash; <strong>seven meta-analyses</strong> agreed an external focus was superior for performance and learning, across ages and skill levels (e.g., Chua et al., 2021). But the picture is more complicated than &ldquo;external always wins.&rdquo;</p>
+        <h3>Skill level can flip the advantage</h3>
+        <p>Several studies found an <strong>internal</strong> focus works better for <em>less-skilled</em> learners, while experts benefit from an external focus. Click to reveal each.</p>
+        <div style="text-align:right"><button type="button" class="reveal-all" id="revealExc">Reveal all</button></div>
+        <table class="rtable" id="excTable">
+          <tbody>
+            <tr>
+              <td class="rt-src" style="width:90px">Golf</td>
+              <td class="rcell ext"><span class="rc-hint">reveal</span><span class="rc-text" hidden>Low-skill golfers pitched better with an <strong>internal</strong> focus; high-skill golfers with an <strong>external</strong> focus (Perkins-Ceccato et al., 2003).</span></td>
+            </tr>
+            <tr>
+              <td class="rt-src">Baseball</td>
+              <td class="rcell ext"><span class="rc-hint">reveal</span><span class="rc-text" hidden>Less-skilled batters did better attending to their <strong>swing</strong>; skilled batters to the <strong>ball</strong> (Castaneda &amp; Gray, 2007).</span></td>
+            </tr>
+            <tr>
+              <td class="rt-src">Bowling</td>
+              <td class="rcell ext"><span class="rc-hint">reveal</span><span class="rc-text" hidden>Beginner bowlers who practiced with an <strong>internal</strong> focus were more accurate on retention/transfer; no difference for intermediates (Becker et al., 2025).</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout">
+          <span class="clabel">And the debate is still live</span>
+          <p>A 2024 re-analysis argued the external-focus advantage has been <strong>overstated by publication bias</strong>: after correction, the average effect was close to zero and seemed to depend on unknown contextual factors (McKay et al., 2024). The practical takeaway isn&rsquo;t &ldquo;external always&rdquo; &mdash; it&rsquo;s <strong>match the cue to the learner and the task</strong>.</p>
+        </div>
+        <p class="refline">
+          Chua et al. (2021). <em>Psychol. Bull., 147</em>(6), 618&ndash;645. <a href="https://doi.org/10.1037/bul0000335" target="_blank" rel="noopener">doi:10.1037/bul0000335</a> &middot;
+          Perkins-Ceccato et al. (2003). <em>J. Sports Sci., 21</em>(8), 593&ndash;600. <a href="https://doi.org/10.1080/0264041031000101980" target="_blank" rel="noopener">doi:10.1080/0264041031000101980</a> &middot;
+          Castaneda &amp; Gray (2007). <em>J. Sport Exerc. Psychol., 29</em>(1), 60&ndash;77. <a href="https://doi.org/10.1123/jsep.29.1.60" target="_blank" rel="noopener">doi:10.1123/jsep.29.1.60</a> &middot;
+          McKay et al. (2024). <em>Psychol. Bull., 150</em>(11), 1347&ndash;1362. <a href="https://doi.org/10.1037/bul0000451" target="_blank" rel="noopener">doi:10.1037/bul0000451</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 CLINICAL CUEING -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">In the clinic</div>
+        <h2>Which cue would you give?</h2>
+        <p>Cueing is one of the most practical levers you have. The choice depends on the <strong>stage of learning</strong> (Fitts &amp; Posner) and the <strong>goal of the task</strong> (form vs. outcome). Work through these across the three professions:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">PT</span><span class="txt"><strong>Walking with crutches.</strong> External: &ldquo;place the crutch tips <em>at the spot on the floor</em> ahead of you.&rdquo; Internal: &ldquo;press down through your hands and swing your legs through.&rdquo; Early on, a learner may need the internal cue to get the pattern; as it becomes automatic, shift external.</span></li>
+          <li><span class="obj-num">OT</span><span class="txt"><strong>Using a spoon to eat cereal.</strong> External: &ldquo;keep <em>the spoon</em> level as you lift it.&rdquo; Internal: &ldquo;try to keep your hands steady.&rdquo; An external, task-relevant target often produces smoother, more functional movement.</span></li>
+          <li><span class="obj-num">DDS</span><span class="txt"><strong>Instrument control (e.g., a dental student learning a scaling stroke).</strong> External: &ldquo;keep the <em>tip tracking the tooth surface</em>.&rdquo; Internal: &ldquo;control your wrist angle.&rdquo; For a true novice, some internal guidance builds the pattern first.</span></li>
+        </ul>
+        <div class="callout why">
+          <span class="clabel">Rule of thumb</span>
+          <p>Default to an <strong>external</strong> cue tied to the task goal &mdash; but for a <strong>true beginner</strong>, or a task that genuinely requires attention to body position, don&rsquo;t be afraid to start <strong>internal</strong> and fade to external as the skill becomes automatic.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 KNOWLEDGE CHECK (gate) -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <div class="kc-q">An OT is helping a client who is <strong>well into recovery</strong> and moving fairly automatically relearn how to <strong>button a shirt</strong>. Based on the constrained-action hypothesis and the evidence, which cue is the best <em>default</em> here?</div>
+        <div id="kcChoice">
+          <button type="button" class="kc-opt" data-correct="0">&ldquo;Focus on pinching your thumb and index finger together&rdquo; (internal)</button>
+          <button type="button" class="kc-opt" data-correct="1">&ldquo;Push the button through the hole&rdquo; (external, on the task effect)</button>
+          <button type="button" class="kc-opt" data-correct="0">&ldquo;Think about the movement in each finger joint as you go&rdquo; (internal, detailed)</button>
+          <button type="button" class="kc-opt" data-correct="0">Give no cue at all, since cues always disrupt automatic movement</button>
+        </div>
+        <div id="kcFb" role="status" style="margin-top:14px;font-size:14.5px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What you can now do</div>
+        <h2>Summary &amp; the next step</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt"><strong>Inattentional blindness:</strong> a loaded spotlight means obvious events outside it can go unnoticed &mdash; attention <em>selects</em> what we perceive.</span></li>
+          <li><span class="obj-num">2</span><span class="txt"><strong>Internal vs. external focus:</strong> internal = on the body; external = on the movement&rsquo;s effect.</span></li>
+          <li><span class="obj-num">3</span><span class="txt"><strong>Constrained-action hypothesis:</strong> an external focus lets automatic control run; an internal focus can constrain it &mdash; often, but not always, an advantage.</span></li>
+          <li><span class="obj-num">4</span><span class="txt"><strong>Match the cue:</strong> default external and tied to the task goal, but adjust for the learner&rsquo;s skill level and the task.</span></li>
+        </ul>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 5 &mdash; Attention Under Pressure:</strong> why skilled performers <em>choke</em>, the mechanisms behind it, and the ironic effect of &ldquo;don&rsquo;t think about it.&rdquo;</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Completion code</span>
+          <p>Your passphrase for this lesson is <strong>SPOTLIGHT</strong>. Enter it in the Canvas quiz to record completion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={};
+  var TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  // ---------- Inattentional-blindness "did you notice?" ----------
+  (function(){
+    var qBox=document.getElementById("ibQ"); if(!qBox) return;
+    var reveal=document.getElementById("ibReveal");
+    [].forEach.call(qBox.querySelectorAll(".ibq-opt"),function(btn){
+      btn.addEventListener("click",function(){
+        [].forEach.call(qBox.querySelectorAll(".ibq-opt"),function(b){ b.style.outline="none"; b.style.borderColor="#cfe6ea"; });
+        btn.style.borderColor="var(--accent)";
+        var saw=btn.dataset.saw;
+        reveal.classList.remove("hidden");
+        if(saw==="no"){
+          reveal.innerHTML="You&rsquo;re not alone &mdash; a person in a <strong>gorilla suit</strong> walked right through the middle of the scene, stopped, and thumped their chest. About <strong>half of first-time viewers never see it</strong> while counting passes. That&rsquo;s <strong>inattentional blindness</strong>. Watch the clip again without counting and it&rsquo;s impossible to miss.";
+        } else {
+          reveal.innerHTML="You caught the <strong>gorilla</strong> &mdash; the person in the suit who strolled through the middle and thumped their chest. Many people counting passes <strong>miss it completely</strong> the first time. Watch again without counting and notice how obvious it is.";
+        }
+      });
+    });
+  })();
+
+  // ---------- Unroll accordion (page 4 cases) ----------
+  (function(){
+    var box=document.getElementById("ibCases"); if(!box) return;
+    [].forEach.call(box.querySelectorAll(".ur-row"),function(row){
+      row.addEventListener("click",function(){
+        var open=row.getAttribute("aria-expanded")==="true";
+        row.setAttribute("aria-expanded", open?"false":"true");
+      });
+    });
+  })();
+
+  // ---------- Click-to-reveal tables ----------
+  (function(){
+    function reveal(cell){
+      if(cell.classList.contains("shown")) return;
+      if(cell.querySelector(".rc-hint")===null && cell.querySelector(".rc-text")===null) return;
+      cell.classList.add("shown");
+      var hint=cell.querySelector(".rc-hint"), txt=cell.querySelector(".rc-text");
+      if(hint) hint.style.display="none";
+      if(txt) txt.hidden=false;
+    }
+    function wire(id, allId){
+      var box=document.getElementById(id); if(!box) return;
+      var cells=[].slice.call(box.querySelectorAll(".rcell")).filter(function(c){ return c.querySelector(".rc-hint"); });
+      cells.forEach(function(c){
+        c.setAttribute("tabindex","0"); c.setAttribute("role","button");
+        c.addEventListener("click",function(){ reveal(c); });
+        c.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); reveal(c); } });
+      });
+      var all=document.getElementById(allId);
+      if(all) all.addEventListener("click",function(){ cells.forEach(reveal); });
+    }
+    wire("focTable","revealFoc");
+    wire("excTable","revealExc");
+  })();
+
+  // ---------- Focus rewriter ----------
+  (function(){
+    var examples=[
+      {label:"Balance board", int:"“Keep your feet level”", ext:"“Keep the markers level”"},
+      {label:"Vertical jump", int:"“Extend your knees”", ext:"“Reach for the rim”"},
+      {label:"Reaching for a cup", int:"“Straighten your elbow”", ext:"“Reach to the cup”"},
+      {label:"Squat", int:"“Bend your knees”", ext:"“Push the floor away”"},
+      {label:"Gait / stepping", int:"“Bend your knee as you step”", ext:"“Step to the line”"},
+      {label:"Golf pitch", int:"“Relax your shoulders”", ext:"“Swing the clubhead to the target”"},
+      {label:"Dental scaling stroke", int:"“Control your wrist angle”", ext:"“Trace the tip along the tooth”"}
+    ];
+    var chips=document.getElementById("rwChips"),
+        input=document.getElementById("rwInput"),
+        go=document.getElementById("rwGo"),
+        out=document.getElementById("rwOut"),
+        intEl=document.getElementById("rwInt"),
+        extEl=document.getElementById("rwExt"),
+        note=document.getElementById("rwNote");
+    var DEFNOTE="The examples come matched. For a cue you type yourself, the tool offers a general external reframe — a starting point to refine, not a rule.";
+    examples.forEach(function(ex){
+      var b=document.createElement("button");
+      b.type="button"; b.className="rw-chip"; b.textContent=ex.label;
+      b.addEventListener("click",function(){ render(ex.int, ex.ext, true); input.value=""; });
+      chips.appendChild(b);
+    });
+    function render(intText, extText, matched){
+      intEl.textContent=intText; extEl.textContent=extText;
+      out.hidden=false;
+      note.textContent = matched ? DEFNOTE
+        : "This is a general reframe of what you typed. Ask: what is the movement trying to do out in the world? Point attention there.";
+    }
+    function genExternal(raw){
+      var s=raw.trim().replace(/^["“]+|["”]+$/g,"");
+      if(!s) return null;
+      // very light heuristic reframe
+      var low=s.toLowerCase();
+      var map=[
+        [/core|abs|stomach|trunk/, "Stand tall, as if a string is lifting the top of your head"],
+        [/knee/, "Push the floor away from you"],
+        [/elbow|arm/, "Reach your hand toward the target"],
+        [/wrist|hand|finger/, "Guide the tool along its path"],
+        [/shoulder/, "Send the object toward where you want it to go"],
+        [/foot|feet|ankle|toe/, "Keep the surface under you level"],
+        [/hip/, "Drive toward the target in front of you"],
+        [/breath|breathe/, "Let the air fill the space low in your belly"]
+      ];
+      for(var i=0;i<map.length;i++){ if(map[i][0].test(low)) return map[i][1]; }
+      return "Focus on the effect your movement has out in the environment (the target, the floor, the object) rather than on the body part.";
+    }
+    go.addEventListener("click",function(){
+      var v=input.value;
+      var ext=genExternal(v);
+      if(!ext){ input.focus(); return; }
+      render("“"+v.trim().replace(/^["“]+|["”]+$/g,"")+"”", "“"+ext+"”", false);
+    });
+    input.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); go.click(); } });
+  })();
+
+  // ---------- Knowledge check ----------
+  (function(){
+    var wrap=document.getElementById("kcChoice"); if(!wrap) return;
+    var fb=document.getElementById("kcFb"); var locked=false;
+    wrap.addEventListener("click",function(e){
+      var b=e.target.closest(".kc-opt"); if(!b||locked) return;
+      if(b.dataset.correct==="1"){
+        locked=true;
+        b.style.borderColor="#2e9e6b"; b.style.background="#eafaf1"; b.style.color="#1d6b47";
+        fb.style.color="#1d6b47";
+        fb.innerHTML="&#10003; Correct. &ldquo;Push the button through the hole&rdquo; points attention at the <strong>task effect</strong> rather than the fingers. For someone moving fairly automatically, that external cue lets automatic control run (constrained-action hypothesis) and tends to give smoother, more functional movement.";
+        openGate("kc");
+      } else {
+        b.style.borderColor="#d9534f"; b.style.background="#fdeeee"; b.style.color="#a3403c";
+        fb.style.color="#a3403c";
+        fb.innerHTML="Not quite &mdash; an internal, body-focused cue tends to <em>constrain</em> movement that&rsquo;s already running automatically. Think about where to point this client&rsquo;s attention.";
+      }
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Measuring Attention Demands</title>
+<!--
+  HLSC 4025 · Attention · Lesson 2 of 5 — Measuring Attention Demands
+  Shared design system (teal/gold). Screens are <section data-screen>; engine + interactives in <script>.
+  The DTC calculator reads the student's tapping data from Lesson 1 (localStorage key hlsc4025-attention-tapping), with a manual-entry fallback.
+-->
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --shadow:0 2px 18px rgba(40,60,80,.08);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100vh}
+  img{max-width:100%;display:block}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;flex:none}
+  .crumb{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crumb b{color:var(--ink)}
+  .screen-count{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .progress-track{position:absolute;left:0;bottom:-1px;height:3px;width:100%;background:var(--line)}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .45s cubic-bezier(.4,0,.2,1)}
+
+  .stage{flex:1;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;animation:slidein .38s cubic-bezier(.2,.7,.3,1)}
+  .screen.active{display:flex;flex-direction:column;justify-content:center}
+  @keyframes slidein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+
+  .inner{max-width:800px;margin:auto;width:100%;padding:38px 30px 30px}
+
+  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:36px;line-height:1.14;font-weight:800;letter-spacing:-.6px;margin-bottom:14px}
+  h2{font-size:27px;line-height:1.2;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h3{font-size:18px;font-weight:750;margin:18px 0 8px}
+  p{font-size:16.5px;color:#3d4d5c;margin-bottom:14px}
+  strong{color:var(--ink);font-weight:700}
+
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:34px 38px;margin-bottom:20px}
+  @media(max-width:640px){.card{padding:24px 20px}.inner{padding:26px 18px 20px}h1{font-size:27px}h2{font-size:22px}}
+
+  .callout{border-left:4px solid var(--gold);background:#fdf9f1;padding:17px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:0;font-size:15.5px;color:#5a4a2e}
+  .callout .clabel{font-weight:800;color:var(--gold);font-size:11.5px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+  .callout.why{border-left-color:var(--accent);background:var(--accent-soft)}
+  .callout.why p{color:#245a63}
+  .callout.why .clabel{color:var(--accent-dark)}
+
+  /* title */
+  .title-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#15414c,#1a7f8e 70%);color:#fff;text-align:center;padding:60px 30px}
+  .title-inner{position:relative;z-index:2;max-width:680px}
+  .title-inner .eyebrow{color:#bfe3e8}
+  .title-inner h1{color:#fff}
+  .title-inner p{color:#dbe7ec;font-size:17px}
+  .title-meta{margin-top:22px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13.5px;color:#cfe0e5}
+  .title-meta span{display:flex;align-items:center;gap:7px}
+  .title-inner p.title-ai{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);font-size:11px;line-height:1.55;color:#a7c6cc;max-width:560px;margin-left:auto;margin-right:auto}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* section divider */
+  .section-screen{flex:1;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;padding:50px 30px}
+  .section-screen .sec-num{font-size:15px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#bfe3e8;margin-bottom:12px}
+  .section-screen h2{color:#fff;font-size:30px;margin:0}
+
+  /* objectives */
+  .obj-list{list-style:none;margin-top:6px}
+  .obj-list li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .obj-list li:last-child{border-bottom:none}
+  .obj-num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent-dark);
+    font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .obj-list span.txt{font-size:15.8px;color:#3d4d5c}
+
+  /* knowledge check */
+  .kc-card{background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:var(--radius);padding:34px 38px}
+  @media(max-width:640px){.kc-card{padding:24px 20px}}
+  .kc-card .eyebrow{color:var(--accent-dark)}
+  .kc-q{font-size:18px;font-weight:700;margin:4px 0 18px;color:var(--ink)}
+
+  /* two-column compare */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .cmp .col{border:1px solid var(--line);border-radius:9px;padding:16px 18px;background:#fafbfc}
+  .cmp .col .h{font-size:15px;font-weight:800;margin-bottom:8px}
+  .cmp .col p{font-size:13.6px;margin:0 0 8px;color:#556}
+  .cmp .col.a{border-top:3px solid var(--accent)}.cmp .col.a .h{color:var(--accent-dark)}
+  .cmp .col.b{border-top:3px solid var(--gold)}.cmp .col.b .h{color:#b9802f}
+  @media(max-width:600px){.cmp{grid-template-columns:1fr}}
+
+  /* formula */
+  .formula{background:#f3f8f9;border:1px solid #d7e8eb;border-radius:8px;padding:16px 18px;margin:14px 0;text-align:center}
+  .formula .eq{font-size:18.5px;font-weight:800;color:var(--accent-dark);letter-spacing:.2px}
+  .formula .note{font-size:12.5px;color:var(--muted);margin-top:5px}
+
+  /* flip answer card */
+  .flipans{--famin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1400px;width:100%;display:block;margin:14px 0}
+  .flipans .fa-inner{position:relative;display:block;width:100%;min-height:var(--famin);transition:transform .55s;transform-style:preserve-3d}
+  .flipans.flipped .fa-inner{transform:rotateY(180deg)}
+  .fa-back{position:relative;display:block;box-sizing:border-box;min-height:var(--famin);padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(180deg);background:#fdf3e0;border:1px solid #e0a458;color:#5a3d12;font-size:14px;line-height:1.6;text-align:left}
+  .fa-back strong{color:#9c6a1c}
+  .fa-front{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:20px 24px;border-radius:11px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;text-align:center}
+  .fa-front .fa-optbadge{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.2);color:#eaf6f8;border-radius:20px;padding:3px 11px;margin-bottom:10px}
+  .fa-front .fa-q{font-size:15px;font-weight:800}
+  .fa-front .fa-hint{font-size:12px;opacity:.85;margin-top:8px}
+  .fa-front .fa-hint::before{content:"\21BB  "}
+
+  /* DTC calculator */
+  .dtc{border:1px solid var(--line);border-radius:12px;background:#fafbfc;padding:18px 20px;margin:16px 0}
+  .dtc .dtc-src{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+  .dtc .dtc-src b{color:var(--accent-dark)}
+  .dtc-row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:8px;align-items:center;margin-bottom:8px}
+  .dtc-row.head{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .dtc-row .lab{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .dtc-row .lab small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+  .dtc input{width:100%;border:1px solid #cdd8df;border-radius:7px;padding:8px 9px;font-family:inherit;font-size:14px;text-align:center;background:#fff;color:var(--ink)}
+  .dtc input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .dtc .dtc-out{font-size:16px;font-weight:800;text-align:center;color:var(--muted)}
+  .dtc .dtc-out.pos{color:#b9802f}
+  .dtc .dtc-out.neg{color:#2e9e6b}
+  .dtc-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .dtc-btn{border:1px solid var(--line);background:#fff;color:var(--accent-dark);font-family:inherit;font-weight:700;font-size:12.5px;border-radius:7px;padding:8px 13px;cursor:pointer}
+  .dtc-btn:hover{background:var(--accent-soft)}
+  .dtc-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .dtc-btn.primary:hover{background:var(--accent-dark)}
+  .dtc-note{font-size:13px;color:#245a63;background:var(--accent-soft);border-radius:8px;padding:10px 13px;margin-top:12px}
+  @media(max-width:560px){.dtc-row{grid-template-columns:1fr;text-align:center}.dtc-row.head{display:none}}
+
+  /* worked table */
+  .wtable{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  .wtable th,.wtable td{border:1px solid var(--line);padding:9px 12px;text-align:center}
+  .wtable th{background:var(--accent-soft);color:var(--accent-dark);font-weight:800;font-size:12.5px}
+  .wtable td.lab{text-align:left;font-weight:700;color:var(--ink)}
+  .wtable td.ans{font-weight:800;color:#b9802f}
+  .wtable tr:nth-child(even) td{background:#fafbfc}
+
+  /* clinical study list */
+  .study{border:1px solid var(--line);border-radius:8px;padding:14px 17px;margin:12px 0;background:#fff}
+  .study .sname{font-size:14.5px;font-weight:800;color:var(--accent-dark);margin-bottom:3px}
+  .study p{font-size:13.8px;margin:0;color:#445}
+  .bignum{display:flex;align-items:center;gap:14px;background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:10px;padding:14px 18px;margin:14px 0}
+  .bignum .bn-val{font-size:30px;font-weight:800;color:var(--accent-dark);line-height:1;flex:none}
+  .bignum .bn-txt{font-size:13.5px;color:#245a63}
+
+  /* flip cards (study / example boxes) */
+  .flipgrid{display:grid;gap:12px;margin:14px 0}
+  .flipgrid.g2{grid-template-columns:1fr 1fr}
+  @media(max-width:600px){.flipgrid.g2{grid-template-columns:1fr}}
+  .bflip{--bmin:150px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer;perspective:1300px;display:block;width:100%;text-align:left}
+  .bflip .bf-inner{position:relative;display:block;width:100%;min-height:var(--bmin);transition:transform .55s;transform-style:preserve-3d}
+  .bflip.flipped .bf-inner{transform:rotateY(180deg)}
+  .bflip .bf-face{position:absolute;top:0;left:0;right:0;bottom:0;box-sizing:border-box;min-height:var(--bmin);border:1px solid var(--line);border-radius:10px;padding:15px 18px;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column}
+  .bflip .bf-front{background:#fff;border-left:4px solid var(--accent)}
+  .bflip .bf-back{transform:rotateY(180deg);background:var(--accent-soft);border-color:#9fd0d7}
+  .bflip .bf-h{font-size:14.5px;font-weight:800;color:var(--accent-dark);margin-bottom:5px}
+  .bflip p{font-size:13.6px;margin:0;color:#445;line-height:1.5}
+  .bflip .bf-back p{color:#245a63}
+  .bflip .bf-hint{margin-top:auto;font-size:11.5px;color:#6a7a86;font-style:italic;padding-top:8px}
+  .bflip .bf-hint::before{content:"\21BB  "}
+  .bflip .bf-orpill{display:inline-block;font-size:12px;font-weight:800;color:var(--accent-dark);background:#dff0f2;border:1px solid #bfe0e4;border-radius:20px;padding:3px 11px;margin-top:8px}
+  /* reveal-after-flip */
+  .revealclinic{max-height:0;overflow:hidden;opacity:0;transition:max-height .55s ease,opacity .4s ease,margin .4s ease;margin:0}
+  .revealclinic.show{max-height:600px;opacity:1;margin:16px 0}
+  .flip-hint-line{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0;font-style:italic;transition:opacity .3s}
+  .flip-hint-line.gone{opacity:0}
+
+  /* figures */
+  .fig{margin:18px auto 6px;max-width:560px}
+  .fig svg{width:100%;height:auto;display:block}
+  .fig-cap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.5}
+
+  /* refline */
+  .refline{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5}
+  .refline a{color:var(--accent-dark)}
+
+  /* navbar */
+  .navbar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 22px;
+    display:flex;align-items:center;gap:12px;z-index:60;flex:none;box-shadow:0 -2px 14px rgba(40,60,80,.05)}
+  .nav-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px}
+  .btn{border:none;border-radius:7px;font-family:inherit;font-weight:700;cursor:pointer;transition:.16s;font-size:14.5px}
+  .btn-back{background:none;color:var(--muted);padding:11px 16px}
+  .btn-back:hover:not(:disabled){color:var(--ink);background:var(--page)}
+  .btn-back:disabled{opacity:.32;cursor:default}
+  .btn-next{background:var(--accent);color:#fff;padding:12px 30px;margin-left:auto;box-shadow:0 3px 10px rgba(26,127,142,.28)}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px)}
+  .btn-next:disabled{background:#c3ced4;box-shadow:none;cursor:not-allowed;transform:none}
+  .dots{display:flex;gap:7px;align-items:center}
+  .dotnav{width:8px;height:8px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:.18s}
+  .dotnav.done{background:#9ec9cf}
+  .dotnav.cur{background:var(--accent);transform:scale(1.45)}
+  .dotnav:disabled{cursor:default}
+  @media(max-width:640px){.dots{display:none}.btn-next{padding:12px 22px}}
+  .lockmsg{font-size:13px;color:#b5822f;font-weight:700;margin-left:12px}
+  .kc-opt{text-align:left;border:1px solid #cfe6ea;background:#fff;border-radius:9px;padding:13px 16px;font-family:inherit;font-size:14px;color:#2c3e50;cursor:pointer;line-height:1.5;transition:.12s;width:100%;display:block;margin-bottom:10px}
+  .kc-opt:hover{background:#fff}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crumb">HLSC 4025 &nbsp;&rsaquo;&nbsp; Attention &nbsp;&rsaquo;&nbsp; <b>Lesson 2: Measuring Attention Demands</b></div>
+  <div class="screen-count"><span id="scNow">1</span> / <span id="scTot">12</span></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+</header>
+
+<main class="stage">
+
+  <!-- 1 TITLE -->
+  <section class="screen active" data-screen>
+    <div class="title-screen">
+      <div class="title-inner">
+        <div class="eyebrow">Attention &middot; Lesson 2 of 5</div>
+        <h1>Measuring Attention Demands</h1>
+        <p>If attention is a limited resource, how do we <em>measure</em> how much a task demands? This lesson covers the two workhorse methods &mdash; the dual-task paradigm and probe reaction time &mdash; and why they matter at the bedside.</p>
+        <div class="title-meta">
+          <span><span class="dot"></span> Dual-task paradigm &amp; dual-task cost</span>
+          <span><span class="dot"></span> A clinical marker of fall risk</span>
+          <span><span class="dot"></span> Probe reaction time</span>
+        </div>
+        <p class="title-ai">These interactive lessons were built by Dr.&nbsp;Kuznetsov using AI tools, with extensive input from and review by the instructor, who is responsible for their content and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBJECTIVES -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">By the end of this lesson</div>
+        <h2>Learning objectives</h2>
+        <p>You should be able to:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">Describe the <strong>dual-task paradigm</strong> &mdash; primary vs. secondary task, priority instructions, and mutual interference.</span></li>
+          <li><span class="obj-num">2</span><span class="txt">Calculate and interpret <strong>dual-task cost (DTC)</strong>, choosing the right form of the formula for the measure.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">Explain why dual-task tests matter <strong>clinically</strong> as a marker of fall risk &mdash; and the limits of that evidence.</span></li>
+          <li><span class="obj-num">4</span><span class="txt">Describe <strong>probe reaction time</strong> and how it maps attention demand <em>within</em> a movement.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 METHOD 1: DUAL-TASK PARADIGM -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Method 1</div>
+        <h2>The dual-task paradigm</h2>
+        <p>The core idea is simple: give someone a second task and see what it costs. If a task demands a lot of attention, loading it up should make performance drop.</p>
+        <div class="cmp">
+          <div class="col a"><div class="h">Primary task</div><p>The task we <em>care about</em> &mdash; e.g., <strong>walking</strong>.</p></div>
+          <div class="col b"><div class="h">Secondary task</div><p>Added to <em>load attention</em> &mdash; e.g., <strong>counting backward</strong>, answering questions.</p></div>
+        </div>
+        <p>We compare performance under <strong>single-task</strong> and <strong>dual-task</strong> conditions. Two things shape what we find:</p>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt"><strong>Priority instructions matter.</strong> What you tell people to focus on changes <em>which</em> task suffers.</span></li>
+          <li><span class="obj-num">2</span><span class="txt"><strong>Measure both tasks.</strong> Interference often goes both ways &mdash; &ldquo;<strong>mutual interference</strong>.&rdquo; If you only watch one task, you miss where the cost landed.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 DTC FORMULA -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Putting a number on the cost</div>
+        <h2>Dual-task cost (DTC)</h2>
+        <p>Dual-task cost expresses, as a percentage, how much performance changed when the second task was added. The form depends on whether <em>higher</em> or <em>lower</em> is the good direction for that measure.</p>
+        <div class="formula">
+          <div class="eq">DTC (%) = (Single &minus; Dual) / Single &times; 100</div>
+          <div class="note">use when <strong>higher is better</strong> &mdash; speed, correct responses, taps</div>
+        </div>
+        <div class="formula">
+          <div class="eq">DTC (%) = (Dual &minus; Single) / Single &times; 100</div>
+          <div class="note">flip it when <strong>lower is better</strong> &mdash; time, errors</div>
+        </div>
+        <div class="callout why">
+          <span class="clabel">Read it the same way either way</span>
+          <p>A <strong>positive DTC means worse</strong> performance under dual-task conditions. (A negative DTC would mean the person actually did <em>better</em> with the second task &mdash; rare, but possible.)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 DTC CALCULATOR (your tapping data) -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Your turn &middot; from Lesson 1</div>
+        <h2>Calculate your own dual-task cost</h2>
+        <p>Here are your tap counts from the Lesson&nbsp;1 demo. Because taps are a <strong>higher-is-better</strong> measure, we use the first form: <strong>(Single &minus; Dual) / Single &times; 100</strong>. The calculator fills in automatically &mdash; or type your own numbers.</p>
+        <div class="dtc" id="dtc">
+          <div class="dtc-src" id="dtcSrc">Loading your data&hellip;</div>
+          <div class="dtc-row head">
+            <div>Condition</div><div>Single (taps)</div><div>Dual (taps)</div><div>DTC</div>
+          </div>
+          <div class="dtc-row">
+            <div class="lab">Tap + count<small>vs. tap alone</small></div>
+            <input type="number" id="single1" inputmode="numeric" aria-label="Tap alone count">
+            <input type="number" id="dual1" inputmode="numeric" aria-label="Tap plus count count">
+            <div class="dtc-out" id="out1">&mdash;</div>
+          </div>
+          <div class="dtc-row">
+            <div class="lab">Tap + trace<small>vs. tap alone</small></div>
+            <input type="number" id="single2" inputmode="numeric" aria-label="Tap alone count">
+            <input type="number" id="dual2" inputmode="numeric" aria-label="Tap plus trace count">
+            <div class="dtc-out" id="out2">&mdash;</div>
+          </div>
+          <div class="dtc-btns">
+            <button type="button" class="dtc-btn primary" id="dtcLoad">Use my Lesson 1 data</button>
+            <button type="button" class="dtc-btn" id="dtcExample">Load example</button>
+            <button type="button" class="dtc-btn" id="dtcClear">Clear</button>
+          </div>
+          <div class="dtc-note" id="dtcNote" hidden></div>
+        </div>
+        <p style="font-size:13.5px;color:var(--muted)">No data from Lesson 1? That&rsquo;s fine &mdash; use <strong>Load example</strong>, or type any two numbers to see how the formula behaves.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 WORKED EXAMPLE: WALKING + SERIAL 7s -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">A clinical worked example</div>
+        <h2>Walking + serial 7s</h2>
+        <p>Here is real-world style data from <strong>one older adult</strong> walking while subtracting 7s out loud (&ldquo;serial 7s&rdquo;). Try the arithmetic, then flip to check. Note the two measures pull in <em>opposite</em> good-directions: <strong>gait speed</strong> is higher-is-better, <strong>correct responses</strong> is higher-is-better &mdash; both use the first form.</p>
+        <table class="wtable">
+          <thead><tr><th>Measure</th><th>Single task</th><th>Dual task</th><th>DTC (%)</th></tr></thead>
+          <tbody>
+            <tr><td class="lab">Gait speed (m/s)</td><td>1.30</td><td>1.04</td><td class="ans">?</td></tr>
+            <tr><td class="lab">Serial 7s: correct in 30&nbsp;s</td><td>10</td><td>7</td><td class="ans">?</td></tr>
+          </tbody>
+        </table>
+        <button class="flipans" type="button" onclick="doFlip(this)" style="--famin:170px"><span class="fa-inner">
+          <span class="fa-front"><span class="fa-optbadge">Work it out</span><span class="fa-q">What is the DTC for each measure &mdash; and which task paid the bigger price?</span><span class="fa-hint">Calculate, then flip</span></span>
+          <span class="fa-back"><strong>Gait speed:</strong> (1.30 &minus; 1.04) / 1.30 &times; 100 = <strong>+20%</strong>.<br><strong>Serial 7s:</strong> (10 &minus; 7) / 10 &times; 100 = <strong>+30%</strong>.<br>Both are positive, so <em>both</em> tasks got worse &mdash; <strong>mutual interference</strong>. The <strong>cognitive task (serial 7s) paid the bigger price</strong> (30% vs. 20%), which suggests this person <strong>prioritized walking</strong> &mdash; a &ldquo;posture-first&rdquo; strategy common in older adults.</span>
+        </span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 CLINICAL SECTION DIVIDER -->
+  <section class="screen" data-screen>
+    <div class="section-screen">
+      <div>
+        <div class="sec-num">Why it matters</div>
+        <h2>Dual-task cost as a clinical marker</h2>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 CLINICAL LINK: FALL RISK -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Clinical link</div>
+        <h2>Dual-task cost &amp; fall risk</h2>
+        <p>Why do clinicians care about a percentage? Because how much walking <em>costs</em> under load may flag who is at risk of <strong>falling</strong>. <strong>Flip all three</strong> findings to reveal the bottom line.</p>
+        <div class="flipgrid">
+          <button class="bflip" type="button" onclick="flipFall(this)"><span class="bf-inner">
+            <span class="bf-face bf-front"><div class="bf-h">Lundin-Olsson et al. (1997)</div><p>&ldquo;Stops walking when talking&rdquo; &mdash; a simple bedside observation.</p><span class="bf-hint">flip for the finding</span></span>
+            <span class="bf-face bf-back"><div class="bf-h">Lundin-Olsson (1997)</div><p>Older adults who <strong>stopped walking when they started talking</strong> were more likely to fall.</p></span>
+          </span></button>
+          <button class="bflip" type="button" onclick="flipFall(this)"><span class="bf-inner">
+            <span class="bf-face bf-front"><div class="bf-h">Beauchet et al. (2009)</div><p>Systematic review of 15 studies &mdash; how strong is the link?</p><span class="bf-hint">flip for the finding</span></span>
+            <span class="bf-face bf-back"><div class="bf-h">Beauchet (2009)</div><p>Dual-task changes in gait or the second task were linked to a <strong>roughly 5&times; higher odds of falling</strong>, especially in <strong>frail</strong> adults &mdash; though some studies found no link.</p></span>
+          </span></button>
+          <button class="bflip" type="button" onclick="flipFall(this)"><span class="bf-inner">
+            <span class="bf-face bf-front"><div class="bf-h">Muir-Hunter &amp; Wittwer (2016)</div><p>Prospective review (&ge;1-yr follow-up) &mdash; does it predict the future?</p><span class="bf-hint">flip for the finding</span></span>
+            <span class="bf-face bf-back"><div class="bf-h">Muir-Hunter &amp; Wittwer (2016)</div><p>Gait changes under dual-task conditions predicted <strong>future</strong> falls <strong>better than single-task gait</strong> alone.</p></span>
+          </span></button>
+        </div>
+        <p class="flip-hint-line" id="fallHint">Flip <strong>all three</strong> findings to reveal the bottom line.</p>
+        <div class="callout revealclinic" id="fallReveal">
+          <span class="clabel">Bottom line &mdash; the honest version</span>
+          <p>Dual-task cost is a <strong>promising marker</strong> of fall risk &mdash; but testing methods aren&rsquo;t <strong>standardized</strong> enough yet for firm clinical cut-offs. Use it as one signal among many, not a verdict.</p>
+        </div>
+        <p class="refline">Lundin-Olsson, L., et al. (1997). Stops walking when talking as a predictor of falls in elderly people. <em>Lancet, 349,</em> 617. <a href="https://doi.org/10.1016/S0140-6736(97)24009-2" target="_blank" rel="noopener">doi:10.1016/S0140-6736(97)24009-2</a> &middot; Beauchet, O., et al. (2009). Stops walking when talking: a predictor of falls in older adults? <em>Eur. J. Neurology, 16,</em> 786&ndash;795. <a href="https://doi.org/10.1111/j.1468-1331.2009.02612.x" target="_blank" rel="noopener">doi:10.1111/j.1468-1331.2009.02612.x</a> &middot; Muir-Hunter, S. W., &amp; Wittwer, J. E. (2016). Dual-task testing to predict falls in community-dwelling older adults. <em>Physiotherapy, 102,</em> 29&ndash;40. <a href="https://doi.org/10.1016/j.physio.2015.04.011" target="_blank" rel="noopener">doi:10.1016/j.physio.2015.04.011</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 METHOD 2: PROBE RT -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Method 2</div>
+        <h2>Probe reaction time</h2>
+        <p>The dual-task paradigm asks <em>whether</em> a task is demanding. <strong>Probe reaction time</strong> asks <em>when</em> &mdash; it maps how attention demand rises and falls <em>within</em> a single movement.</p>
+        <p>While doing a primary task, the person responds to a <strong>probe</strong> (e.g., a tone) as fast as possible. Probes are fired at <strong>different moments</strong>, and the logic is direct:</p>
+        <div class="callout why">
+          <span class="clabel">The rule</span>
+          <p><strong>Longer probe RT = more attention demanded</strong> by the primary task at that instant.</p>
+        </div>
+        <figure class="fig" style="max-width:520px">
+          <svg viewBox="0 0 520 150" role="img" aria-label="A primary-task timeline with four probes at different moments; probe reaction time is longer when the task demands more attention.">
+            <line x1="40" y1="96" x2="492" y2="96" stroke="#1a7f8e" stroke-width="2.5"/>
+            <text x="40" y="120" font-size="11" fill="#5a6a78">time &rarr;</text>
+            <text x="40" y="38" font-size="12" font-weight="800" fill="#146470">Primary task performance</text>
+            <!-- probes -->
+            <g font-size="10.5" fill="#9c6a1c" text-anchor="middle">
+              <circle cx="110" cy="96" r="6" fill="#e0a458"/><text x="110" y="78" font-weight="800">probe</text>
+              <circle cx="220" cy="96" r="6" fill="#e0a458"/><text x="220" y="78" font-weight="800">probe</text>
+              <circle cx="330" cy="96" r="6" fill="#e0a458"/><text x="330" y="78" font-weight="800">probe</text>
+              <circle cx="440" cy="96" r="6" fill="#e0a458"/><text x="440" y="78" font-weight="800">probe</text>
+            </g>
+            <text x="266" y="140" text-anchor="middle" font-size="10.5" fill="#7a8a99" font-style="italic">RT to each probe reveals the attention demand at that moment</text>
+          </svg>
+          <figcaption class="fig-cap">Probes are inserted at different points; a <strong>slower</strong> response marks a moment that demanded more attention (e.g., movement preparation vs. the movement itself).</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 PROBE RT EXAMPLE: LAJOIE -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">Probe RT &middot; a rehab example</div>
+        <h2>Balance takes attention (Lajoie et al., 1993)</h2>
+        <p>Lajoie and colleagues used probe RT to show, concretely, that <strong>staying upright is not &ldquo;free&rdquo;</strong> &mdash; it draws on attention, and more so the harder the balance demand. Predict each result, then <strong>flip both boxes</strong>.</p>
+        <div class="flipgrid g2">
+          <button class="bflip" type="button" onclick="flipLajoie(this)"><span class="bf-inner">
+            <span class="bf-face bf-front"><div class="bf-h">Across postures</div><p>Probe RT during <strong>sitting vs. standing vs. walking</strong> &mdash; which is slowest?</p><span class="bf-hint">predict, then flip</span></span>
+            <span class="bf-face bf-back"><div class="bf-h">Across postures</div><p>Probe RT was <strong>slower during walking</strong> than sitting or standing.<br><em>&rarr; Walking demands more attention than sitting or standing.</em></p></span>
+          </span></button>
+          <button class="bflip" type="button" onclick="flipLajoie(this)"><span class="bf-inner">
+            <span class="bf-face bf-front"><div class="bf-h">Within the gait cycle</div><p><strong>Single support</strong> (one foot) vs. <strong>double support</strong> (both feet) &mdash; which is slowest?</p><span class="bf-hint">predict, then flip</span></span>
+            <span class="bf-face bf-back"><div class="bf-h">Within the gait cycle</div><p>RT was slower during <strong>single support</strong> than double support.<br><em>&rarr; Balancing on one leg takes more attention than two.</em></p></span>
+          </span></button>
+        </div>
+        <p class="flip-hint-line" id="lajoieHint">Flip <strong>both</strong> boxes to see why this matters clinically.</p>
+        <div class="callout why revealclinic" id="lajoieReveal">
+          <span class="clabel">Why this matters clinically</span>
+          <p>If balance itself consumes attention, then a patient with <strong>reduced balance</strong> (after stroke, with neuropathy, in aging) has <strong>less attention left over</strong> for anything else &mdash; which is exactly why dual-task walking exposes their risk.</p>
+        </div>
+        <p class="refline">Lajoie, Y., Teasdale, N., Bard, C., &amp; Fleury, M. (1993). Attentional demands for static and dynamic equilibrium. <em>Experimental Brain Research, 97</em>(1), 139&ndash;144. <a href="https://doi.org/10.1007/BF00228824" target="_blank" rel="noopener">doi:10.1007/BF00228824</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 KNOWLEDGE CHECK (gate) -->
+  <section class="screen" data-screen data-gate="kc">
+    <div class="inner">
+      <div class="kc-card">
+        <div class="eyebrow">Knowledge check</div>
+        <div class="kc-q">A patient&rsquo;s <strong>gait speed</strong> drops from <strong>1.20 m/s</strong> (walking alone) to <strong>0.90 m/s</strong> (walking while naming animals). Gait speed is a higher-is-better measure. What is the dual-task cost?</div>
+        <div id="kcChoice">
+          <button type="button" class="kc-opt" data-correct="0">&minus;25% (performance improved)</button>
+          <button type="button" class="kc-opt" data-correct="1">+25% (performance got worse)</button>
+          <button type="button" class="kc-opt" data-correct="0">+30%</button>
+          <button type="button" class="kc-opt" data-correct="0">0% (no change)</button>
+        </div>
+        <div id="kcFb" role="status" style="margin-top:14px;font-size:14.5px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 SUMMARY -->
+  <section class="screen" data-screen>
+    <div class="inner">
+      <div class="card">
+        <div class="eyebrow">What you can now do</div>
+        <h2>Summary &amp; the next step</h2>
+        <ul class="obj-list">
+          <li><span class="obj-num">1</span><span class="txt">The <strong>dual-task paradigm</strong> compares single- vs. dual-task performance; priority instructions shape which task suffers, and interference is often <strong>mutual</strong>.</span></li>
+          <li><span class="obj-num">2</span><span class="txt"><strong>Dual-task cost</strong> turns that into a percentage &mdash; positive means worse &mdash; using the form that fits the measure.</span></li>
+          <li><span class="obj-num">3</span><span class="txt">DTC is a <strong>promising but not-yet-standardized</strong> marker of fall risk (Lundin-Olsson; Beauchet ~5&times;; Muir-Hunter &amp; Wittwer).</span></li>
+          <li><span class="obj-num">4</span><span class="txt"><strong>Probe RT</strong> maps attention demand <em>within</em> a movement; balance itself is attention-demanding (Lajoie).</span></li>
+        </ul>
+        <div class="callout why" style="margin-top:18px">
+          <span class="clabel">Next up</span>
+          <p><strong>Lesson 3 &mdash; Automaticity &amp; Practice:</strong> why the Stroop effect is unstoppable, how practice turns controlled processing automatic, and why a second task hurts a novice but not an expert.</p>
+        </div>
+        <div class="callout">
+          <span class="clabel">Completion code</span>
+          <p>Your passphrase for this lesson is <strong>DUAL-TASK</strong>. Enter it in the Canvas quiz to record completion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="navbar" aria-label="Lesson navigation">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btnBack">&larr; Back</button>
+    <div class="dots" id="dots" aria-label="Jump to screen"></div>
+    <span class="lockmsg" id="lockmsg" hidden>Answer to continue</span>
+    <button class="btn btn-next" id="btnNext">Next &rarr;</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var screens=[].slice.call(document.querySelectorAll("[data-screen]"));
+  var cur=0, furthest=0, answered={}, TOT=screens.length;
+  document.getElementById("scTot").textContent=TOT;
+  var dotsWrap=document.getElementById("dots");
+  screens.forEach(function(_,i){
+    var b=document.createElement("button");
+    b.className="dotnav"; b.type="button";
+    b.setAttribute("aria-label","Screen "+(i+1)+" of "+TOT);
+    b.onclick=function(){ if(i<=furthest) show(i); };
+    dotsWrap.appendChild(b);
+  });
+  function locked(i){ var g=screens[i].dataset.gate; return g && !answered[g]; }
+  var GATEMSG={kc:"Answer to continue"};
+  function show(i){
+    screens[cur].classList.remove("active");
+    cur=i; screens[cur].classList.add("active");
+    if(cur>furthest) furthest=cur;
+    document.getElementById("scNow").textContent=cur+1;
+    document.getElementById("pfill").style.width=(cur/(TOT-1)*100)+"%";
+    document.getElementById("btnBack").disabled=(cur===0);
+    var nx=document.getElementById("btnNext"), last=(cur===TOT-1);
+    nx.textContent=last?"Finish":"Next →";
+    nx.disabled=!last && locked(cur);
+    var lm=document.getElementById("lockmsg");
+    lm.hidden=!(!last && locked(cur));
+    lm.textContent=GATEMSG[screens[cur].dataset.gate]||"Answer to continue";
+    [].forEach.call(dotsWrap.children,function(d,j){
+      d.className="dotnav"+(j===cur?" cur":(j<=furthest?" done":""));
+      d.disabled=j>furthest;
+    });
+    window.scrollTo(0,0);
+    var h=screens[cur].querySelector("h1,h2");
+    if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  }
+  function go(d){ var t=cur+d; if(t<0||t>=TOT)return; if(d>0&&locked(cur))return; show(t); }
+  document.getElementById("btnNext").onclick=function(){go(1);};
+  document.getElementById("btnBack").onclick=function(){go(-1);};
+  document.addEventListener("keydown",function(e){
+    if(e.target.matches("input,textarea"))return;
+    if(e.key==="ArrowRight")go(1);
+    if(e.key==="ArrowLeft")go(-1);
+  });
+  function openGate(g){ answered[g]=true; if(screens[cur].dataset.gate===g){ document.getElementById("btnNext").disabled=false; document.getElementById("lockmsg").hidden=true; } }
+  window.doFlip=function(card){ card.classList.toggle("flipped"); };
+
+  // ---------- Reveal-after-all-flipped helpers ----------
+  function makeFlipReveal(revealId, hintId){
+    return function(btn){
+      btn.classList.toggle("flipped");
+      var grid=btn.closest(".flipgrid"); if(!grid) return;
+      var all=[].slice.call(grid.querySelectorAll(".bflip"));
+      if(all.length>0 && all.every(function(b){ return b.classList.contains("flipped"); })){
+        var rv=document.getElementById(revealId); if(rv) rv.classList.add("show");
+        var h=document.getElementById(hintId); if(h) h.classList.add("gone");
+      }
+    };
+  }
+  window.flipFall=makeFlipReveal("fallReveal","fallHint");
+  window.flipLajoie=makeFlipReveal("lajoieReveal","lajoieHint");
+
+  // ---------- DTC calculator ----------
+  (function(){
+    var STORE_KEY="hlsc4025-attention-tapping";
+    var s1=document.getElementById("single1"), d1=document.getElementById("dual1"),
+        s2=document.getElementById("single2"), d2=document.getElementById("dual2"),
+        o1=document.getElementById("out1"), o2=document.getElementById("out2"),
+        src=document.getElementById("dtcSrc"), note=document.getElementById("dtcNote");
+    function dtc(single,dual){
+      single=parseFloat(single); dual=parseFloat(dual);
+      if(!isFinite(single)||!isFinite(dual)||single===0) return null;
+      return Math.round((single-dual)/single*1000)/10;
+    }
+    function paintOut(out,val){
+      if(val===null){ out.textContent="—"; out.className="dtc-out"; return; }
+      out.textContent=(val>0?"+":"")+val+"%";
+      out.className="dtc-out"+(val>0?" pos":(val<0?" neg":""));
+    }
+    function recompute(){
+      var v1=dtc(s1.value,d1.value), v2=dtc(s2.value,d2.value);
+      paintOut(o1,v1); paintOut(o2,v2);
+      if(v1!==null && v2!==null){
+        note.hidden=false;
+        var bigger = v2>v1 ? "tracing" : (v1>v2 ? "counting" : "both equally");
+        note.innerHTML = "Your bigger cost came from <strong>"+bigger+"</strong>"+
+          (bigger==="tracing" ? " &mdash; a spatial/manual task that competes with tapping for the same resources (Wickens)." :
+           bigger==="counting" ? " &mdash; interesting! For most people tracing costs more, but individual results vary." :
+           " &mdash; the two second tasks cost you about the same.");
+      } else { note.hidden=true; }
+    }
+    function loadFromStore(){
+      var saved=null;
+      try{ saved=JSON.parse(localStorage.getItem(STORE_KEY)||"null"); }catch(e){}
+      if(saved && saved.taps && saved.taps[0]!=null){
+        var t=saved.taps;
+        s1.value=t[0]; d1.value=(t[1]!=null?t[1]:"");
+        s2.value=t[0]; d2.value=(t[2]!=null?t[2]:"");
+        src.innerHTML="&#10003; Loaded <b>your Lesson 1 tapping data</b> (tap alone "+t[0]+
+          (t[1]!=null?", +count "+t[1]:"")+(t[2]!=null?", +trace "+t[2]:"")+").";
+        recompute(); return true;
+      }
+      return false;
+    }
+    function loadExample(){
+      s1.value=52; d1.value=40; s2.value=52; d2.value=33;
+      src.innerHTML="Showing <b>example data</b> (not yours): tap alone 52, +count 40, +trace 33.";
+      recompute();
+    }
+    [s1,d1,s2,d2].forEach(function(inp){ inp.addEventListener("input",recompute); });
+    document.getElementById("dtcLoad").addEventListener("click",function(){
+      if(!loadFromStore()){ src.innerHTML="No saved Lesson 1 data found in this browser. Try <b>Load example</b>, or type numbers in."; }
+    });
+    document.getElementById("dtcExample").addEventListener("click",loadExample);
+    document.getElementById("dtcClear").addEventListener("click",function(){
+      s1.value=d1.value=s2.value=d2.value=""; recompute();
+      src.innerHTML="Cleared. Enter numbers, or load your Lesson 1 data.";
+    });
+    // auto-load on first view
+    if(!loadFromStore()){ src.innerHTML="No saved Lesson 1 data found yet &mdash; tap <b>Use my Lesson 1 data</b> if you did the demo, or <b>Load example</b>."; }
+  })();
+
+  // ---------- Knowledge check ----------
+  (function(){
+    var wrap=document.getElementById("kcChoice"); if(!wrap) return;
+    var fb=document.getElementById("kcFb"); var locked=false;
+    wrap.addEventListener("click",function(e){
+      var b=e.target.closest(".kc-opt"); if(!b||locked) return;
+      if(b.dataset.correct==="1"){
+        locked=true;
+        b.style.borderColor="#2e9e6b"; b.style.background="#eafaf1"; b.style.color="#1d6b47"; b.style.fontWeight="700";
+        fb.style.color="#1d6b47";
+        fb.innerHTML="&#10003; Correct. (1.20 &minus; 0.90) / 1.20 &times; 100 = <strong>+25%</strong> &mdash; a positive cost, so gait got <strong>worse</strong> under the dual task.";
+        openGate("kc");
+      } else {
+        b.style.borderColor="#d9534f"; b.style.background="#fdeeee"; b.style.color="#a3403c";
+        fb.style.color="#a3403c";
+        fb.innerHTML="Not quite &mdash; use (Single &minus; Dual) / Single &times; 100 with Single = 1.20, Dual = 0.90.";
+      }
+    });
+  })();
+
+  show(0);
+})();
+</script>
+</body>
+</html>
