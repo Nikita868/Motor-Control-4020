@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turning Passive Lectures into Active Lessons — Dr. Nikita Kuznetsov</title>
+<meta name="description" content="Five interactive online lessons on attention and motor control, converted from in-person lectures for an asynchronous course at the University of Cincinnati.">
+<style>
+  :root{
+    --ink:#2c3e50; --muted:#7a8a99; --line:#e6eaee; --bg:#ffffff;
+    --page:#f5f7f9; --accent:#1a7f8e; --accent-dark:#146470;
+    --accent-soft:#e8f4f6; --gold:#e0a458; --gold-soft:#fdf4e6; --gold-dark:#b9802f;
+    --shadow:0 2px 18px rgba(40,60,80,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--page);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent-dark)}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+
+  header.hero{background:linear-gradient(140deg,#15414c,#1a7f8e 72%);color:#fff;padding:52px 0 44px}
+  .kicker{font-size:12px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:#bfe3e8;margin-bottom:12px}
+  .hero h1{margin:0 0 12px;font-size:36px;line-height:1.15;letter-spacing:-.5px}
+  .hero .who{font-size:16px;color:#e3f0f3}
+  .hero .who b{color:#fff}
+  .hero .event{margin-top:14px;display:inline-block;font-size:13px;font-weight:700;color:#15414c;background:var(--gold);border-radius:8px;padding:5px 12px;line-height:1.4}
+  @media(max-width:600px){.hero h1{font-size:28px}header.hero{padding:40px 0 34px}}
+
+  .intro{background:var(--bg);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:24px 26px;margin:-22px 0 26px;position:relative}
+  .intro p{margin:0 0 10px;font-size:16px;color:#3d4d5c}
+  .intro p:last-child{margin-bottom:0}
+
+  .tip{display:flex;gap:12px;align-items:flex-start;background:var(--gold-soft);border:1px solid #ecd2a8;border-radius:10px;padding:14px 18px;margin:0 0 26px;font-size:14.5px;color:#6e5426}
+  .tip .ic{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .tip b{color:#5a4218}
+
+  h2{font-size:21px;margin:30px 0 14px;letter-spacing:-.2px}
+
+  .lessons{display:grid;gap:14px}
+  .lesson{display:flex;gap:16px;align-items:stretch;background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s,box-shadow .15s}
+  .lesson:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 6px 22px rgba(26,127,142,.14)}
+  .lesson .num{flex:none;width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#15414c,#1a7f8e);color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center}
+  .lesson .body{flex:1;min-width:0}
+  .lesson h3{margin:0 0 3px;font-size:17px;color:var(--ink)}
+  .lesson .desc{margin:0 0 9px;font-size:14.5px;color:#556676}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12px;font-weight:700;color:var(--accent-dark);background:var(--accent-soft);border:1px solid #cfe6ea;border-radius:20px;padding:3px 10px}
+  .chip.try{color:var(--gold-dark);background:var(--gold-soft);border-color:#ecd2a8}
+  .lesson .go{flex:none;align-self:center;font-size:13.5px;font-weight:800;color:var(--accent);white-space:nowrap}
+  @media(max-width:600px){.lesson{flex-wrap:wrap}.lesson .go{width:100%;text-align:right}}
+
+  .design{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.design{grid-template-columns:1fr}}
+  .dcard{background:var(--bg);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:10px;padding:14px 16px}
+  .dcard:nth-child(even){border-top-color:var(--gold)}
+  .dcard b{display:block;font-size:14.5px;margin-bottom:3px;color:var(--ink)}
+  .dcard span{font-size:14px;color:#556676}
+
+  .how{background:var(--accent-soft);border:1px solid #cfe6ea;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:16px 20px;font-size:15px;color:#245a63}
+  .how p{margin:0 0 8px}
+  .how p:last-child{margin-bottom:0}
+
+  footer{margin:40px 0 46px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Teaching innovation showcase</div>
+    <h1>Turning Passive Lectures into Active Lessons</h1>
+    <div class="who"><b>Dr. Nikita Kuznetsov</b> &middot; Associate Professor-Educator &middot; College of Allied Health Sciences, University of Cincinnati</div>
+    <div class="event">Fall Golden Apple Teaching Innovations Workshop &middot; 2026</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    <p>These five interactive lessons make up the <strong>Attention</strong> unit of HLSC 4020, an asynchronous online motor control course for students headed into physical therapy, occupational therapy, and dentistry. Each one began as in-person lecture slides and classroom activities, and was rebuilt as a self-paced lesson that keeps the &ldquo;do something, then talk about it&rdquo; style of the live class.</p>
+    <p>Try them yourself. They run in any web browser, on a laptop or a phone, with no login.</p>
+  </div>
+
+  <div class="tip">
+    <span class="ic">!</span>
+    <div><b>Best way to try them:</b> start with <b>Lesson 1</b> and do the tapping demo (a laptop trackpad works best). Then open <b>Lesson 2</b> in the same browser. Its calculator pulls in <em>your own</em> tapping data to compute your dual-task cost. Some screens ask a question before you can continue, just as students experience them.</div>
+  </div>
+
+  <h2>The lessons</h2>
+  <div class="lessons">
+
+    <a class="lesson" href="W13-Lesson1-AttentionLimitedResource.html">
+      <span class="num">1</span>
+      <span class="body">
+        <h3>Attention as a Limited Resource</h3>
+        <p class="desc">Why doing two things at once costs us, from bottleneck theories to Kahneman's capacity model and Wickens' multiple resources.</p>
+        <span class="chips"><span class="chip try">Try: tapping dual-task demo</span><span class="chip">Clickable theory models</span><span class="chip">Flip cards</span></span>
+      </span>
+      <span class="go">Open &rarr;</span>
+    </a>
+
+    <a class="lesson" href="W13-Lesson2-MeasuringAttention.html">
+      <span class="num">2</span>
+      <span class="body">
+        <h3>Measuring Attention Demands</h3>
+        <p class="desc">The dual-task paradigm, dual-task cost as a clinical marker of fall risk, and probe reaction time.</p>
+        <span class="chips"><span class="chip try">Try: calculator using your Lesson 1 data</span><span class="chip">Worked clinical example</span></span>
+      </span>
+      <span class="go">Open &rarr;</span>
+    </a>
+
+    <a class="lesson" href="W13-Lesson3-AutomaticityPractice.html">
+      <span class="num">3</span>
+      <span class="body">
+        <h3>Automaticity &amp; Practice</h3>
+        <p class="desc">How practice turns effortful, controlled skills into automatic ones, and why a second task hurts a novice but not an expert.</p>
+        <span class="chips"><span class="chip try">Try: timed Stroop task</span><span class="chip">Predict, then reveal</span></span>
+      </span>
+      <span class="go">Open &rarr;</span>
+    </a>
+
+    <a class="lesson" href="W13-Lesson4-DirectingAttention.html">
+      <span class="num">4</span>
+      <span class="body">
+        <h3>Directing Attention</h3>
+        <p class="desc">Inattentional blindness, internal vs. external focus of attention, and how to write a cue that helps a patient move better.</p>
+        <span class="chips"><span class="chip try">Try: &ldquo;invisible gorilla&rdquo; video</span><span class="chip try">Try: cue rewriter</span></span>
+      </span>
+      <span class="go">Open &rarr;</span>
+    </a>
+
+    <a class="lesson" href="W13-Lesson5-AttentionUnderPressure.html">
+      <span class="num">5</span>
+      <span class="body">
+        <h3>Attention Under Pressure</h3>
+        <p class="desc">Why skilled performers choke, the three mechanisms behind it, and why &ldquo;don't mess up&rdquo; backfires.</p>
+        <span class="chips"><span class="chip">Expandable mechanism cards</span><span class="chip try">Try: &ldquo;don't&rdquo; &rarr; &ldquo;do&rdquo; cue flips</span></span>
+      </span>
+      <span class="go">Open &rarr;</span>
+    </a>
+
+  </div>
+
+  <h2>What makes them active</h2>
+  <div class="design">
+    <div class="dcard"><b>Demos that generate students' own data</b><span>Students run the experiment on themselves, then analyze their own numbers in the next lesson.</span></div>
+    <div class="dcard"><b>Predict, then reveal</b><span>Flip cards and click-to-reveal tables ask students to commit to an answer before they see it.</span></div>
+    <div class="dcard"><b>Gated knowledge checks</b><span>Applied, clinical questions must be answered before moving on, so students can't just click through.</span></div>
+    <div class="dcard"><b>Clinical framing throughout</b><span>Examples are drawn from PT, OT, and dentistry so concepts connect to students' future practice.</span></div>
+    <div class="dcard"><b>Linked primary sources</b><span>Every study cited links to the original paper, so students can go to the source.</span></div>
+    <div class="dcard"><b>Accountability built in</b><span>Each lesson ends with a completion code students enter in a Canvas quiz.</span></div>
+  </div>
+
+  <h2>How they were made</h2>
+  <div class="how">
+    <p>I built these lessons with Claude, an AI assistant from Anthropic, working from my own lecture slides, activities, and research sources. I provided the content, the pedagogical design, and review of every screen, revising each lesson over several rounds of feedback. Each lesson tells students on its title page that it was built with AI tools and reviewed by the instructor.</p>
+    <p>Technically, each lesson is a single self-contained web page, hosted free on GitHub Pages and embedded in Canvas.</p>
+  </div>
+
+  <footer>
+    Dr. Nikita Kuznetsov &middot; Department of Rehabilitation, Exercise, &amp; Nutrition Sciences &middot; University of Cincinnati
+  </footer>
+
+</div>
+</body>
+</html>
